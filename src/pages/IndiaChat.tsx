@@ -15,7 +15,7 @@ export default function IndiaChat() {
   return (
     <PageLayout
       title="India Chat"
-      description="Connect with team members in India."
+      description="Post, Engage, and get Feedback to Maximise your visibility."
       icon={<MessageCircle className="h-5 w-5" />}
     >
       <div className="flex flex-col h-[calc(100vh-220px)] max-w-3xl">
