@@ -153,9 +153,9 @@ export default function IndiaChat() {
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col gap-6 max-w-4xl mx-auto">
           {/* Posting Guidelines */}
-          <Card className="lg:w-80 shrink-0 bg-card h-fit">
+          <Card className="bg-card">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Info className="h-5 w-5 text-primary" />
@@ -164,8 +164,8 @@ export default function IndiaChat() {
             </CardHeader>
             <CardContent>
               <h4 className="font-semibold text-sm text-foreground mb-3">What This Channel is For:</h4>
-              <ul className="space-y-3">
-                <li className="flex gap-3">
+              <div className="grid sm:grid-cols-3 gap-4">
+                <div className="flex gap-3">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <Link className="h-4 w-4" />
                   </div>
@@ -175,8 +175,8 @@ export default function IndiaChat() {
                       Drop links to your LinkedIn, Twitter, or other platform content
                     </p>
                   </div>
-                </li>
-                <li className="flex gap-3">
+                </div>
+                <div className="flex gap-3">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <Users className="h-4 w-4" />
                   </div>
@@ -186,8 +186,8 @@ export default function IndiaChat() {
                       Organize mutual engagement to increase reach and visibility
                     </p>
                   </div>
-                </li>
-                <li className="flex gap-3">
+                </div>
+                <div className="flex gap-3">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <MessageSquare className="h-4 w-4" />
                   </div>
@@ -197,13 +197,13 @@ export default function IndiaChat() {
                       Receive input on Project
                     </p>
                   </div>
-                </li>
-              </ul>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
           {/* Chat Area */}
-          <div className="flex flex-col flex-1 max-w-3xl">
+          <div className="flex flex-col">
             <Card className="bg-card">
               <CardContent className="p-4 space-y-4">
                 {messages.map((msg) => (
