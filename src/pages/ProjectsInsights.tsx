@@ -56,7 +56,7 @@ export default function ProjectsInsights() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Hero Banner with Title - Sticky */}
-      <div className="sticky top-0 z-30 shrink-0 relative h-32 md:h-40 overflow-hidden">
+      <div className="sticky top-0 z-30 shrink-0 relative h-16 md:h-20 overflow-hidden">
         <img
           src={projectsInsightsHero}
           alt="Projects Insights banner"
@@ -64,15 +64,12 @@ export default function ProjectsInsights() {
         />
         <div className="absolute inset-0 bg-gradient-to-r from-secondary/80 to-secondary/40" />
         <div className="absolute inset-0 flex items-center px-6 md:px-12">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 text-primary-foreground backdrop-blur-sm">
-              <Lightbulb className="h-6 w-6" />
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 text-primary-foreground backdrop-blur-sm">
+              <Lightbulb className="h-4 w-4" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-secondary-foreground">Projects Insights</h1>
-              <p className="text-xs md:text-sm text-secondary-foreground/80 mt-1">
-                Actionable strategies and practical software tips from our projects.
-              </p>
+              <h1 className="text-lg md:text-xl font-bold text-secondary-foreground">Projects Insights</h1>
             </div>
           </div>
         </div>
