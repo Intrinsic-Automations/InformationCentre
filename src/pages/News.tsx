@@ -1,7 +1,7 @@
 import { Newspaper, ExternalLink } from "lucide-react";
-import { PageLayout } from "@/components/layout/PageLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import newsHero from "@/assets/news-hero.jpg";
 
 const newsItems = [
   {
@@ -26,31 +26,53 @@ const newsItems = [
 
 export default function News() {
   return (
-    <PageLayout
-      title="News"
-      description="Industry news and updates relevant to our work."
-      icon={<Newspaper className="h-5 w-5" />}
-    >
-      <div className="max-w-3xl space-y-4">
-        {newsItems.map((item, index) => (
-          <Card key={index} className="bg-card hover:bg-card/80 transition-colors">
-            <CardHeader className="pb-2">
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-lg">{item.title}</CardTitle>
-                  <CardDescription>{item.source} • {item.date}</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="flex items-end justify-between gap-4">
-              <p className="text-sm text-foreground/80">{item.summary}</p>
-              <Button variant="ghost" size="sm" className="gap-2 shrink-0">
-                Read <ExternalLink className="h-3 w-3" />
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+    <div className="flex flex-col h-full">
+      {/* Hero Banner with Title */}
+      <div className="relative h-48 md:h-56 overflow-hidden">
+        <img
+          src={newsHero}
+          alt="News banner"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-secondary/80 to-secondary/40" />
+        <div className="absolute inset-0 flex items-center px-6 md:px-12">
+          <div className="flex items-center gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/20 text-primary-foreground backdrop-blur-sm">
+              <Newspaper className="h-7 w-7" />
+            </div>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-secondary-foreground">News</h1>
+              <p className="text-sm md:text-base text-secondary-foreground/80 mt-1">
+                Industry news and updates relevant to our work.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
-    </PageLayout>
+
+      {/* Content */}
+      <div className="flex-1 overflow-auto p-6">
+        <div className="max-w-3xl space-y-4">
+          {newsItems.map((item, index) => (
+            <Card key={index} className="bg-card hover:bg-card/80 transition-colors">
+              <CardHeader className="pb-2">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle className="text-lg">{item.title}</CardTitle>
+                    <CardDescription>{item.source} • {item.date}</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="flex items-end justify-between gap-4">
+                <p className="text-sm text-foreground/80">{item.summary}</p>
+                <Button variant="ghost" size="sm" className="gap-2 shrink-0">
+                  Read <ExternalLink className="h-3 w-3" />
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
