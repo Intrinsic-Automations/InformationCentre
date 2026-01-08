@@ -7,30 +7,58 @@ import winsHero from "@/assets/wins-hero.jpg";
 
 const wins = [
   {
-    user: "James Wilson",
-    initials: "JW",
-    title: "Closed Enterprise Deal!",
-    description: "Just signed our biggest enterprise client this quarter! Thanks to everyone who helped with the proposal. Team effort! 🎉",
-    likes: 24,
-    comments: 8,
-    date: "2 hours ago",
+    user: "Sarah Mitchell",
+    initials: "SM",
+    title: "Landed My First $15K Client! 🎉",
+    description: `After 3 months of consistent outreach, I finally closed my first major client!
+
+**How I got this client:** Cold outreach via LinkedIn. Sent about 50 personalized messages over 2 weeks targeting marketing agencies. This one responded after I commented on their posts for a week first.
+
+**What I'm building:** A complete CRM automation system using Make.com and Airtable. It will handle their lead nurturing, client onboarding, and reporting dashboards.
+
+**Pricing strategy:** I used the value-based pricing approach from the eQ training. Estimated they'd save 20+ hours/month, so I priced at $15K for the initial build + $500/month retainer.
+
+**Struggles overcome:** Almost gave up after the first 30 messages got no responses. Changed my approach to engage with their content first before pitching - that made all the difference.
+
+**Helpful resources:** The "Cold Outreach Mastery" module and the pricing calculator template were game changers!`,
+    likes: 89,
+    comments: 23,
+    date: "3 hours ago",
   },
   {
-    user: "Emily Zhang",
-    initials: "EZ",
-    title: "Product Launch Success",
-    description: "Our new feature went live with zero downtime and amazing user feedback. Huge shoutout to the engineering team!",
-    likes: 45,
-    comments: 12,
+    user: "Marcus Chen",
+    initials: "MC",
+    title: "Breakthrough: From $0 to $5K MRR in 60 Days",
+    description: `Finally hit my goal of $5K monthly recurring revenue!
+
+**How I got these clients:** Mix of referrals (2 clients) and networking in local business groups (3 clients). Joined 3 BNI-style groups and positioned myself as "the automation guy."
+
+**What I'm building:** Mostly small automation packages - email sequences, social media scheduling, and basic CRM setups. Nothing fancy, but solves real problems.
+
+**Pricing strategy:** Started with a $997 setup fee + $500/month. After feedback here, I raised to $1,500 setup + $750/month. No pushback from clients!
+
+**Key insight for others:** Don't underestimate local networking. Everyone talks about online, but face-to-face trust is still powerful. These clients signed faster than any cold outreach I've done.`,
+    likes: 156,
+    comments: 41,
     date: "1 day ago",
   },
   {
-    user: "David Kumar",
-    initials: "DK",
-    title: "Customer Satisfaction Milestone",
-    description: "We hit 95% customer satisfaction score this month! This is our highest ever. Keep up the great work everyone!",
-    likes: 67,
-    comments: 15,
+    user: "Jessica Park",
+    initials: "JP",
+    title: "Just Signed a 6-Month Retainer Contract! 📝",
+    description: `Big win - converted a one-time project client into a 6-month retainer!
+
+**How it happened:** Delivered a lead gen automation 2 months ago. Kept in touch, shared optimization tips, and when they mentioned scaling, I proposed a retainer for ongoing improvements.
+
+**What I'm building:** Expanding their automation stack - adding AI-powered lead scoring, automated follow-ups, and a client portal.
+
+**Pricing:** $3,500/month for 15 hours of work + priority support. Used the retainer proposal template from the resources section.
+
+**Struggles:** Client initially wanted hourly billing. Had to demonstrate the value of predictable monthly costs for them and consistent income for me. The "retainer objection handling" script helped a lot!
+
+**Tip for others:** Your best new clients are often your existing clients. Don't forget to nurture those relationships!`,
+    likes: 72,
+    comments: 18,
     date: "2 days ago",
   },
 ];
@@ -206,8 +234,10 @@ export default function Wins() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <h3 className="font-semibold text-foreground mb-2">{win.title}</h3>
-                  <p className="text-sm text-foreground/80 mb-4">{win.description}</p>
+                  <h3 className="font-semibold text-foreground mb-3">{win.title}</h3>
+                  <div className="text-sm text-foreground/80 mb-4 whitespace-pre-line prose prose-sm max-w-none">
+                    {win.description}
+                  </div>
                   <div className="flex items-center gap-4">
                     <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-primary">
                       <Heart className="h-4 w-4" /> {win.likes}
