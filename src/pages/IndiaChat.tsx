@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const messages = [
-  { user: "Priya S.", initials: "PS", message: "Just posted my latest article on digital transformation trends! Would love some engagement 🙏 https://linkedin.com/in/priyas/posts/123", time: "9:00 AM" },
-  { user: "Rahul M.", initials: "RM", message: "Done! Left a comment and shared it. Great insights on cloud migration, Priya! Here's my Twitter thread on API best practices if anyone can RT: https://twitter.com/rahulm/status/456", time: "9:05 AM" },
-  { user: "Anita K.", initials: "AK", message: "Engaged with both! 👍 Quick question - I'm drafting a post about remote team productivity. Should I focus more on tools or culture? Would appreciate feedback before I publish.", time: "9:15 AM" },
-  { user: "Vikram P.", initials: "VP", message: "@Anita I'd say culture first, then mention tools as enablers. That angle tends to get more engagement. Happy to review a draft if you want!", time: "9:22 AM" },
-  { user: "Priya S.", initials: "PS", message: "Thanks everyone for the support! Already seeing 3x more impressions than usual. Let's keep this momentum going 🚀", time: "9:30 AM" },
+  { user: "Priya S.", initials: "PS", message: "Just shared my project proposal for the new CRM integration! Would love some feedback on the timeline estimates 🙏 https://docs.company.com/projects/crm-integration", time: "9:00 AM" },
+  { user: "Rahul M.", initials: "RM", message: "Reviewed it! The architecture looks solid. One suggestion - consider adding a buffer week for the API testing phase. Here's my migration project doc if anyone can take a look: https://docs.company.com/projects/data-migration", time: "9:05 AM" },
+  { user: "Anita K.", initials: "AK", message: "Great work on both! 👍 I'm putting together a project plan for the client onboarding automation. Should I prioritize the workflow engine or the notification system first? Would appreciate input before the stakeholder meeting.", time: "9:15 AM" },
+  { user: "Vikram P.", initials: "VP", message: "@Anita I'd recommend workflow engine first - it's the foundation everything else depends on. Happy to jump on a quick call to review the scope if needed!", time: "9:22 AM" },
+  { user: "Priya S.", initials: "PS", message: "Thanks everyone for the valuable feedback! Already incorporated the suggestions. This kind of collaboration really helps improve our project quality 🚀", time: "9:30 AM" },
 ];
 
 export default function IndiaChat() {
