@@ -41,17 +41,21 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <SidebarProvider>
-          <div className="min-h-screen flex flex-col w-full">
-            <BrandingBanner />
-            <div className="flex flex-1">
+          <div className="h-screen flex flex-col w-full overflow-hidden">
+            <div className="sticky top-0 z-50 shrink-0">
+              <BrandingBanner />
+            </div>
+            <div className="flex flex-1 overflow-hidden">
               <AppSidebar />
-              <div className="flex-1 flex flex-col">
-                <header className="border-b border-border bg-card flex items-center px-4 lg:hidden h-14">
+              <div className="flex-1 flex flex-col overflow-hidden">
+                <header className="border-b border-border bg-card flex items-center px-4 lg:hidden h-14 shrink-0">
                   <SidebarTrigger>
                     <Menu className="h-5 w-5" />
                   </SidebarTrigger>
                 </header>
-                <TopNav />
+                <div className="sticky top-0 z-40 shrink-0">
+                  <TopNav />
+                </div>
                 <main className="flex-1 overflow-auto bg-background">
                 <Routes>
                   <Route path="/" element={<Navigate to="/onboarding" replace />} />

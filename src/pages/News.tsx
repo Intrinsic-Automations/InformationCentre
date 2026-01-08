@@ -26,9 +26,9 @@ const newsItems = [
 
 export default function News() {
   return (
-    <div className="flex flex-col h-full">
-      {/* Hero Banner with Title */}
-      <div className="relative h-48 md:h-56 overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* Hero Banner with Title - Sticky */}
+      <div className="sticky top-0 z-30 shrink-0 relative h-32 md:h-40 overflow-hidden">
         <img
           src={newsHero}
           alt="News banner"
@@ -37,12 +37,12 @@ export default function News() {
         <div className="absolute inset-0 bg-gradient-to-r from-secondary/80 to-secondary/40" />
         <div className="absolute inset-0 flex items-center px-6 md:px-12">
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/20 text-primary-foreground backdrop-blur-sm">
-              <Newspaper className="h-7 w-7" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 text-primary-foreground backdrop-blur-sm">
+              <Newspaper className="h-6 w-6" />
             </div>
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-secondary-foreground">News</h1>
-              <p className="text-sm md:text-base text-secondary-foreground/80 mt-1">
+              <h1 className="text-2xl md:text-3xl font-bold text-secondary-foreground">News</h1>
+              <p className="text-xs md:text-sm text-secondary-foreground/80 mt-1">
                 Industry news and updates relevant to our work.
               </p>
             </div>
