@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { MessageCircle, Send, Info, Link, Users, MessageSquare, Heart, MessageCircleMore } from "lucide-react";
-import { PageLayout } from "@/components/layout/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import indiaChatHero from "@/assets/india-chat-hero.jpg";
 
 interface Comment {
   user: string;
@@ -127,159 +127,181 @@ export default function IndiaChat() {
   };
 
   return (
-    <PageLayout
-      title="India Chat"
-      description="Post, Engage, and get Feedback to Maximise your visibility."
-      icon={<MessageCircle className="h-5 w-5" />}
-    >
-      <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-220px)]">
-        {/* Posting Guidelines */}
-        <Card className="lg:w-80 shrink-0 bg-card">
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              <Info className="h-5 w-5 text-primary" />
-              <CardTitle className="text-lg">Posting Guidelines</CardTitle>
+    <div className="flex flex-col h-full">
+      {/* Hero Banner with Title */}
+      <div className="relative h-48 md:h-56 overflow-hidden">
+        <img
+          src={indiaChatHero}
+          alt="India Chat banner"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-secondary/80 to-secondary/40" />
+        <div className="absolute inset-0 flex items-center px-6 md:px-12">
+          <div className="flex items-center gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/20 text-primary-foreground backdrop-blur-sm">
+              <MessageCircle className="h-7 w-7" />
             </div>
-          </CardHeader>
-          <CardContent>
-            <h4 className="font-semibold text-sm text-foreground mb-3">What This Channel is For:</h4>
-            <ul className="space-y-3">
-              <li className="flex gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Link className="h-4 w-4" />
-                </div>
-                <div>
-                  <span className="text-sm font-medium text-foreground">Sharing your posts</span>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Drop links to your LinkedIn, Twitter, or other platform content
-                  </p>
-                </div>
-              </li>
-              <li className="flex gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Users className="h-4 w-4" />
-                </div>
-                <div>
-                  <span className="text-sm font-medium text-foreground">Coordinating support</span>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Organize mutual engagement to increase reach and visibility
-                  </p>
-                </div>
-              </li>
-              <li className="flex gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <MessageSquare className="h-4 w-4" />
-                </div>
-                <div>
-                  <span className="text-sm font-medium text-foreground">Getting feedback</span>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Receive input on Project
-                  </p>
-                </div>
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
-
-        {/* Chat Area */}
-        <div className="flex flex-col flex-1 max-w-3xl">
-          <Card className="flex-1 overflow-auto bg-card">
-            <CardContent className="p-4 space-y-4">
-              {messages.map((msg) => (
-                <div key={msg.id} className="border-b border-border pb-4 last:border-0 last:pb-0">
-                  <div className="flex gap-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-primary/20 text-primary text-xs">
-                        {msg.initials}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <div className="flex items-baseline gap-2">
-                        <span className="font-medium text-sm text-foreground">{msg.user}</span>
-                        <span className="text-xs text-muted-foreground">{msg.time}</span>
-                      </div>
-                      <p className="text-sm text-foreground/80 mt-1">{msg.message}</p>
-                      
-                      {/* Like and Comment buttons */}
-                      <div className="flex items-center gap-4 mt-3">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className={`gap-2 h-8 px-2 ${msg.liked ? "text-destructive" : "text-muted-foreground hover:text-destructive"}`}
-                          onClick={() => handleLike(msg.id)}
-                        >
-                          <Heart className={`h-4 w-4 ${msg.liked ? "fill-current" : ""}`} />
-                          <span className="text-xs">{msg.likes}</span>
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="gap-2 h-8 px-2 text-muted-foreground hover:text-primary"
-                          onClick={() => toggleComments(msg.id)}
-                        >
-                          <MessageCircleMore className="h-4 w-4" />
-                          <span className="text-xs">{msg.comments.length}</span>
-                        </Button>
-                      </div>
-
-                      {/* Comments Section */}
-                      {expandedComments.includes(msg.id) && (
-                        <div className="mt-3 pl-4 border-l-2 border-border space-y-3">
-                          {msg.comments.map((comment, idx) => (
-                            <div key={idx} className="flex gap-2">
-                              <Avatar className="h-6 w-6">
-                                <AvatarFallback className="bg-secondary text-secondary-foreground text-xs">
-                                  {comment.initials}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <div className="flex items-baseline gap-2">
-                                  <span className="font-medium text-xs text-foreground">{comment.user}</span>
-                                  <span className="text-xs text-muted-foreground">{comment.time}</span>
-                                </div>
-                                <p className="text-xs text-foreground/80">{comment.text}</p>
-                              </div>
-                            </div>
-                          ))}
-                          
-                          {/* Add Comment Input */}
-                          <div className="flex gap-2 mt-2">
-                            <Input 
-                              placeholder="Write a comment..." 
-                              className="h-8 text-xs"
-                              value={commentInputs[msg.id] || ""}
-                              onChange={(e) => setCommentInputs(prev => ({ ...prev, [msg.id]: e.target.value }))}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                  handleAddComment(msg.id);
-                                }
-                              }}
-                            />
-                            <Button 
-                              size="sm" 
-                              className="h-8 px-3"
-                              onClick={() => handleAddComment(msg.id)}
-                            >
-                              <Send className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-          
-          <div className="flex gap-2 mt-4">
-            <Input placeholder="Type your message..." className="flex-1" />
-            <Button size="icon">
-              <Send className="h-4 w-4" />
-            </Button>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-secondary-foreground">India Chat</h1>
+              <p className="text-sm md:text-base text-secondary-foreground/80 mt-1">
+                Post, Engage, and get Feedback to Maximise your visibility.
+              </p>
+            </div>
           </div>
         </div>
       </div>
-    </PageLayout>
+
+      {/* Content */}
+      <div className="flex-1 overflow-auto p-6">
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Posting Guidelines */}
+          <Card className="lg:w-80 shrink-0 bg-card h-fit">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <Info className="h-5 w-5 text-primary" />
+                <CardTitle className="text-lg">Posting Guidelines</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <h4 className="font-semibold text-sm text-foreground mb-3">What This Channel is For:</h4>
+              <ul className="space-y-3">
+                <li className="flex gap-3">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Link className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-foreground">Sharing your posts</span>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Drop links to your LinkedIn, Twitter, or other platform content
+                    </p>
+                  </div>
+                </li>
+                <li className="flex gap-3">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Users className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-foreground">Coordinating support</span>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Organize mutual engagement to increase reach and visibility
+                    </p>
+                  </div>
+                </li>
+                <li className="flex gap-3">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <MessageSquare className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-foreground">Getting feedback</span>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Receive input on Project
+                    </p>
+                  </div>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          {/* Chat Area */}
+          <div className="flex flex-col flex-1 max-w-3xl">
+            <Card className="bg-card">
+              <CardContent className="p-4 space-y-4">
+                {messages.map((msg) => (
+                  <div key={msg.id} className="border-b border-border pb-4 last:border-0 last:pb-0">
+                    <div className="flex gap-3">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-primary/20 text-primary text-xs">
+                          {msg.initials}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-medium text-sm text-foreground">{msg.user}</span>
+                          <span className="text-xs text-muted-foreground">{msg.time}</span>
+                        </div>
+                        <p className="text-sm text-foreground/80 mt-1">{msg.message}</p>
+                        
+                        {/* Like and Comment buttons */}
+                        <div className="flex items-center gap-4 mt-3">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className={`gap-2 h-8 px-2 ${msg.liked ? "text-destructive" : "text-muted-foreground hover:text-destructive"}`}
+                            onClick={() => handleLike(msg.id)}
+                          >
+                            <Heart className={`h-4 w-4 ${msg.liked ? "fill-current" : ""}`} />
+                            <span className="text-xs">{msg.likes}</span>
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="gap-2 h-8 px-2 text-muted-foreground hover:text-primary"
+                            onClick={() => toggleComments(msg.id)}
+                          >
+                            <MessageCircleMore className="h-4 w-4" />
+                            <span className="text-xs">{msg.comments.length}</span>
+                          </Button>
+                        </div>
+
+                        {/* Comments Section */}
+                        {expandedComments.includes(msg.id) && (
+                          <div className="mt-3 pl-4 border-l-2 border-border space-y-3">
+                            {msg.comments.map((comment, idx) => (
+                              <div key={idx} className="flex gap-2">
+                                <Avatar className="h-6 w-6">
+                                  <AvatarFallback className="bg-secondary text-secondary-foreground text-xs">
+                                    {comment.initials}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <div className="flex items-baseline gap-2">
+                                    <span className="font-medium text-xs text-foreground">{comment.user}</span>
+                                    <span className="text-xs text-muted-foreground">{comment.time}</span>
+                                  </div>
+                                  <p className="text-xs text-foreground/80">{comment.text}</p>
+                                </div>
+                              </div>
+                            ))}
+                            
+                            {/* Add Comment Input */}
+                            <div className="flex gap-2 mt-2">
+                              <Input 
+                                placeholder="Write a comment..." 
+                                className="h-8 text-xs"
+                                value={commentInputs[msg.id] || ""}
+                                onChange={(e) => setCommentInputs(prev => ({ ...prev, [msg.id]: e.target.value }))}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    handleAddComment(msg.id);
+                                  }
+                                }}
+                              />
+                              <Button 
+                                size="sm" 
+                                className="h-8 px-3"
+                                onClick={() => handleAddComment(msg.id)}
+                              >
+                                <Send className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+            
+            <div className="flex gap-2 mt-4">
+              <Input placeholder="Type your message..." className="flex-1" />
+              <Button size="icon">
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
