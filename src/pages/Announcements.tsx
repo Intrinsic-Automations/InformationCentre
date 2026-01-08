@@ -31,7 +31,7 @@ export default function Announcements() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Hero Banner with Title - Sticky */}
-      <div className="sticky top-0 z-30 shrink-0 relative h-12 md:h-14 overflow-hidden">
+      <div className="sticky top-0 z-30 shrink-0 relative h-16 md:h-20 overflow-hidden">
         <img
           src={announcementsHero}
           alt="Announcements banner"
