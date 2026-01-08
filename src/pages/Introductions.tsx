@@ -1,8 +1,8 @@
 import { Users } from "lucide-react";
-import { PageLayout } from "@/components/layout/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import introductionsHero from "@/assets/introductions-hero.jpg";
 
 const introductions = [
   {
@@ -33,37 +33,59 @@ const introductions = [
 
 export default function Introductions() {
   return (
-    <PageLayout
-      title="Introductions"
-      description="Meet new team members and share your story."
-      icon={<Users className="h-5 w-5" />}
-    >
-      <div className="max-w-3xl space-y-4">
-        {introductions.map((person, index) => (
-          <Card key={index} className="bg-card">
-            <CardHeader className="pb-2">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-12 w-12">
-                  <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                    {person.initials}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <CardTitle className="text-lg">{person.name}</CardTitle>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge variant="secondary">{person.role}</Badge>
-                    <span className="text-xs text-muted-foreground">{person.location}</span>
-                  </div>
-                </div>
-                <span className="text-xs text-muted-foreground">{person.date}</span>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-foreground/80">{person.intro}</p>
-            </CardContent>
-          </Card>
-        ))}
+    <div className="flex flex-col h-full">
+      {/* Hero Banner with Title */}
+      <div className="relative h-48 md:h-56 overflow-hidden">
+        <img
+          src={introductionsHero}
+          alt="Introductions banner"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-secondary/80 to-secondary/40" />
+        <div className="absolute inset-0 flex items-center px-6 md:px-12">
+          <div className="flex items-center gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/20 text-primary-foreground backdrop-blur-sm">
+              <Users className="h-7 w-7" />
+            </div>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-secondary-foreground">Introductions</h1>
+              <p className="text-sm md:text-base text-secondary-foreground/80 mt-1">
+                Meet new team members and share your story.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
-    </PageLayout>
+
+      {/* Content */}
+      <div className="flex-1 overflow-auto p-6">
+        <div className="max-w-3xl space-y-4">
+          {introductions.map((person, index) => (
+            <Card key={index} className="bg-card">
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-4">
+                  <Avatar className="h-12 w-12">
+                    <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                      {person.initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <CardTitle className="text-lg">{person.name}</CardTitle>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="secondary">{person.role}</Badge>
+                      <span className="text-xs text-muted-foreground">{person.location}</span>
+                    </div>
+                  </div>
+                  <span className="text-xs text-muted-foreground">{person.date}</span>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-foreground/80">{person.intro}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
