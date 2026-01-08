@@ -61,7 +61,7 @@ export default function IndiaChat() {
                 <div>
                   <span className="text-sm font-medium text-foreground">Getting feedback</span>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Receive input on your social media content
+                    Receive input on Project
                   </p>
                 </div>
               </li>
