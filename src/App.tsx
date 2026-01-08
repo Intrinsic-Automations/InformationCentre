@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
+import { TopNav } from "@/components/layout/TopNav";
 import { Menu } from "lucide-react";
 
 // Pages
@@ -42,11 +43,12 @@ const App = () => (
           <div className="min-h-screen flex w-full">
             <AppSidebar />
             <div className="flex-1 flex flex-col">
-              <header className="h-14 border-b border-border bg-card flex items-center px-4 lg:hidden">
+              <header className="border-b border-border bg-card flex items-center px-4 lg:hidden h-14">
                 <SidebarTrigger>
                   <Menu className="h-5 w-5" />
                 </SidebarTrigger>
               </header>
+              <TopNav />
               <main className="flex-1 overflow-auto bg-background">
                 <Routes>
                   <Route path="/" element={<Navigate to="/onboarding" replace />} />
