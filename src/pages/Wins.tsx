@@ -7,56 +7,61 @@ import winsHero from "@/assets/wins-hero.jpg";
 
 const wins = [
   {
-    user: "Sarah Mitchell",
-    initials: "SM",
-    title: "Landed My First $15K Client! 🎉",
-    description: `After 3 months of consistent outreach, I finally closed my first major client!
+    user: "Rachel Torres",
+    initials: "RT",
+    title: "Healthcare Integration Project Goes Live! 🏥",
+    description: `Huge milestone - our healthcare client's patient portal integration is now live and running smoothly!
 
-**How I got this client:** Cold outreach via LinkedIn. Sent about 50 personalized messages over 2 weeks targeting marketing agencies. This one responded after I commented on their posts for a week first.
+**The client:** Regional hospital network with 12 facilities across 3 states.
 
-**What I'm building:** A complete CRM automation system using Make.com and Airtable. It will handle their lead nurturing, client onboarding, and reporting dashboards.
+**What we built:** Full EHR integration connecting their legacy systems to a modern patient portal. Patients can now view records, schedule appointments, and message providers - all in one place.
 
-**Pricing strategy:** I used the value-based pricing approach from the eQ training. Estimated they'd save 20+ hours/month, so I priced at $15K for the initial build + $500/month retainer.
+**Key challenges overcome:** Legacy system APIs were poorly documented. Our team spent 3 weeks reverse-engineering the data flows. Shoutout to the engineering team for their persistence!
 
-**Struggles overcome:** Almost gave up after the first 30 messages got no responses. Changed my approach to engage with their content first before pitching - that made all the difference.
+**Business impact:** Client reports 40% reduction in phone call volume and patient satisfaction scores up 25%.
 
-**Helpful resources:** The "Cold Outreach Mastery" module and the pricing calculator template were game changers!`,
+**Team recognition:** Special thanks to the integration squad - this was a true team effort across engineering, QA, and project management.`,
     likes: 89,
     comments: 23,
     date: "3 hours ago",
   },
   {
-    user: "Marcus Chen",
-    initials: "MC",
-    title: "Breakthrough: From $0 to $5K MRR in 60 Days",
-    description: `Finally hit my goal of $5K monthly recurring revenue!
+    user: "David Okonkwo",
+    initials: "DO",
+    title: "Q4 Revenue Target Exceeded by 15%! 📈",
+    description: `Thrilled to announce we've closed Q4 with revenue 15% above our target!
 
-**How I got these clients:** Mix of referrals (2 clients) and networking in local business groups (3 clients). Joined 3 BNI-style groups and positioned myself as "the automation guy."
+**The wins that got us here:**
+• Closed 3 new enterprise accounts in November
+• Renewed our largest client with a 2-year extension
+• Expanded into the APAC region with our first Singapore client
 
-**What I'm building:** Mostly small automation packages - email sequences, social media scheduling, and basic CRM setups. Nothing fancy, but solves real problems.
+**What made the difference:** The new sales methodology we implemented in September is paying off. Deal cycles shortened by an average of 2 weeks.
 
-**Pricing strategy:** Started with a $997 setup fee + $500/month. After feedback here, I raised to $1,500 setup + $750/month. No pushback from clients!
+**Lessons learned:** Investing in pre-sales technical support made a huge difference for complex deals. Clients felt more confident when our engineers joined discovery calls.
 
-**Key insight for others:** Don't underestimate local networking. Everyone talks about online, but face-to-face trust is still powerful. These clients signed faster than any cold outreach I've done.`,
+**Looking ahead:** This momentum sets us up for an ambitious but achievable Q1 target.`,
     likes: 156,
     comments: 41,
     date: "1 day ago",
   },
   {
-    user: "Jessica Park",
-    initials: "JP",
-    title: "Just Signed a 6-Month Retainer Contract! 📝",
-    description: `Big win - converted a one-time project client into a 6-month retainer!
+    user: "Priya Sharma",
+    initials: "PS",
+    title: "Migration Project Completed 2 Weeks Early! ⚡",
+    description: `Our largest cloud migration project just wrapped up - 2 weeks ahead of schedule!
 
-**How it happened:** Delivered a lead gen automation 2 months ago. Kept in touch, shared optimization tips, and when they mentioned scaling, I proposed a retainer for ongoing improvements.
+**The project:** Migrating a financial services client from on-premise infrastructure to Azure cloud.
 
-**What I'm building:** Expanding their automation stack - adding AI-powered lead scoring, automated follow-ups, and a client portal.
+**Scope:** 200+ applications, 15TB of data, and zero tolerance for downtime during trading hours.
 
-**Pricing:** $3,500/month for 15 hours of work + priority support. Used the retainer proposal template from the resources section.
+**How we did it:** Our phased migration approach and weekend cutover windows kept the client operational throughout. Automation scripts reduced manual work by 60%.
 
-**Struggles:** Client initially wanted hourly billing. Had to demonstrate the value of predictable monthly costs for them and consistent income for me. The "retainer objection handling" script helped a lot!
+**Challenges faced:** Discovered 30+ undocumented legacy integrations during discovery. Had to build custom connectors on the fly.
 
-**Tip for others:** Your best new clients are often your existing clients. Don't forget to nurture those relationships!`,
+**Client feedback:** "Your team's communication and transparency made this the smoothest migration we've ever experienced."
+
+**Kudos to:** The entire infrastructure team and our tireless project managers!`,
     likes: 72,
     comments: 18,
     date: "2 days ago",
