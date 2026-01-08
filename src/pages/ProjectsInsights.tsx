@@ -1,39 +1,56 @@
-import { Lightbulb, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Lightbulb, BookOpen, Wrench, Target, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import projectsInsightsHero from "@/assets/projects-insights-hero.jpg";
 
-const insights = [
+const strategies = [
   {
-    project: "Enterprise Migration",
-    metric: "Completion Rate",
-    value: "78%",
-    trend: "up",
-    change: "+12%",
-    description: "On track to complete ahead of schedule",
+    title: "Agile Sprint Planning for Large Migrations",
+    category: "Strategy",
+    description: "Break down complex migrations into 2-week sprints with clear deliverables. Use daily standups to identify blockers early and maintain momentum.",
+    tags: ["Agile", "Migration", "Planning"],
+    icon: Target,
   },
   {
-    project: "API Integration Suite",
-    metric: "Team Velocity",
-    value: "42 pts",
-    trend: "stable",
-    change: "0%",
-    description: "Maintaining steady progress",
+    title: "Effective Stakeholder Communication",
+    category: "Strategy",
+    description: "Schedule weekly status updates with stakeholders using a consistent format. Include progress metrics, risks, and next steps to keep everyone aligned.",
+    tags: ["Communication", "Stakeholders", "Reporting"],
+    icon: Target,
   },
   {
-    project: "Cloud Infrastructure",
-    metric: "Budget Usage",
-    value: "65%",
-    trend: "down",
-    change: "-8%",
-    description: "Under budget with optimizations",
+    title: "Risk Mitigation in Integration Projects",
+    category: "Strategy",
+    description: "Identify integration points early and create fallback plans. Test in staging environments before production deployment to minimize disruption.",
+    tags: ["Risk Management", "Integration", "Testing"],
+    icon: Target,
   },
 ];
 
-const TrendIcon = ({ trend }: { trend: string }) => {
-  if (trend === "up") return <TrendingUp className="h-4 w-4 text-primary" />;
-  if (trend === "down") return <TrendingDown className="h-4 w-4 text-destructive" />;
-  return <Minus className="h-4 w-4 text-muted-foreground" />;
-};
+const softwareTips = [
+  {
+    title: "Mastering JIRA Workflows",
+    category: "Software Tip",
+    description: "Configure custom workflows to match your team's process. Use automation rules to auto-assign tickets and send notifications for status changes.",
+    tags: ["JIRA", "Automation", "Workflows"],
+    icon: Wrench,
+  },
+  {
+    title: "Confluence Documentation Best Practices",
+    category: "Software Tip",
+    description: "Use templates for consistent documentation. Link pages to JIRA tickets for traceability and enable page watching for key stakeholders.",
+    tags: ["Confluence", "Documentation", "Templates"],
+    icon: BookOpen,
+  },
+  {
+    title: "Slack Integration for Project Updates",
+    category: "Software Tip",
+    description: "Set up channel integrations to receive automated updates from JIRA, GitHub, and other tools. Use threads to keep conversations organized.",
+    tags: ["Slack", "Integrations", "Communication"],
+    icon: Wrench,
+  },
+];
 
 export default function ProjectsInsights() {
   return (
@@ -54,7 +71,7 @@ export default function ProjectsInsights() {
             <div>
               <h1 className="text-3xl md:text-4xl font-bold text-secondary-foreground">Projects Insights</h1>
               <p className="text-sm md:text-base text-secondary-foreground/80 mt-1">
-                Key metrics and insights from ongoing projects.
+                Actionable strategies and practical software tips from our projects.
               </p>
             </div>
           </div>
@@ -63,29 +80,90 @@ export default function ProjectsInsights() {
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {insights.map((insight, index) => (
-            <Card key={index} className="bg-card">
-              <CardHeader className="pb-2">
-                <CardDescription>{insight.project}</CardDescription>
-                <CardTitle className="text-3xl font-bold">{insight.value}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendIcon trend={insight.trend} />
-                  <span className={`text-sm font-medium ${
-                    insight.trend === "up" ? "text-primary" : 
-                    insight.trend === "down" ? "text-destructive" : 
-                    "text-muted-foreground"
-                  }`}>
-                    {insight.change}
-                  </span>
-                  <span className="text-sm text-muted-foreground">{insight.metric}</span>
-                </div>
-                <p className="text-sm text-muted-foreground">{insight.description}</p>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="max-w-4xl space-y-8">
+          {/* Actionable Strategies Section */}
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <Target className="h-5 w-5 text-primary" />
+              <h2 className="text-xl font-semibold text-foreground">Actionable Strategies</h2>
+            </div>
+            <div className="space-y-4">
+              {strategies.map((item, index) => (
+                <Card key={index} className="bg-card hover:shadow-md transition-shadow">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                          <item.icon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg">{item.title}</CardTitle>
+                          <CardDescription>{item.category}</CardDescription>
+                        </div>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-foreground/80 mb-3">{item.description}</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-wrap gap-1">
+                        {item.tags.map((tag, i) => (
+                          <Badge key={i} variant="secondary" className="text-xs">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                      <Button variant="ghost" size="sm" className="gap-2">
+                        Learn More <ArrowRight className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+
+          {/* Practical Software Tips Section */}
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <Wrench className="h-5 w-5 text-primary" />
+              <h2 className="text-xl font-semibold text-foreground">Practical Software Tips</h2>
+            </div>
+            <div className="space-y-4">
+              {softwareTips.map((item, index) => (
+                <Card key={index} className="bg-card hover:shadow-md transition-shadow">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
+                          <item.icon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg">{item.title}</CardTitle>
+                          <CardDescription>{item.category}</CardDescription>
+                        </div>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-foreground/80 mb-3">{item.description}</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-wrap gap-1">
+                        {item.tags.map((tag, i) => (
+                          <Badge key={i} variant="outline" className="text-xs">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                      <Button variant="ghost" size="sm" className="gap-2">
+                        View Guide <ArrowRight className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
         </div>
       </div>
     </div>
