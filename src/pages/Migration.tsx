@@ -1,65 +1,65 @@
-import { ArrowRightLeft, FileText, Download } from "lucide-react";
+import { ArrowRightLeft, Circle, CheckCircle2 } from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 
-const resources = [
-  {
-    title: "Migration Planning Guide",
-    description: "Comprehensive guide for planning and executing data migrations.",
-    type: "PDF",
-    updated: "January 2024",
-  },
-  {
-    title: "Legacy System Assessment Template",
-    description: "Template for assessing current systems before migration.",
-    type: "XLSX",
-    updated: "December 2023",
-  },
-  {
-    title: "Data Mapping Toolkit",
-    description: "Tools and templates for mapping data between systems.",
-    type: "ZIP",
-    updated: "January 2024",
-  },
+const timelineSteps = [
+  { title: "Kick off", subItems: [] },
+  { title: "Discovery Workshop", subItems: ["Requirements", "Data Profiling"] },
+  { title: "High Level Design", subItems: [] },
+  { title: "Low Level Design", subItems: [] },
+  { title: "Customer Sign Off", subItems: [] },
+  { title: "Development", subItems: [] },
+  { title: "Unit Testing", subItems: [] },
+  { title: "Testing", subItems: [] },
+  { title: "Delivery", subItems: ["Deployment Support", "Training for customer"] },
+  { title: "SIT + VAT", subItems: [] },
+  { title: "Fixes and Enhancements", subItems: [] },
+  { title: "Production Delivery (Go Live)", subItems: ["Validation", "Sign off"] },
+  { title: "Identify Product Gaps", subItems: ["Support"] },
+  { title: "Project Closure Document", subItems: [] },
 ];
 
 export default function Migration() {
   return (
     <PageLayout
       title="Migration"
-      description="Resources and tools for system migrations."
+      description="Solution end-to-end process timeline."
       icon={<ArrowRightLeft className="h-5 w-5" />}
     >
-      <div className="max-w-3xl space-y-4">
-        {resources.map((resource, index) => (
-          <Card key={index} className="bg-card">
-            <CardHeader className="pb-2">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <FileText className="h-5 w-5" />
+      <Card className="bg-card max-w-2xl">
+        <CardContent className="pt-6">
+          <div className="relative">
+            {/* Vertical line */}
+            <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-border" />
+
+            <div className="space-y-6">
+              {timelineSteps.map((step, index) => (
+                <div key={index} className="relative pl-12">
+                  {/* Circle marker */}
+                  <div className="absolute left-0 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                    <Circle className="h-3 w-3 fill-current" />
                   </div>
-                  <div>
-                    <CardTitle className="text-lg">{resource.title}</CardTitle>
-                    <CardDescription>{resource.description}</CardDescription>
+
+                  {/* Content */}
+                  <div className="pt-1">
+                    <h3 className="font-semibold text-foreground">{step.title}</h3>
+                    {step.subItems.length > 0 && (
+                      <ul className="mt-2 space-y-1">
+                        {step.subItems.map((subItem, subIndex) => (
+                          <li key={subIndex} className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <CheckCircle2 className="h-3 w-3 text-primary" />
+                            {subItem}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Badge variant="outline">{resource.type}</Badge>
-                <span className="text-xs text-muted-foreground">Updated {resource.updated}</span>
-              </div>
-              <Button variant="outline" size="sm" className="gap-2">
-                <Download className="h-4 w-4" /> Download
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </PageLayout>
   );
 }
