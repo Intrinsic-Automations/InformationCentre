@@ -1,10 +1,14 @@
-import { Network, ChevronDown, ChevronRight, User } from "lucide-react";
+import { Network, User } from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
-import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Employee {
   id: string;
@@ -216,79 +220,115 @@ const orgData: Employee = {
 };
 
 const levelColors: Record<Employee["level"], string> = {
-  CEO: "bg-amber-500/20 text-amber-700 dark:text-amber-400",
-  VP: "bg-purple-500/20 text-purple-700 dark:text-purple-400",
-  Head: "bg-blue-500/20 text-blue-700 dark:text-blue-400",
-  Senior: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400",
-  Lead: "bg-orange-500/20 text-orange-700 dark:text-orange-400",
-  Developer: "bg-slate-500/20 text-slate-700 dark:text-slate-400",
+  CEO: "bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/30",
+  VP: "bg-purple-500/20 text-purple-700 dark:text-purple-400 border-purple-500/30",
+  Head: "bg-blue-500/20 text-blue-700 dark:text-blue-400 border-blue-500/30",
+  Senior: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/30",
+  Lead: "bg-orange-500/20 text-orange-700 dark:text-orange-400 border-orange-500/30",
+  Developer: "bg-slate-500/20 text-slate-700 dark:text-slate-400 border-slate-500/30",
 };
 
-function EmployeeNode({ employee, depth = 0 }: { employee: Employee; depth?: number }) {
-  const [isOpen, setIsOpen] = useState(depth < 2);
-  const hasReports = employee.directReports && employee.directReports.length > 0;
+const levelBorderColors: Record<Employee["level"], string> = {
+  CEO: "border-amber-500",
+  VP: "border-purple-500",
+  Head: "border-blue-500",
+  Senior: "border-emerald-500",
+  Lead: "border-orange-500",
+  Developer: "border-slate-500",
+};
 
+function EmployeeCard({ employee }: { employee: Employee }) {
   return (
-    <div className="relative">
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <Card className="bg-card mb-2 transition-all hover:shadow-md">
-          <CardContent className="p-3">
-            <div className="flex items-start gap-3">
-              <Avatar className="h-10 w-10 shrink-0">
-                <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div
+            className={`bg-card border-2 ${levelBorderColors[employee.level]} rounded-lg p-3 min-w-[180px] max-w-[200px] shadow-sm hover:shadow-md transition-shadow cursor-pointer`}
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <Avatar className="h-8 w-8 shrink-0">
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                   {employee.initials}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-medium text-foreground">{employee.name}</span>
-                  <Badge variant="secondary" className={levelColors[employee.level]}>
-                    {employee.level}
-                  </Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">{employee.role}</p>
-                {employee.reportsTo && (
-                  <p className="text-xs text-muted-foreground/70 mt-0.5">
-                    <User className="h-3 w-3 inline mr-1" />
-                    Reports to: {employee.reportsTo}
-                  </p>
-                )}
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {employee.skills.map((skill, i) => (
-                    <span
-                      key={i}
-                      className="px-2 py-0.5 bg-muted rounded text-xs text-muted-foreground"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-sm text-foreground truncate">{employee.name}</p>
+                <Badge variant="secondary" className={`${levelColors[employee.level]} text-[10px] px-1.5 py-0`}>
+                  {employee.level}
+                </Badge>
               </div>
-              {hasReports && (
-                <CollapsibleTrigger asChild>
-                  <button className="p-1 hover:bg-muted rounded transition-colors shrink-0">
-                    {isOpen ? (
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </button>
-                </CollapsibleTrigger>
-              )}
             </div>
-          </CardContent>
-        </Card>
-        
-        {hasReports && (
-          <CollapsibleContent>
-            <div className="ml-6 pl-4 border-l-2 border-border/50">
-              {employee.directReports!.map((report) => (
-                <EmployeeNode key={report.id} employee={report} depth={depth + 1} />
+            <p className="text-xs text-muted-foreground truncate">{employee.role}</p>
+            {employee.reportsTo && (
+              <p className="text-[10px] text-muted-foreground/70 mt-1 truncate">
+                <User className="h-2.5 w-2.5 inline mr-0.5" />
+                → {employee.reportsTo}
+              </p>
+            )}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="bottom" className="max-w-[250px]">
+          <div className="space-y-1">
+            <p className="font-medium">{employee.name}</p>
+            <p className="text-xs text-muted-foreground">{employee.role}</p>
+            {employee.reportsTo && (
+              <p className="text-xs">Reports to: {employee.reportsTo}</p>
+            )}
+            <div className="flex flex-wrap gap-1 pt-1">
+              {employee.skills.map((skill, i) => (
+                <span
+                  key={i}
+                  className="px-1.5 py-0.5 bg-muted rounded text-[10px]"
+                >
+                  {skill}
+                </span>
               ))}
             </div>
-          </CollapsibleContent>
-        )}
-      </Collapsible>
+          </div>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+function OrgTreeNode({ employee }: { employee: Employee }) {
+  const hasReports = employee.directReports && employee.directReports.length > 0;
+
+  return (
+    <div className="flex items-start">
+      {/* Employee card */}
+      <EmployeeCard employee={employee} />
+
+      {/* Connector and children */}
+      {hasReports && (
+        <div className="flex items-center">
+          {/* Horizontal line from card to children */}
+          <div className="w-6 h-0.5 bg-border" />
+          
+          {/* Children column */}
+          <div className="flex flex-col relative">
+            {/* Vertical line connecting children */}
+            {employee.directReports!.length > 1 && (
+              <div
+                className="absolute left-0 w-0.5 bg-border"
+                style={{
+                  top: '50%',
+                  height: `calc(100% - ${employee.directReports!.length > 1 ? '24px' : '0px'})`,
+                  transform: 'translateY(-50%)',
+                }}
+              />
+            )}
+            
+            {employee.directReports!.map((report, index) => (
+              <div key={report.id} className="flex items-center relative py-2">
+                {/* Horizontal connector to child */}
+                <div className="w-4 h-0.5 bg-border" />
+                <OrgTreeNode employee={report} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -300,15 +340,23 @@ export default function Organization() {
       description="Explore our organizational structure and team hierarchy."
       icon={<Network className="h-5 w-5" />}
     >
-      <div className="max-w-3xl">
-        <div className="flex flex-wrap gap-2 mb-4">
+      <div className="space-y-4">
+        {/* Legend */}
+        <div className="flex flex-wrap gap-2">
           {Object.entries(levelColors).map(([level, colorClass]) => (
             <Badge key={level} variant="secondary" className={colorClass}>
               {level}
             </Badge>
           ))}
         </div>
-        <EmployeeNode employee={orgData} />
+        
+        {/* Horizontal scrollable org chart */}
+        <ScrollArea className="w-full">
+          <div className="p-4 min-w-max">
+            <OrgTreeNode employee={orgData} />
+          </div>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
       </div>
     </PageLayout>
   );
