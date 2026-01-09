@@ -104,19 +104,9 @@ export function AppSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  // Determine which groups should be open by default (groups containing active route)
+  // All groups expanded by default
   const getDefaultOpenGroups = () => {
-    const openGroups: string[] = [];
-    navigationConfig.forEach((group) => {
-      if (group.items.some((item) => currentPath === item.url)) {
-        openGroups.push(group.label);
-      }
-    });
-    // If no active route, open the first group
-    if (openGroups.length === 0 && navigationConfig.length > 0) {
-      openGroups.push(navigationConfig[0].label);
-    }
-    return openGroups;
+    return navigationConfig.map((group) => group.label);
   };
 
   const [openGroups, setOpenGroups] = useState<string[]>(getDefaultOpenGroups);
