@@ -1,4 +1,4 @@
-import { Wrench, Circle, CheckCircle2, RotateCcw } from "lucide-react";
+import { Wrench, Circle, CheckCircle2, RotateCcw, Download } from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -18,6 +18,30 @@ const timelineSteps = [
   { title: "Change Requests", subItems: [], linksTo: "discovery" },
 ];
 
+const templates = [
+  "Project One-Pager",
+  "Questionnaire",
+  "Requirements Document",
+  "Solution Outline",
+  "RACI",
+  "IPP Plan",
+  "Risk and Issues",
+  "Burn Rate Monitor",
+  "Data Mapping",
+  "Data Profiling",
+  "High Level Design",
+  "Low Level Design",
+  "Infrastructure Architecture Design",
+  "User Stories",
+  "Test Plan",
+  "Test Script",
+  "Implementation Document",
+  "User Guide",
+  "Deployment Guide",
+  "Change Request Document",
+  "Project Closure Document",
+];
+
 export default function Integration() {
   return (
     <PageLayout
@@ -25,7 +49,7 @@ export default function Integration() {
       description="Solution end-to-end process timeline."
       icon={<Wrench className="h-5 w-5" />}
     >
-      <div className="max-w-2xl">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="bg-card">
           <CardContent className="pt-6">
             <h2 className="text-xl font-bold text-foreground mb-6">Solution Timeline</h2>
@@ -66,6 +90,28 @@ export default function Integration() {
                 ))}
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card h-fit">
+          <CardContent className="pt-6">
+            <h2 className="text-xl font-bold text-foreground mb-6">Integration Templates</h2>
+            <ul className="space-y-2">
+              {templates.map((template, index) => (
+                <li key={index}>
+                  <a
+                    href="#"
+                    className="flex items-center justify-between gap-2 text-sm text-foreground hover:text-primary transition-colors py-1 group"
+                  >
+                    <span className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                      {template}
+                    </span>
+                    <Download className="h-4 w-4 text-muted-foreground group-hover:text-primary shrink-0" />
+                  </a>
+                </li>
+              ))}
+            </ul>
           </CardContent>
         </Card>
       </div>
