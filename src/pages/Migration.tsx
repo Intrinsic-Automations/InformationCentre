@@ -86,6 +86,24 @@ export default function Migration() {
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
+        {/* IRGT Process Notice */}
+        <Card className="bg-primary/5 border-primary/20 mb-6">
+          <CardContent className="py-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <p className="text-sm font-medium text-foreground">
+                It is mandatory that all Projects must follow the <span className="text-primary font-semibold">IRGT process</span>
+              </p>
+              <a
+                href="#"
+                className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              >
+                <Download className="h-4 w-4" />
+                IRGT Planning Document
+              </a>
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="bg-card">
             <CardContent className="pt-6">
