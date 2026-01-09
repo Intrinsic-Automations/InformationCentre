@@ -52,7 +52,7 @@ export default function Announcements() {
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-3xl space-y-4">
+        <div className="space-y-4">
           {announcements.map((announcement, index) => (
             <Card key={index} className={announcement.pinned ? "border-primary/30 bg-card" : "bg-card"}>
               <CardHeader className="pb-2">
