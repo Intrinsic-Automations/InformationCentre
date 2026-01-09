@@ -1,4 +1,4 @@
-import { History, CheckCircle2, ArrowRight } from "lucide-react";
+import { History, CheckCircle2, ArrowRight, FileDown } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,12 @@ const projects = [
     description: "Full migration of enterprise analytics platform with 500+ dashboards.",
     highlights: "30% performance improvement, zero data loss",
     type: "Migration",
+    closure: {
+      summary: "Successfully migrated 500+ dashboards and 2TB of data to cloud-native infrastructure.",
+      challenges: "Data validation complexity, legacy system dependencies, tight timeline",
+      tools: "Analytics Suite, Azure Data Factory, Power BI",
+      tickets: 127,
+    },
   },
   {
     name: "Salesforce CRM Integration",
@@ -20,6 +26,12 @@ const projects = [
     description: "Complete integration with Salesforce CRM for real-time sales analytics.",
     highlights: "Real-time sync, automated reporting",
     type: "Integration",
+    closure: {
+      summary: "Integrated Salesforce CRM with internal analytics platform enabling real-time sales insights.",
+      challenges: "API rate limits, data mapping inconsistencies, SSO configuration",
+      tools: "Salesforce API, MuleSoft, Analytics Foundation",
+      tickets: 84,
+    },
   },
   {
     name: "Global Analytics Dashboard",
@@ -28,6 +40,12 @@ const projects = [
     description: "Multi-region analytics dashboard supporting 5 global data centers.",
     highlights: "99.9% uptime, sub-second query response",
     type: "Analytics",
+    closure: {
+      summary: "Deployed multi-region dashboard with geo-distributed data processing and caching.",
+      challenges: "Latency optimization, data consistency across regions, timezone handling",
+      tools: "Analytics Advanced, Redis, CloudFront CDN",
+      tickets: 156,
+    },
   },
   {
     name: "Legacy System Migration",
@@ -36,6 +54,12 @@ const projects = [
     description: "Migration from Oracle to cloud-native analytics infrastructure.",
     highlights: "40% cost reduction, improved scalability",
     type: "Migration",
+    closure: {
+      summary: "Migrated Oracle-based reporting to modern cloud infrastructure with cost savings.",
+      challenges: "Complex stored procedures, data transformation logic, user training",
+      tools: "AWS RDS, Snowflake, dbt, Analytics Suite",
+      tickets: 203,
+    },
   },
 ];
 
@@ -93,8 +117,38 @@ export default function PastProjects() {
                 <p className="text-xs text-muted-foreground mb-4">
                   <strong>Key Highlights:</strong> {project.highlights}
                 </p>
+                
+                {/* Project Closure Summary */}
+                <div className="bg-muted/30 rounded-lg p-3 mb-4 border border-border/30">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-sm font-medium text-foreground">Project Closure Summary</h4>
+                    <a
+                      href="#"
+                      className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+                    >
+                      <FileDown className="h-3.5 w-3.5" />
+                      Download Full Document
+                    </a>
+                  </div>
+                  <p className="text-xs text-foreground/70 mb-2">{project.closure.summary}</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <span className="text-muted-foreground">Challenges: </span>
+                      <span className="text-foreground/80">{project.closure.challenges}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Tools: </span>
+                      <span className="text-foreground/80">{project.closure.tools}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Tickets Raised: </span>
+                      <span className="text-primary font-medium">{project.closure.tickets}</span>
+                    </div>
+                  </div>
+                </div>
+                
                 <Button variant="ghost" size="sm" className="gap-2">
-                  View Report <ArrowRight className="h-3 w-3" />
+                  View Full Report <ArrowRight className="h-3 w-3" />
                 </Button>
               </CardContent>
             </Card>
