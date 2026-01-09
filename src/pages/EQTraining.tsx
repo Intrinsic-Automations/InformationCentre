@@ -47,7 +47,7 @@ export default function EQTraining() {
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
-        <div className="grid gap-6 md:grid-cols-2 max-w-4xl">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {suites.map((suite, index) => (
             <Card 
               key={index} 

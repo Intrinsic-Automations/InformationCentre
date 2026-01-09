@@ -49,7 +49,7 @@ export default function News() {
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-3xl space-y-4">
+        <div className="space-y-4">
           {newsItems.map((item, index) => (
             <Card key={index} className="bg-card hover:bg-card/80 transition-colors">
               <CardHeader className="pb-2">

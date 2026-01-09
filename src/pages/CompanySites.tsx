@@ -87,7 +87,7 @@ export default function CompanySites() {
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
-        <div className="grid gap-4 md:grid-cols-2 max-w-4xl mx-auto">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {sites.map((site, index) => (
             <Card key={index} className="bg-card hover:bg-card/80 transition-colors">
               <CardHeader className="pb-2">

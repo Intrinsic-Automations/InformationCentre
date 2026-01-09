@@ -77,7 +77,7 @@ export default function ProjectsInsights() {
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-4xl space-y-8">
+        <div className="space-y-8">
           {/* Actionable Strategies Section */}
           <section>
             <div className="flex items-center gap-2 mb-4">

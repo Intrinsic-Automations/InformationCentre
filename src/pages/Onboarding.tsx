@@ -51,7 +51,7 @@ export default function Onboarding() {
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-3xl mx-auto space-y-6">
+        <div className="space-y-6">
           <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
             <CardHeader>
               <CardTitle className="text-xl">Welcome to the Team! 🎉</CardTitle>

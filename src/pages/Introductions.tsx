@@ -142,7 +142,7 @@ export default function Introductions() {
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-3xl space-y-4">
+        <div className="space-y-4">
           {introductions.map((person) => (
             <Card key={person.id} className="bg-card">
               <CardHeader className="pb-2">

@@ -93,7 +93,7 @@ export default function Wins() {
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
-        <div className="flex flex-col gap-6 max-w-4xl mx-auto">
+        <div className="flex flex-col gap-6">
           {/* Posting Guidelines */}
           <Card className="bg-card">
             <CardHeader className="pb-3">
