@@ -67,7 +67,7 @@ export default function Migration() {
                       </div>
 
                       {/* Content card */}
-                      <div className="bg-secondary/50 rounded-lg p-3 border border-border/50 transition-all duration-200 group-hover:bg-secondary group-hover:border-primary/30 group-hover:shadow-md">
+                      <div className="bg-muted/30 rounded-lg p-3 border border-border/30 transition-all duration-200 group-hover:bg-muted/50 group-hover:border-primary/30 group-hover:shadow-md">
                         <h3 className="font-semibold text-foreground">{step.title}</h3>
                         {step.subItems.length > 0 && (
                           <ul className="mt-2 space-y-1">
