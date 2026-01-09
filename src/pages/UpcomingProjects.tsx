@@ -7,25 +7,44 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const projects = [
   {
-    name: "Customer Portal Redesign",
-    startDate: "February 1, 2024",
+    name: "Healthcare Analytics Migration",
+    startDate: "February 1, 2026",
     team: ["JW", "EZ", "MG"],
     priority: "High",
-    description: "Complete redesign of the customer-facing portal with improved UX.",
+    description: "Full data migration from legacy healthcare reporting system to Analytics Suite.",
+    type: "Migration",
   },
   {
-    name: "Data Analytics Dashboard",
-    startDate: "February 15, 2024",
-    team: ["AC", "PS"],
-    priority: "Medium",
-    description: "New analytics dashboard for real-time business insights.",
-  },
-  {
-    name: "Mobile App v2.0",
-    startDate: "March 1, 2024",
-    team: ["RM", "SL", "HM", "DK"],
+    name: "CRM Integration - Phase 2",
+    startDate: "February 15, 2026",
+    team: ["AC", "PS", "LK"],
     priority: "High",
-    description: "Major update to the mobile application with new features.",
+    description: "Integration of Salesforce CRM with internal project management tools.",
+    type: "Integration",
+  },
+  {
+    name: "Financial Analytics Dashboard",
+    startDate: "March 1, 2026",
+    team: ["RM", "SL"],
+    priority: "Medium",
+    description: "Implementation of real-time financial KPI dashboards using Analytics Foundation.",
+    type: "Analytics",
+  },
+  {
+    name: "ERP System Integration",
+    startDate: "March 15, 2026",
+    team: ["HM", "DK", "JW"],
+    priority: "High",
+    description: "End-to-end integration of SAP ERP with existing business intelligence platforms.",
+    type: "Integration",
+  },
+  {
+    name: "Legacy Database Migration",
+    startDate: "April 1, 2026",
+    team: ["EZ", "AC"],
+    priority: "Medium",
+    description: "Migration of Oracle database to cloud-native analytics infrastructure.",
+    type: "Migration",
   },
 ];
 
@@ -45,9 +64,18 @@ export default function UpcomingProjects() {
                   <CardTitle className="text-lg">{project.name}</CardTitle>
                   <CardDescription>Starts {project.startDate}</CardDescription>
                 </div>
-                <Badge variant={project.priority === "High" ? "default" : "secondary"}>
-                  {project.priority}
-                </Badge>
+                <div className="flex gap-2">
+                  <Badge variant="outline" className={
+                    project.type === "Migration" ? "border-orange-500/50 text-orange-600" :
+                    project.type === "Integration" ? "border-blue-500/50 text-blue-600" :
+                    "border-green-500/50 text-green-600"
+                  }>
+                    {project.type}
+                  </Badge>
+                  <Badge variant={project.priority === "High" ? "default" : "secondary"}>
+                    {project.priority}
+                  </Badge>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
