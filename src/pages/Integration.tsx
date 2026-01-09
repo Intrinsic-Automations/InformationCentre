@@ -1,21 +1,21 @@
-import { Wrench, Circle, CheckCircle2, RotateCcw, Download } from "lucide-react";
+import { Wrench, CheckCircle2, RotateCcw, Download, Rocket, Search, FileText, PenTool, Server, Code, TestTube, Cog, FlaskConical, Users, CloudUpload, RefreshCw } from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Card, CardContent } from "@/components/ui/card";
 
 const timelineSteps = [
-  { title: "Kick off", subItems: [] },
-  { title: "Discovery", subItems: ["Questionnaire", "Requirements", "ROM", "Estimates"], id: "discovery" },
-  { title: "SOW", subItems: [] },
-  { title: "High Level Design", subItems: [] },
-  { title: "Environment Set up", subItems: [] },
-  { title: "Low Level Design", subItems: [] },
-  { title: "Development", subItems: [] },
-  { title: "Testing Design", subItems: ["Test plan", "Test Script", "Test Data"] },
-  { title: "Implementation", subItems: ["Solution Development", "Unit Testing"] },
-  { title: "Integration Testing", subItems: [] },
-  { title: "UAT", subItems: ["CN's", "Deployment Guide", "User Guide"] },
-  { title: "Production Deployment", subItems: [] },
-  { title: "Change Requests", subItems: [], linksTo: "discovery" },
+  { title: "Kick off", subItems: [], icon: Rocket, color: "bg-emerald-500" },
+  { title: "Discovery", subItems: ["Questionnaire", "Requirements", "ROM", "Estimates"], id: "discovery", icon: Search, color: "bg-blue-500" },
+  { title: "SOW", subItems: [], icon: FileText, color: "bg-cyan-500" },
+  { title: "High Level Design", subItems: [], icon: PenTool, color: "bg-purple-500" },
+  { title: "Environment Set up", subItems: [], icon: Server, color: "bg-orange-500" },
+  { title: "Low Level Design", subItems: [], icon: Code, color: "bg-pink-500" },
+  { title: "Development", subItems: [], icon: Cog, color: "bg-yellow-500" },
+  { title: "Testing Design", subItems: ["Test plan", "Test Script", "Test Data"], icon: TestTube, color: "bg-teal-500" },
+  { title: "Implementation", subItems: ["Solution Development", "Unit Testing"], icon: FlaskConical, color: "bg-rose-500" },
+  { title: "Integration Testing", subItems: [], icon: Server, color: "bg-violet-500" },
+  { title: "UAT", subItems: ["CN's", "Deployment Guide", "User Guide"], icon: Users, color: "bg-amber-500" },
+  { title: "Production Deployment", subItems: [], icon: CloudUpload, color: "bg-green-500" },
+  { title: "Change Requests", subItems: [], linksTo: "discovery", icon: RefreshCw, color: "bg-indigo-500" },
 ];
 
 const templates = [
@@ -54,40 +54,48 @@ export default function Integration() {
           <CardContent className="pt-6">
             <h2 className="text-xl font-bold text-foreground mb-6">Solution Timeline</h2>
             <div className="relative">
-              {/* Vertical line */}
-              <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-border" />
+              {/* Gradient vertical line */}
+              <div className="absolute left-5 top-0 bottom-0 w-1 bg-gradient-to-b from-emerald-500 via-purple-500 to-indigo-500 rounded-full" />
 
-              <div className="space-y-6">
-                {timelineSteps.map((step, index) => (
-                  <div key={index} className="relative pl-12" id={step.id}>
-                    {/* Circle marker */}
-                    <div className="absolute left-0 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                      <Circle className="h-3 w-3 fill-current" />
-                    </div>
+              <div className="space-y-4">
+                {timelineSteps.map((step, index) => {
+                  const Icon = step.icon;
+                  return (
+                    <div
+                      key={index}
+                      className="relative pl-14 group animate-fade-in"
+                      id={step.id}
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
+                      {/* Icon marker */}
+                      <div className={`absolute left-0 flex h-10 w-10 items-center justify-center rounded-xl ${step.color} text-white shadow-lg transition-transform duration-200 group-hover:scale-110`}>
+                        <Icon className="h-5 w-5" />
+                      </div>
 
-                    {/* Content */}
-                    <div className="pt-1">
-                      <h3 className="font-semibold text-foreground flex items-center gap-2">
-                        {step.title}
-                        {step.linksTo && (
-                          <a href={`#${step.linksTo}`} className="text-primary hover:text-primary/80 transition-colors">
-                            <RotateCcw className="h-4 w-4" />
-                          </a>
+                      {/* Content card */}
+                      <div className="bg-muted/30 rounded-lg p-3 border border-border/30 transition-all duration-200 group-hover:bg-muted/50 group-hover:border-primary/30 group-hover:shadow-md">
+                        <h3 className="font-semibold text-foreground flex items-center gap-2">
+                          {step.title}
+                          {step.linksTo && (
+                            <a href={`#${step.linksTo}`} className="text-primary hover:text-primary/80 transition-colors">
+                              <RotateCcw className="h-4 w-4" />
+                            </a>
+                          )}
+                        </h3>
+                        {step.subItems.length > 0 && (
+                          <ul className="mt-2 space-y-1">
+                            {step.subItems.map((subItem, subIndex) => (
+                              <li key={subIndex} className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <CheckCircle2 className="h-3 w-3 text-primary" />
+                                {subItem}
+                              </li>
+                            ))}
+                          </ul>
                         )}
-                      </h3>
-                      {step.subItems.length > 0 && (
-                        <ul className="mt-2 space-y-1">
-                          {step.subItems.map((subItem, subIndex) => (
-                            <li key={subIndex} className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <CheckCircle2 className="h-3 w-3 text-primary" />
-                              {subItem}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </CardContent>
