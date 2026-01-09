@@ -33,7 +33,7 @@ const courses = [
 export default function SellingTraining() {
   return (
     <PageLayout
-      title="Selling Training"
+      title="Sales Training"
       description="Sharpen your sales skills with expert-led training programs."
       icon={<TrendingUp className="h-5 w-5" />}
     >
