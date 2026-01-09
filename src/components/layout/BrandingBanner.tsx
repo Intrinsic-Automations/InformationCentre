@@ -13,7 +13,7 @@ export function BrandingBanner() {
       <div className="absolute inset-0 flex items-center justify-center gap-3">
         <Users className="h-5 w-5 text-primary-foreground" />
         <span className="text-lg font-bold text-primary-foreground tracking-wide">
-          Community Hub
+          eQommnity Hub
         </span>
       </div>
     </div>
