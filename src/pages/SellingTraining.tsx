@@ -1,30 +1,26 @@
-import { TrendingUp, Play, Clock, CheckCircle } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+import consultativeImage from "@/assets/selling-consultative.jpg";
+import objectionImage from "@/assets/selling-objection.jpg";
+import enterpriseImage from "@/assets/selling-enterprise.jpg";
 
 const courses = [
   {
     title: "Consultative Selling",
     description: "Master the art of understanding customer needs and providing solutions.",
-    duration: "4 hours",
-    progress: 100,
-    lessons: 15,
+    image: consultativeImage,
   },
   {
     title: "Objection Handling",
     description: "Learn techniques to address and overcome common sales objections.",
-    duration: "2 hours",
-    progress: 45,
-    lessons: 8,
+    image: objectionImage,
   },
   {
     title: "Enterprise Sales Strategy",
     description: "Strategies for complex enterprise sales cycles and stakeholder management.",
-    duration: "5 hours",
-    progress: 0,
-    lessons: 20,
+    image: enterpriseImage,
   },
 ];
 
@@ -35,38 +31,21 @@ export default function SellingTraining() {
       description="Sharpen your sales skills with expert-led training programs."
       icon={<TrendingUp className="h-5 w-5" />}
     >
-      <div className="max-w-3xl space-y-4">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {courses.map((course, index) => (
-          <Card key={index} className="bg-card">
+          <Card key={index} className="bg-card overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
+            <div className="aspect-video overflow-hidden">
+              <img 
+                src={course.image} 
+                alt={course.title} 
+                className="w-full h-full object-cover"
+              />
+            </div>
             <CardHeader className="pb-2">
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-lg">{course.title}</CardTitle>
-                  <CardDescription>{course.description}</CardDescription>
-                </div>
-                {course.progress === 100 ? (
-                  <CheckCircle className="h-5 w-5 text-primary" />
-                ) : (
-                  <Button size="sm" className="gap-2">
-                    <Play className="h-3 w-3" /> {course.progress > 0 ? "Continue" : "Start"}
-                  </Button>
-                )}
-              </div>
+              <CardTitle className="text-lg">{course.title}</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-4 mb-3 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" /> {course.duration}
-                </span>
-                <span>{course.lessons} lessons</span>
-              </div>
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Progress</span>
-                  <span className="font-medium">{course.progress}%</span>
-                </div>
-                <Progress value={course.progress} className="h-2" />
-              </div>
+            <CardContent className="pt-0">
+              <p className="text-sm text-muted-foreground">{course.description}</p>
             </CardContent>
           </Card>
         ))}

@@ -1,30 +1,26 @@
-import { BookOpen, Play, Clock, CheckCircle } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+import communicationImage from "@/assets/generic-communication.jpg";
+import timeImage from "@/assets/generic-time.jpg";
+import leadershipImage from "@/assets/generic-leadership.jpg";
 
 const courses = [
   {
     title: "Effective Communication",
     description: "Enhance your written and verbal communication skills.",
-    duration: "2 hours",
-    progress: 100,
-    lessons: 10,
+    image: communicationImage,
   },
   {
     title: "Time Management Mastery",
     description: "Learn to prioritize tasks and manage your time effectively.",
-    duration: "1.5 hours",
-    progress: 80,
-    lessons: 6,
+    image: timeImage,
   },
   {
     title: "Leadership Fundamentals",
     description: "Core leadership skills for emerging and experienced leaders.",
-    duration: "3 hours",
-    progress: 25,
-    lessons: 12,
+    image: leadershipImage,
   },
 ];
 
@@ -35,38 +31,21 @@ export default function GenericTraining() {
       description="Professional development courses for all team members."
       icon={<BookOpen className="h-5 w-5" />}
     >
-      <div className="max-w-3xl space-y-4">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {courses.map((course, index) => (
-          <Card key={index} className="bg-card">
+          <Card key={index} className="bg-card overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
+            <div className="aspect-video overflow-hidden">
+              <img 
+                src={course.image} 
+                alt={course.title} 
+                className="w-full h-full object-cover"
+              />
+            </div>
             <CardHeader className="pb-2">
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-lg">{course.title}</CardTitle>
-                  <CardDescription>{course.description}</CardDescription>
-                </div>
-                {course.progress === 100 ? (
-                  <CheckCircle className="h-5 w-5 text-primary" />
-                ) : (
-                  <Button size="sm" className="gap-2">
-                    <Play className="h-3 w-3" /> {course.progress > 0 ? "Continue" : "Start"}
-                  </Button>
-                )}
-              </div>
+              <CardTitle className="text-lg">{course.title}</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-4 mb-3 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" /> {course.duration}
-                </span>
-                <span>{course.lessons} lessons</span>
-              </div>
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Progress</span>
-                  <span className="font-medium">{course.progress}%</span>
-                </div>
-                <Progress value={course.progress} className="h-2" />
-              </div>
+            <CardContent className="pt-0">
+              <p className="text-sm text-muted-foreground">{course.description}</p>
             </CardContent>
           </Card>
         ))}
