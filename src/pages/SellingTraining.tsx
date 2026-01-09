@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import consultativeImage from "@/assets/selling-consultative.jpg";
 import objectionImage from "@/assets/selling-objection.jpg";
 import enterpriseImage from "@/assets/selling-enterprise.jpg";
+import spinImage from "@/assets/selling-spin.jpg";
 
 const courses = [
   {
@@ -21,6 +22,11 @@ const courses = [
     title: "Enterprise Sales Strategy",
     description: "Strategies for complex enterprise sales cycles and stakeholder management.",
     image: enterpriseImage,
+  },
+  {
+    title: "Spin Selling",
+    description: "Master the SPIN methodology: Situation, Problem, Implication, and Need-Payoff questions.",
+    image: spinImage,
   },
 ];
 
