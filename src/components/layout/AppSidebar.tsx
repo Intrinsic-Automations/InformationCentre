@@ -93,7 +93,7 @@ const navigationConfig: NavGroup[] = [
           { title: "Integration Suite", url: "/eq-training/integration-suite", icon: Plug },
         ],
       },
-      { title: "Selling Training", url: "/selling-training", icon: TrendingUp },
+      { title: "Sales Training", url: "/selling-training", icon: TrendingUp },
       { title: "Generic Training", url: "/generic-training", icon: BookOpen },
     ],
   },
