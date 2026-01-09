@@ -1,5 +1,4 @@
 import { Network, User } from "lucide-react";
-import { PageLayout } from "@/components/layout/PageLayout";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -9,6 +8,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import organizationHero from "@/assets/organization-hero.jpg";
 
 interface Employee {
   id: string;
@@ -335,30 +335,49 @@ function OrgTreeNode({ employee }: { employee: Employee }) {
 
 export default function Organization() {
   return (
-    <PageLayout
-      title="Organization"
-      description="Explore our organizational structure and team hierarchy."
-      icon={<Network className="h-5 w-5" />}
-    >
-      <div className="space-y-4">
-        {/* Legend */}
-        <div className="flex flex-wrap gap-2">
-          {Object.entries(levelColors).map(([level, colorClass]) => (
-            <Badge key={level} variant="secondary" className={colorClass}>
-              {level}
-            </Badge>
-          ))}
-        </div>
-        
-        {/* Scrollable org chart - both directions */}
-        <ScrollArea className="w-full h-[calc(100vh-200px)]">
-          <div className="p-4 min-w-max flex justify-center">
-            <OrgTreeNode employee={orgData} />
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* Hero Banner with Title - Sticky */}
+      <div className="sticky top-0 z-30 shrink-0 relative h-16 md:h-20 overflow-hidden">
+        <img
+          src={organizationHero}
+          alt="Organization banner"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-secondary/80 to-secondary/40" />
+        <div className="absolute inset-0 flex items-center px-6 md:px-12">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 text-primary-foreground backdrop-blur-sm">
+              <Network className="h-4 w-4" />
+            </div>
+            <div>
+              <h1 className="text-lg md:text-xl font-bold text-secondary-foreground">Organization</h1>
+            </div>
           </div>
-          <ScrollBar orientation="horizontal" />
-          <ScrollBar orientation="vertical" />
-        </ScrollArea>
+        </div>
       </div>
-    </PageLayout>
+
+      {/* Content */}
+      <div className="flex-1 overflow-auto p-6">
+        <div className="space-y-4">
+          {/* Legend */}
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(levelColors).map(([level, colorClass]) => (
+              <Badge key={level} variant="secondary" className={colorClass}>
+                {level}
+              </Badge>
+            ))}
+          </div>
+          
+          {/* Scrollable org chart - both directions */}
+          <ScrollArea className="w-full h-[calc(100vh-280px)]">
+            <div className="p-4 min-w-max flex justify-center">
+              <OrgTreeNode employee={orgData} />
+            </div>
+            <ScrollBar orientation="horizontal" />
+            <ScrollBar orientation="vertical" />
+          </ScrollArea>
+        </div>
+      </div>
+    </div>
   );
 }
