@@ -1,30 +1,19 @@
-import { GraduationCap, Play, Clock, CheckCircle } from "lucide-react";
+import { GraduationCap } from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import analyticsSuiteImage from "@/assets/analytics-suite.jpg";
+import integrationSuiteImage from "@/assets/integration-suite.jpg";
 
-const courses = [
+const suites = [
   {
-    title: "eQ Platform Fundamentals",
-    description: "Learn the core concepts and navigation of the eQ platform.",
-    duration: "2 hours",
-    progress: 100,
-    lessons: 8,
+    title: "Analytics Suite",
+    description: "Comprehensive analytics tools for data-driven insights and business intelligence.",
+    image: analyticsSuiteImage,
   },
   {
-    title: "Advanced eQ Configuration",
-    description: "Deep dive into advanced settings and customization options.",
-    duration: "3 hours",
-    progress: 60,
-    lessons: 12,
-  },
-  {
-    title: "eQ Integration Best Practices",
-    description: "Best practices for integrating eQ with other systems.",
-    duration: "1.5 hours",
-    progress: 0,
-    lessons: 6,
+    title: "Integration Suite",
+    description: "Seamlessly connect and integrate with your existing systems and workflows.",
+    image: integrationSuiteImage,
   },
 ];
 
@@ -35,38 +24,21 @@ export default function EQTraining() {
       description="Master the eQ platform with comprehensive training modules."
       icon={<GraduationCap className="h-5 w-5" />}
     >
-      <div className="max-w-3xl space-y-4">
-        {courses.map((course, index) => (
-          <Card key={index} className="bg-card">
-            <CardHeader className="pb-2">
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-lg">{course.title}</CardTitle>
-                  <CardDescription>{course.description}</CardDescription>
-                </div>
-                {course.progress === 100 ? (
-                  <CheckCircle className="h-5 w-5 text-primary" />
-                ) : (
-                  <Button size="sm" className="gap-2">
-                    <Play className="h-3 w-3" /> {course.progress > 0 ? "Continue" : "Start"}
-                  </Button>
-                )}
-              </div>
+      <div className="grid gap-6 md:grid-cols-2 max-w-4xl">
+        {suites.map((suite, index) => (
+          <Card key={index} className="bg-card overflow-hidden">
+            <div className="aspect-video overflow-hidden">
+              <img
+                src={suite.image}
+                alt={suite.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <CardHeader>
+              <CardTitle className="text-lg">{suite.title}</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-4 mb-3 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" /> {course.duration}
-                </span>
-                <span>{course.lessons} lessons</span>
-              </div>
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Progress</span>
-                  <span className="font-medium">{course.progress}%</span>
-                </div>
-                <Progress value={course.progress} className="h-2" />
-              </div>
+            <CardContent className="pt-0">
+              <p className="text-sm text-muted-foreground">{suite.description}</p>
             </CardContent>
           </Card>
         ))}
