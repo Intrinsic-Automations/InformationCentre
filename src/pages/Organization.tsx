@@ -295,34 +295,34 @@ function OrgTreeNode({ employee }: { employee: Employee }) {
   const hasReports = employee.directReports && employee.directReports.length > 0;
 
   return (
-    <div className="flex items-start">
+    <div className="flex flex-col items-center">
       {/* Employee card */}
       <EmployeeCard employee={employee} />
 
       {/* Connector and children */}
       {hasReports && (
-        <div className="flex items-center">
-          {/* Horizontal line from card to children */}
-          <div className="w-6 h-0.5 bg-border" />
+        <div className="flex flex-col items-center">
+          {/* Vertical line from card to children */}
+          <div className="w-0.5 h-6 bg-border" />
           
-          {/* Children column */}
-          <div className="flex flex-col relative">
-            {/* Vertical line connecting children */}
+          {/* Children row */}
+          <div className="flex relative">
+            {/* Horizontal line connecting children */}
             {employee.directReports!.length > 1 && (
               <div
-                className="absolute left-0 w-0.5 bg-border"
+                className="absolute top-0 h-0.5 bg-border"
                 style={{
-                  top: '50%',
-                  height: `calc(100% - ${employee.directReports!.length > 1 ? '24px' : '0px'})`,
-                  transform: 'translateY(-50%)',
+                  left: '50%',
+                  width: `calc(100% - 180px)`,
+                  transform: 'translateX(-50%)',
                 }}
               />
             )}
             
-            {employee.directReports!.map((report, index) => (
-              <div key={report.id} className="flex items-center relative py-2">
-                {/* Horizontal connector to child */}
-                <div className="w-4 h-0.5 bg-border" />
+            {employee.directReports!.map((report) => (
+              <div key={report.id} className="flex flex-col items-center relative px-2">
+                {/* Vertical connector to child */}
+                <div className="w-0.5 h-4 bg-border" />
                 <OrgTreeNode employee={report} />
               </div>
             ))}
@@ -350,12 +350,13 @@ export default function Organization() {
           ))}
         </div>
         
-        {/* Horizontal scrollable org chart */}
-        <ScrollArea className="w-full">
-          <div className="p-4 min-w-max">
+        {/* Scrollable org chart - both directions */}
+        <ScrollArea className="w-full h-[calc(100vh-200px)]">
+          <div className="p-4 min-w-max flex justify-center">
             <OrgTreeNode employee={orgData} />
           </div>
           <ScrollBar orientation="horizontal" />
+          <ScrollBar orientation="vertical" />
         </ScrollArea>
       </div>
     </PageLayout>
