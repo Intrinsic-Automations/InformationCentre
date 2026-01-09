@@ -20,6 +20,8 @@ import Introductions from "./pages/Introductions";
 import Wins from "./pages/Wins";
 import Partnerships from "./pages/Partnerships";
 import EQTraining from "./pages/EQTraining";
+import AnalyticsSuite from "./pages/AnalyticsSuite";
+import IntegrationSuite from "./pages/IntegrationSuite";
 import SellingTraining from "./pages/SellingTraining";
 import GenericTraining from "./pages/GenericTraining";
 import Migration from "./pages/Migration";
@@ -69,6 +71,8 @@ const App = () => (
                   <Route path="/wins" element={<Wins />} />
                   <Route path="/partnerships" element={<Partnerships />} />
                   <Route path="/eq-training" element={<EQTraining />} />
+                  <Route path="/eq-training/analytics-suite" element={<AnalyticsSuite />} />
+                  <Route path="/eq-training/integration-suite" element={<IntegrationSuite />} />
                   <Route path="/selling-training" element={<SellingTraining />} />
                   <Route path="/generic-training" element={<GenericTraining />} />
                   <Route path="/migration" element={<Migration />} />

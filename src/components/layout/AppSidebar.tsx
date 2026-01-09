@@ -23,6 +23,8 @@ import {
   Database,
   Network,
   ChevronDown,
+  BarChart3,
+  Plug,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
@@ -42,7 +44,19 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
-const navigationConfig = [
+interface NavItem {
+  title: string;
+  url: string;
+  icon: React.ComponentType<{ className?: string }>;
+  children?: NavItem[];
+}
+
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const navigationConfig: NavGroup[] = [
   {
     label: "Welcome",
     items: [
@@ -70,7 +84,15 @@ const navigationConfig = [
   {
     label: "Learning",
     items: [
-      { title: "eQ Training", url: "/eq-training", icon: GraduationCap },
+      { 
+        title: "eQ Training", 
+        url: "/eq-training", 
+        icon: GraduationCap,
+        children: [
+          { title: "Analytics Suite", url: "/eq-training/analytics-suite", icon: BarChart3 },
+          { title: "Integration Suite", url: "/eq-training/integration-suite", icon: Plug },
+        ],
+      },
       { title: "Selling Training", url: "/selling-training", icon: TrendingUp },
       { title: "Generic Training", url: "/generic-training", icon: BookOpen },
     ],
@@ -166,6 +188,24 @@ export function AppSidebar() {
                             <span>{item.title}</span>
                           </NavLink>
                         </SidebarMenuButton>
+                        {item.children && (
+                          <SidebarMenu className="ml-4 mt-1 border-l border-sidebar-border pl-2">
+                            {item.children.map((child) => (
+                              <SidebarMenuItem key={child.title}>
+                                <SidebarMenuButton asChild>
+                                  <NavLink
+                                    to={child.url}
+                                    className="flex items-center gap-3 rounded-md px-3 py-1.5 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+                                    activeClassName="bg-primary/10 text-primary font-semibold"
+                                  >
+                                    <child.icon className="h-3.5 w-3.5" />
+                                    <span>{child.title}</span>
+                                  </NavLink>
+                                </SidebarMenuButton>
+                              </SidebarMenuItem>
+                            ))}
+                          </SidebarMenu>
+                        )}
                       </SidebarMenuItem>
                     ))}
                   </SidebarMenu>
