@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import communicationImage from "@/assets/generic-communication.jpg";
 import timeImage from "@/assets/generic-time.jpg";
 import leadershipImage from "@/assets/generic-leadership.jpg";
+import vmodelImage from "@/assets/generic-vmodel.jpg";
 
 const courses = [
   {
@@ -21,6 +22,11 @@ const courses = [
     title: "Leadership Fundamentals",
     description: "Core leadership skills for emerging and experienced leaders.",
     image: leadershipImage,
+  },
+  {
+    title: "V-Model",
+    description: "Learn the V-Model software development methodology for verification and validation.",
+    image: vmodelImage,
   },
 ];
 
