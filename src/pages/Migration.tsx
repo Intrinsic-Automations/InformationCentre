@@ -28,6 +28,7 @@ export default function Migration() {
     >
       <Card className="bg-card max-w-2xl">
         <CardContent className="pt-6">
+          <h2 className="text-xl font-bold text-foreground mb-6">Solution Timeline</h2>
           <div className="relative">
             {/* Vertical line */}
             <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-border" />
