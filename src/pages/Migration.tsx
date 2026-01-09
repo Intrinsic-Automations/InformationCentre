@@ -1,4 +1,4 @@
-import { ArrowRightLeft, Circle, CheckCircle2 } from "lucide-react";
+import { ArrowRightLeft, Circle, CheckCircle2, Download } from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -90,9 +90,17 @@ export default function Migration() {
                 "Change Request Document",
                 "Project Closure Document",
               ].map((template, index) => (
-                <li key={index} className="flex items-center gap-2 text-sm text-foreground">
-                  <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-                  {template}
+                <li key={index}>
+                  <a
+                    href="#"
+                    className="flex items-center justify-between gap-2 text-sm text-foreground hover:text-primary transition-colors py-1 group"
+                  >
+                    <span className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                      {template}
+                    </span>
+                    <Download className="h-4 w-4 text-muted-foreground group-hover:text-primary shrink-0" />
+                  </a>
                 </li>
               ))}
             </ul>
