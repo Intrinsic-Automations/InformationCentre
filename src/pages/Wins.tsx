@@ -1,74 +1,266 @@
-import { Trophy, Heart, MessageSquare, Info, Briefcase, Lightbulb, Users, Award, Handshake, FileText, HelpCircle } from "lucide-react";
+import { useState } from "react";
+import { Trophy, Heart, MessageCircleMore, Info, Briefcase, Lightbulb, Users, Award, Handshake, FileText, HelpCircle, Send, Pencil, X, Check } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import winsHero from "@/assets/wins-hero.jpg";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { format } from "date-fns";
 
-const wins = [
-  {
-    user: "Rachel Torres",
-    initials: "RT",
-    title: "Healthcare Integration Project Goes Live! 🏥",
-    description: `Huge milestone - our healthcare client's patient portal integration is now live and running smoothly!
+interface Author {
+  id: string;
+  full_name: string;
+  initials: string;
+  avatar_url: string | null;
+}
 
-**The client:** Regional hospital network with 12 facilities across 3 states.
+interface Comment {
+  id: string;
+  content: string;
+  created_at: string;
+  author: Author | null;
+}
 
-**What we built:** Full EHR integration connecting their legacy systems to a modern patient portal. Patients can now view records, schedule appointments, and message providers - all in one place.
-
-**Key challenges overcome:** Legacy system APIs were poorly documented. Our team spent 3 weeks reverse-engineering the data flows. Shoutout to the engineering team for their persistence!
-
-**Business impact:** Client reports 40% reduction in phone call volume and patient satisfaction scores up 25%.
-
-**Team recognition:** Special thanks to the integration squad - this was a true team effort across engineering, QA, and project management.`,
-    likes: 89,
-    comments: 23,
-    date: "3 hours ago",
-  },
-  {
-    user: "David Okonkwo",
-    initials: "DO",
-    title: "Q4 Revenue Target Exceeded by 15%! 📈",
-    description: `Thrilled to announce we've closed Q4 with revenue 15% above our target!
-
-**The wins that got us here:**
-• Closed 3 new enterprise accounts in November
-• Renewed our largest client with a 2-year extension
-• Expanded into the APAC region with our first Singapore client
-
-**What made the difference:** The new sales methodology we implemented in September is paying off. Deal cycles shortened by an average of 2 weeks.
-
-**Lessons learned:** Investing in pre-sales technical support made a huge difference for complex deals. Clients felt more confident when our engineers joined discovery calls.
-
-**Looking ahead:** This momentum sets us up for an ambitious but achievable Q1 target.`,
-    likes: 156,
-    comments: 41,
-    date: "1 day ago",
-  },
-  {
-    user: "Priya Sharma",
-    initials: "PS",
-    title: "Migration Project Completed 2 Weeks Early! ⚡",
-    description: `Our largest cloud migration project just wrapped up - 2 weeks ahead of schedule!
-
-**The project:** Migrating a financial services client from on-premise infrastructure to Azure cloud.
-
-**Scope:** 200+ applications, 15TB of data, and zero tolerance for downtime during trading hours.
-
-**How we did it:** Our phased migration approach and weekend cutover windows kept the client operational throughout. Automation scripts reduced manual work by 60%.
-
-**Challenges faced:** Discovered 30+ undocumented legacy integrations during discovery. Had to build custom connectors on the fly.
-
-**Client feedback:** "Your team's communication and transparency made this the smoothest migration we've ever experienced."
-
-**Kudos to:** The entire infrastructure team and our tireless project managers!`,
-    likes: 72,
-    comments: 18,
-    date: "2 days ago",
-  },
-];
+interface Post {
+  id: string;
+  content: string;
+  title: string | null;
+  created_at: string;
+  author_id: string;
+  author: Author | null;
+  likes: { id: string; user_id: string }[];
+  comments: Comment[];
+}
 
 export default function Wins() {
+  const { user, profile } = useAuth();
+  const queryClient = useQueryClient();
+  const [newPost, setNewPost] = useState("");
+  const [newTitle, setNewTitle] = useState("");
+  const [expandedComments, setExpandedComments] = useState<string[]>([]);
+  const [commentInputs, setCommentInputs] = useState<Record<string, string>>({});
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState("");
+  const [editTitle, setEditTitle] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editCommentContent, setEditCommentContent] = useState("");
+
+  const { data: posts = [], isLoading } = useQuery({
+    queryKey: ["wins-posts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("posts")
+        .select(`
+          *,
+          author:profiles!posts_author_id_fkey (
+            id,
+            full_name,
+            initials,
+            avatar_url
+          ),
+          likes (
+            id,
+            user_id
+          ),
+          comments (
+            id,
+            content,
+            created_at,
+            author:profiles!comments_author_id_fkey (
+              id,
+              full_name,
+              initials,
+              avatar_url
+            )
+          )
+        `)
+        .eq("channel", "wins")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data as Post[];
+    },
+  });
+
+  const createPost = useMutation({
+    mutationFn: async ({ title, content }: { title: string; content: string }) => {
+      if (!profile?.id) throw new Error("You must be logged in");
+
+      const { error } = await supabase.from("posts").insert({
+        title,
+        content,
+        channel: "wins",
+        author_id: profile.id,
+      });
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["wins-posts"] });
+      setNewPost("");
+      setNewTitle("");
+      toast.success("Win posted!");
+    },
+    onError: (error) => {
+      toast.error("Failed to post: " + error.message);
+    },
+  });
+
+  const updatePost = useMutation({
+    mutationFn: async ({ postId, title, content }: { postId: string; title: string; content: string }) => {
+      const { error } = await supabase
+        .from("posts")
+        .update({ title, content })
+        .eq("id", postId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["wins-posts"] });
+      setEditingPostId(null);
+      setEditContent("");
+      setEditTitle("");
+      toast.success("Post updated!");
+    },
+    onError: (error) => {
+      toast.error("Failed to update post: " + error.message);
+    },
+  });
+
+  const toggleLike = useMutation({
+    mutationFn: async (postId: string) => {
+      if (!profile?.id) throw new Error("You must be logged in");
+
+      const post = posts.find((p) => p.id === postId);
+      const existingLike = post?.likes.find((l) => l.user_id === profile.id);
+
+      if (existingLike) {
+        const { error } = await supabase.from("likes").delete().eq("id", existingLike.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("likes").insert({
+          post_id: postId,
+          user_id: profile.id,
+        });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["wins-posts"] });
+    },
+    onError: (error) => {
+      toast.error("Failed to update like: " + error.message);
+    },
+  });
+
+  const addComment = useMutation({
+    mutationFn: async ({ postId, content }: { postId: string; content: string }) => {
+      if (!profile?.id) throw new Error("You must be logged in");
+
+      const { error } = await supabase.from("comments").insert({
+        post_id: postId,
+        content,
+        author_id: profile.id,
+      });
+
+      if (error) throw error;
+    },
+    onSuccess: (_, { postId }) => {
+      queryClient.invalidateQueries({ queryKey: ["wins-posts"] });
+      setCommentInputs((prev) => ({ ...prev, [postId]: "" }));
+    },
+    onError: (error) => {
+      toast.error("Failed to add comment: " + error.message);
+    },
+  });
+
+  const updateComment = useMutation({
+    mutationFn: async ({ commentId, content }: { commentId: string; content: string }) => {
+      const { error } = await supabase
+        .from("comments")
+        .update({ content })
+        .eq("id", commentId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["wins-posts"] });
+      setEditingCommentId(null);
+      setEditCommentContent("");
+      toast.success("Comment updated!");
+    },
+    onError: (error) => {
+      toast.error("Failed to update comment: " + error.message);
+    },
+  });
+
+  const toggleComments = (postId: string) => {
+    setExpandedComments((prev) =>
+      prev.includes(postId) ? prev.filter((id) => id !== postId) : [...prev, postId]
+    );
+  };
+
+  const handleSubmitPost = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTitle.trim() || !newPost.trim()) return;
+    createPost.mutate({ title: newTitle.trim(), content: newPost.trim() });
+  };
+
+  const handleAddComment = (postId: string) => {
+    const content = commentInputs[postId]?.trim();
+    if (!content) return;
+    addComment.mutate({ postId, content });
+  };
+
+  const handleStartEdit = (post: Post) => {
+    setEditingPostId(post.id);
+    setEditTitle(post.title || "");
+    setEditContent(post.content);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingPostId(null);
+    setEditContent("");
+    setEditTitle("");
+  };
+
+  const handleSaveEdit = (postId: string) => {
+    if (!editTitle.trim() || !editContent.trim()) return;
+    updatePost.mutate({ postId, title: editTitle.trim(), content: editContent.trim() });
+  };
+
+  const handleStartEditComment = (comment: Comment) => {
+    setEditingCommentId(comment.id);
+    setEditCommentContent(comment.content);
+  };
+
+  const handleCancelEditComment = () => {
+    setEditingCommentId(null);
+    setEditCommentContent("");
+  };
+
+  const handleSaveEditComment = (commentId: string) => {
+    if (!editCommentContent.trim()) return;
+    updateComment.mutate({ commentId, content: editCommentContent.trim() });
+  };
+
+  const isAuthor = (post: Post) => {
+    return post.author?.id === profile?.id;
+  };
+
+  const isCommentAuthor = (comment: Comment) => {
+    return comment.author?.id === profile?.id;
+  };
+
+  const isLikedByUser = (post: Post) => {
+    return post.likes.some((l) => l.user_id === profile?.id);
+  };
+
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Hero Banner with Title - Sticky */}
@@ -214,40 +406,267 @@ export default function Wins() {
             </CardContent>
           </Card>
 
-          {/* Wins Feed */}
-          <div className="space-y-4">
-            {wins.map((win, index) => (
-              <Card key={index} className="bg-card">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                        {win.initials}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <CardTitle className="text-base">{win.user}</CardTitle>
-                      <span className="text-xs text-muted-foreground">{win.date}</span>
+          {/* New Win Input */}
+          {user ? (
+            <Card className="bg-card">
+              <CardContent className="p-4">
+                <form onSubmit={handleSubmitPost} className="flex gap-3">
+                  <Avatar className="h-10 w-10 shrink-0">
+                    <AvatarImage src={profile?.avatar_url || undefined} />
+                    <AvatarFallback className="bg-primary/20 text-primary text-sm">
+                      {profile?.initials || "?"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 space-y-2">
+                    <Input
+                      placeholder="Win title (e.g., 'New Enterprise Client Signed! 🎉')"
+                      value={newTitle}
+                      onChange={(e) => setNewTitle(e.target.value)}
+                    />
+                    <Textarea
+                      placeholder="Share the details of your win... What happened? How did you do it? What did you learn?"
+                      value={newPost}
+                      onChange={(e) => setNewPost(e.target.value)}
+                      className="min-h-[100px] resize-none"
+                    />
+                    <div className="flex justify-end">
+                      <Button type="submit" disabled={!newTitle.trim() || !newPost.trim() || createPost.isPending} className="gap-2">
+                        <Send className="h-4 w-4" />
+                        {createPost.isPending ? "Posting..." : "Share Win"}
+                      </Button>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <h3 className="font-semibold text-foreground mb-3">{win.title}</h3>
-                  <div className="text-sm text-foreground/80 mb-4 whitespace-pre-line">
-                    {win.description}
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-primary">
-                      <Heart className="h-4 w-4" /> {win.likes}
-                    </Button>
-                    <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-primary">
-                      <MessageSquare className="h-4 w-4" /> {win.comments}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                </form>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="bg-card">
+              <CardContent className="p-4 text-center text-muted-foreground">
+                Please log in to share your wins.
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Wins Feed */}
+          {isLoading ? (
+            <Card className="bg-card">
+              <CardContent className="p-4 text-center text-muted-foreground">
+                Loading wins...
+              </CardContent>
+            </Card>
+          ) : posts.length === 0 ? (
+            <Card className="bg-card">
+              <CardContent className="p-4 text-center text-muted-foreground">
+                No wins shared yet. Be the first to celebrate a success!
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {posts.map((post) => (
+                <Card key={post.id} className="bg-card">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={post.author?.avatar_url || undefined} />
+                        <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                          {post.author?.initials || "?"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <CardTitle className="text-base">{post.author?.full_name || "Unknown"}</CardTitle>
+                        <span className="text-xs text-muted-foreground">
+                          {format(new Date(post.created_at), "MMMM d, yyyy 'at' h:mm a")}
+                        </span>
+                      </div>
+                      {isAuthor(post) && editingPostId !== post.id && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                          onClick={() => handleStartEdit(post)}
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {editingPostId === post.id ? (
+                      <div className="space-y-2">
+                        <Input
+                          value={editTitle}
+                          onChange={(e) => setEditTitle(e.target.value)}
+                          placeholder="Win title"
+                        />
+                        <Textarea
+                          value={editContent}
+                          onChange={(e) => setEditContent(e.target.value)}
+                          className="min-h-[100px] resize-none"
+                        />
+                        <div className="flex gap-2 justify-end">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleCancelEdit}
+                            className="gap-1"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                            Cancel
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => handleSaveEdit(post.id)}
+                            disabled={!editTitle.trim() || !editContent.trim() || updatePost.isPending}
+                            className="gap-1"
+                          >
+                            <Check className="h-3.5 w-3.5" />
+                            {updatePost.isPending ? "Saving..." : "Save"}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <h3 className="font-semibold text-foreground mb-3">{post.title}</h3>
+                        <div className="text-sm text-foreground/80 mb-4 whitespace-pre-wrap">
+                          {post.content}
+                        </div>
+                      </>
+                    )}
+
+                    {/* Like and Comment buttons */}
+                    {editingPostId !== post.id && (
+                      <div className="flex items-center gap-4">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className={`gap-2 h-8 px-2 ${
+                            isLikedByUser(post) ? "text-destructive" : "text-muted-foreground hover:text-destructive"
+                          }`}
+                          onClick={() => toggleLike.mutate(post.id)}
+                          disabled={!user}
+                        >
+                          <Heart className={`h-4 w-4 ${isLikedByUser(post) ? "fill-current" : ""}`} />
+                          <span className="text-xs">{post.likes.length}</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="gap-2 h-8 px-2 text-muted-foreground hover:text-primary"
+                          onClick={() => toggleComments(post.id)}
+                        >
+                          <MessageCircleMore className="h-4 w-4" />
+                          <span className="text-xs">{post.comments.length}</span>
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Comments Section */}
+                    {expandedComments.includes(post.id) && (
+                      <div className="mt-3 pl-4 border-l-2 border-border space-y-3">
+                        {post.comments.map((comment) => (
+                          <div key={comment.id} className="flex gap-2">
+                            <Avatar className="h-6 w-6">
+                              <AvatarImage src={comment.author?.avatar_url || undefined} />
+                              <AvatarFallback className="bg-secondary text-secondary-foreground text-xs">
+                                {comment.author?.initials || "?"}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                              <div className="flex items-baseline justify-between gap-2">
+                                <div className="flex items-baseline gap-2">
+                                  <span className="font-medium text-xs text-foreground">
+                                    {comment.author?.full_name || "Unknown"}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">
+                                    {format(new Date(comment.created_at), "MMM d")}
+                                  </span>
+                                </div>
+                                {isCommentAuthor(comment) && editingCommentId !== comment.id && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-5 w-5 text-muted-foreground hover:text-foreground"
+                                    onClick={() => handleStartEditComment(comment)}
+                                  >
+                                    <Pencil className="h-3 w-3" />
+                                  </Button>
+                                )}
+                              </div>
+                              {editingCommentId === comment.id ? (
+                                <div className="mt-1 space-y-2">
+                                  <Input
+                                    value={editCommentContent}
+                                    onChange={(e) => setEditCommentContent(e.target.value)}
+                                    className="h-8 text-xs"
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter" && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSaveEditComment(comment.id);
+                                      }
+                                      if (e.key === "Escape") {
+                                        handleCancelEditComment();
+                                      }
+                                    }}
+                                  />
+                                  <div className="flex gap-1 justify-end">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={handleCancelEditComment}
+                                      className="h-6 px-2 text-xs gap-1"
+                                    >
+                                      <X className="h-3 w-3" />
+                                      Cancel
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      onClick={() => handleSaveEditComment(comment.id)}
+                                      disabled={!editCommentContent.trim() || updateComment.isPending}
+                                      className="h-6 px-2 text-xs gap-1"
+                                    >
+                                      <Check className="h-3 w-3" />
+                                      {updateComment.isPending ? "Saving..." : "Save"}
+                                    </Button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <p className="text-xs text-foreground/80">{comment.content}</p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+
+                        {/* Add Comment Input */}
+                        {user && (
+                          <div className="flex gap-2 mt-2">
+                            <Input
+                              placeholder="Congratulate or ask a question..."
+                              className="h-8 text-xs"
+                              value={commentInputs[post.id] || ""}
+                              onChange={(e) => setCommentInputs((prev) => ({ ...prev, [post.id]: e.target.value }))}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  handleAddComment(post.id);
+                                }
+                              }}
+                            />
+                            <Button
+                              size="sm"
+                              className="h-8 px-3"
+                              onClick={() => handleAddComment(post.id)}
+                              disabled={!commentInputs[post.id]?.trim() || addComment.isPending}
+                            >
+                              <Send className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
