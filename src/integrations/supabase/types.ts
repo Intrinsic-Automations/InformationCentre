@@ -388,6 +388,50 @@ export type Database = {
           },
         ]
       }
+      opportunity_action_steps: {
+        Row: {
+          action_description: string
+          created_at: string
+          due_date: string | null
+          id: string
+          is_completed: boolean
+          opportunity_id: string
+          owner: string
+          rag_status: string
+          updated_at: string
+        }
+        Insert: {
+          action_description: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          is_completed?: boolean
+          opportunity_id: string
+          owner: string
+          rag_status?: string
+          updated_at?: string
+        }
+        Update: {
+          action_description?: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          is_completed?: boolean
+          opportunity_id?: string
+          owner?: string
+          rag_status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_action_steps_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       opportunity_interactions: {
         Row: {
           attendees: string | null

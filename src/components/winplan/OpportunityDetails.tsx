@@ -17,6 +17,8 @@ import {
   CalendarClock,
   Crown,
   UserCheck,
+  ListTodo,
+  Circle,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -30,15 +32,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Opportunity, OpportunityInteraction, OpportunityStakeholder } from "@/hooks/useWinPlanData";
+import type { Opportunity, OpportunityInteraction, OpportunityStakeholder, OpportunityActionStep } from "@/hooks/useWinPlanData";
 import { format } from "date-fns";
 
 interface OpportunityDetailsProps {
   opportunity: Opportunity | undefined;
   interactions: OpportunityInteraction[] | undefined;
   stakeholders: OpportunityStakeholder[] | undefined;
+  actionSteps: OpportunityActionStep[] | undefined;
   isLoadingInteractions: boolean;
   isLoadingStakeholders: boolean;
+  isLoadingActionSteps: boolean;
 }
 
 const interactionTypeIcons: Record<string, React.ReactNode> = {
@@ -67,12 +71,20 @@ const formatCurrency = (value: number | null) => {
   }).format(value);
 };
 
+const ragStatusConfig = {
+  red: { label: "Red", bgClass: "bg-red-100 dark:bg-red-950/50", textClass: "text-red-700 dark:text-red-400", dotClass: "bg-red-500" },
+  amber: { label: "Amber", bgClass: "bg-amber-100 dark:bg-amber-950/50", textClass: "text-amber-700 dark:text-amber-400", dotClass: "bg-amber-500" },
+  green: { label: "Green", bgClass: "bg-green-100 dark:bg-green-950/50", textClass: "text-green-700 dark:text-green-400", dotClass: "bg-green-500" },
+};
+
 export function OpportunityDetails({
   opportunity,
   interactions,
   stakeholders,
+  actionSteps,
   isLoadingInteractions,
   isLoadingStakeholders,
+  isLoadingActionSteps,
 }: OpportunityDetailsProps) {
   if (!opportunity) {
     return (
@@ -284,6 +296,69 @@ export function OpportunityDetails({
           ) : (
             <p className="text-sm text-muted-foreground text-center py-4">
               No stakeholders recorded yet
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Next Action Steps */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <ListTodo className="h-5 w-5" />
+            Next Action Steps
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoadingActionSteps ? (
+            <Skeleton className="h-32 w-full" />
+          ) : actionSteps && actionSteps.length > 0 ? (
+            <div className="rounded-md border overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Action</TableHead>
+                    <TableHead>Owner</TableHead>
+                    <TableHead>Due Date</TableHead>
+                    <TableHead>RAG Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {actionSteps.map((step) => {
+                    const ragConfig = ragStatusConfig[step.rag_status];
+                    return (
+                      <TableRow key={step.id} className={step.is_completed ? "opacity-60" : ""}>
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-2">
+                            {step.is_completed ? (
+                              <CheckCircle2 className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <Circle className="h-4 w-4 text-muted-foreground" />
+                            )}
+                            <span className={step.is_completed ? "line-through" : ""}>
+                              {step.action_description}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>{step.owner}</TableCell>
+                        <TableCell>
+                          {step.due_date ? format(new Date(step.due_date), "MMM d, yyyy") : "—"}
+                        </TableCell>
+                        <TableCell>
+                          <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${ragConfig.bgClass} ${ragConfig.textClass}`}>
+                            <span className={`h-2 w-2 rounded-full ${ragConfig.dotClass}`} />
+                            {ragConfig.label}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              No action steps recorded yet
             </p>
           )}
         </CardContent>
