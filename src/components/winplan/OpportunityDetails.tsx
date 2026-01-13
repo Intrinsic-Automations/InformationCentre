@@ -11,18 +11,34 @@ import {
   Calendar,
   ArrowRight,
   CheckCircle2,
+  Building2,
+  User,
+  PoundSterling,
+  CalendarClock,
+  Crown,
+  UserCheck,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import type { Opportunity, OpportunityInteraction } from "@/hooks/useWinPlanData";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import type { Opportunity, OpportunityInteraction, OpportunityStakeholder } from "@/hooks/useWinPlanData";
 import { format } from "date-fns";
 
 interface OpportunityDetailsProps {
   opportunity: Opportunity | undefined;
   interactions: OpportunityInteraction[] | undefined;
+  stakeholders: OpportunityStakeholder[] | undefined;
   isLoadingInteractions: boolean;
+  isLoadingStakeholders: boolean;
 }
 
 const interactionTypeIcons: Record<string, React.ReactNode> = {
@@ -41,10 +57,22 @@ const interactionTypeBadgeVariants: Record<string, "default" | "secondary" | "ou
   call: "secondary",
 };
 
+const formatCurrency = (value: number | null) => {
+  if (value === null || value === undefined) return "—";
+  return new Intl.NumberFormat("en-GB", {
+    style: "currency",
+    currency: "GBP",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+};
+
 export function OpportunityDetails({
   opportunity,
   interactions,
+  stakeholders,
   isLoadingInteractions,
+  isLoadingStakeholders,
 }: OpportunityDetailsProps) {
   if (!opportunity) {
     return (
@@ -53,6 +81,8 @@ export function OpportunityDetails({
       </div>
     );
   }
+
+  const totalValue = (opportunity.services_value || 0) + (opportunity.software_sales || 0);
 
   return (
     <div className="space-y-6">
@@ -72,6 +102,71 @@ export function OpportunityDetails({
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Key Metrics Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="bg-muted/50 rounded-lg p-3">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+                <Building2 className="h-3 w-3" />
+                Industry
+              </div>
+              <p className="font-medium text-sm">{opportunity.industry || "—"}</p>
+            </div>
+            <div className="bg-muted/50 rounded-lg p-3">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+                <Crown className="h-3 w-3" />
+                Exec Owner
+              </div>
+              <p className="font-medium text-sm">{opportunity.exec_owner || "—"}</p>
+            </div>
+            <div className="bg-muted/50 rounded-lg p-3">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+                <User className="h-3 w-3" />
+                Opportunity Owner
+              </div>
+              <p className="font-medium text-sm">{opportunity.opportunity_owner || "—"}</p>
+            </div>
+            <div className="bg-muted/50 rounded-lg p-3">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+                <CalendarClock className="h-3 w-3" />
+                Quarter to Close
+              </div>
+              <p className="font-medium text-sm">{opportunity.quarter_to_close || "—"}</p>
+            </div>
+          </div>
+
+          {/* Financial Summary */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 border border-blue-200 dark:border-blue-900">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+                <PoundSterling className="h-3 w-3" />
+                Services
+              </div>
+              <p className="font-semibold text-lg text-blue-700 dark:text-blue-400">
+                {formatCurrency(opportunity.services_value)}
+              </p>
+            </div>
+            <div className="bg-purple-50 dark:bg-purple-950/30 rounded-lg p-4 border border-purple-200 dark:border-purple-900">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+                <PoundSterling className="h-3 w-3" />
+                Software Sales
+              </div>
+              <p className="font-semibold text-lg text-purple-700 dark:text-purple-400">
+                {formatCurrency(opportunity.software_sales)}
+              </p>
+            </div>
+            <div className="bg-green-50 dark:bg-green-950/30 rounded-lg p-4 border border-green-200 dark:border-green-900">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+                <PoundSterling className="h-3 w-3" />
+                Total Value
+              </div>
+              <p className="font-semibold text-lg text-green-700 dark:text-green-400">
+                {formatCurrency(totalValue)}
+              </p>
+            </div>
+          </div>
+
+          <Separator />
+
           {/* Deal Summary */}
           {opportunity.deal_summary && (
             <div>
@@ -137,6 +232,59 @@ export function OpportunityDetails({
                 {opportunity.blockers}
               </p>
             </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Key Stakeholders & Decision Makers */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <UserCheck className="h-5 w-5" />
+            Key Stakeholders & Decision Makers
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoadingStakeholders ? (
+            <Skeleton className="h-32 w-full" />
+          ) : stakeholders && stakeholders.length > 0 ? (
+            <div className="rounded-md border overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Relationship Owner</TableHead>
+                    <TableHead>Comments</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {stakeholders.map((stakeholder) => (
+                    <TableRow key={stakeholder.id}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          {stakeholder.name}
+                          {stakeholder.is_decision_maker && (
+                            <Badge variant="default" className="text-xs">
+                              Decision Maker
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>{stakeholder.role}</TableCell>
+                      <TableCell>{stakeholder.relationship_owner || "—"}</TableCell>
+                      <TableCell className="text-muted-foreground text-sm max-w-xs truncate">
+                        {stakeholder.comments || "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              No stakeholders recorded yet
+            </p>
           )}
         </CardContent>
       </Card>
