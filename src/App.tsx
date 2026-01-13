@@ -32,6 +32,7 @@ import CompanySites from "./pages/CompanySites";
 import SolutionsDatabase from "./pages/SolutionsDatabase";
 import Organization from "./pages/Organization";
 import WinPlanManagement from "./pages/WinPlanManagement";
+import InfoResources from "./pages/InfoResources";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -83,6 +84,7 @@ const App = () => (
                   <Route path="/company-sites" element={<CompanySites />} />
                   <Route path="/solutions-database" element={<SolutionsDatabase />} />
                   <Route path="/organization" element={<Organization />} />
+                  <Route path="/info-resources" element={<InfoResources />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
