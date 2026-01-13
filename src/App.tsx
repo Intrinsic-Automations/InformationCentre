@@ -14,7 +14,6 @@ import Onboarding from "./pages/Onboarding";
 import Announcements from "./pages/Announcements";
 import ProjectsInsights from "./pages/ProjectsInsights";
 import News from "./pages/News";
-import IndiaChat from "./pages/IndiaChat";
 import EuropeChat from "./pages/EuropeChat";
 import Introductions from "./pages/Introductions";
 import Wins from "./pages/Wins";
@@ -65,7 +64,6 @@ const App = () => (
                   <Route path="/announcements" element={<Announcements />} />
                   <Route path="/projects-insights" element={<ProjectsInsights />} />
                   <Route path="/news" element={<News />} />
-                  <Route path="/india-chat" element={<IndiaChat />} />
                   <Route path="/europe-chat" element={<EuropeChat />} />
                   <Route path="/introductions" element={<Introductions />} />
                   <Route path="/wins" element={<Wins />} />
