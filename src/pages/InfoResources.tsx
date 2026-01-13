@@ -1,29 +1,28 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { 
-  CalendarOff, 
-  ClipboardCheck, 
-  Gift, 
-  LogOut, 
-  UserPlus, 
-  FileText, 
-  TrendingUp, 
-  Clock, 
-  Search, 
-  GraduationCap 
-} from "lucide-react";
+import { FileText } from "lucide-react";
 import infoResourcesHero from "@/assets/generic-training-hero.jpg";
+import hrAbsenceManagement from "@/assets/hr-absence-management.jpg";
+import hrAppraisals from "@/assets/hr-appraisals.jpg";
+import hrBenefits from "@/assets/hr-benefits.jpg";
+import hrEmployeeExit from "@/assets/hr-employee-exit.jpg";
+import hrInduction from "@/assets/hr-induction.jpg";
+import hrJobDescriptions from "@/assets/hr-job-descriptions.jpg";
+import hrPerformance from "@/assets/hr-performance.jpg";
+import hrProbation from "@/assets/hr-probation.jpg";
+import hrRecruiting from "@/assets/hr-recruiting.jpg";
+import hrTraining from "@/assets/hr-training.jpg";
 
 const hrTiles = [
-  { title: "Absence Management", icon: CalendarOff, description: "Policies and procedures for managing employee absence" },
-  { title: "Appraisals", icon: ClipboardCheck, description: "Performance review processes and templates" },
-  { title: "Employee Benefits Info", icon: Gift, description: "Information about employee benefits and perks" },
-  { title: "Employee Exit", icon: LogOut, description: "Offboarding procedures and exit documentation" },
-  { title: "Induction", icon: UserPlus, description: "New starter onboarding and induction materials" },
-  { title: "Job Descriptions", icon: FileText, description: "Role definitions and job description templates" },
-  { title: "Performance Management", icon: TrendingUp, description: "Performance tracking and improvement resources" },
-  { title: "Probation", icon: Clock, description: "Probation period guidelines and review processes" },
-  { title: "Recruiting", icon: Search, description: "Recruitment processes and hiring guidelines" },
-  { title: "Training", icon: GraduationCap, description: "Training programs and development resources" },
+  { title: "Absence Management", image: hrAbsenceManagement, description: "Policies and procedures for managing employee absence" },
+  { title: "Appraisals", image: hrAppraisals, description: "Performance review processes and templates" },
+  { title: "Employee Benefits Info", image: hrBenefits, description: "Information about employee benefits and perks" },
+  { title: "Employee Exit", image: hrEmployeeExit, description: "Offboarding procedures and exit documentation" },
+  { title: "Induction", image: hrInduction, description: "New starter onboarding and induction materials" },
+  { title: "Job Descriptions", image: hrJobDescriptions, description: "Role definitions and job description templates" },
+  { title: "Performance Management", image: hrPerformance, description: "Performance tracking and improvement resources" },
+  { title: "Probation", image: hrProbation, description: "Probation period guidelines and review processes" },
+  { title: "Recruiting", image: hrRecruiting, description: "Recruitment processes and hiring guidelines" },
+  { title: "Training", image: hrTraining, description: "Training programs and development resources" },
 ];
 
 export default function InfoResources() {
@@ -55,12 +54,17 @@ export default function InfoResources() {
           {hrTiles.map((tile) => (
             <Card 
               key={tile.title} 
-              className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+              className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden"
             >
-              <CardContent className="p-6 flex flex-col items-center text-center">
-                <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <tile.icon className="h-7 w-7 text-primary" />
-                </div>
+              <div className="relative h-32 overflow-hidden">
+                <img 
+                  src={tile.image} 
+                  alt={tile.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
+              </div>
+              <CardContent className="p-4 text-center">
                 <h3 className="font-semibold text-foreground mb-2">{tile.title}</h3>
                 <p className="text-sm text-muted-foreground">{tile.description}</p>
               </CardContent>
