@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, Send, Heart, MessageCircleMore, Pencil, X, Check } from "lucide-react";
+import { Users, Send, Heart, MessageCircleMore, Pencil, X, Check, Info, Smile, Briefcase, MapPin } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -286,6 +286,53 @@ export default function Introductions() {
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
         <div className="flex flex-col gap-6">
+          {/* Posting Guidelines */}
+          <Card className="bg-card">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <Info className="h-5 w-5 text-primary" />
+                <CardTitle className="text-lg">Introduction Guidelines</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <h4 className="font-semibold text-sm text-foreground mb-3">Say hello to the team!</h4>
+              <div className="grid sm:grid-cols-3 gap-4">
+                <div className="flex gap-3">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Smile className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-foreground">Introduce yourself</span>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Share your name and a bit about who you are
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Briefcase className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-foreground">Your role & experience</span>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Tell us about your role and background
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <MapPin className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-foreground">Fun facts</span>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Share hobbies, interests, or where you're based
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
           {/* New Introduction Input */}
           {user ? (
             <Card className="bg-card">
