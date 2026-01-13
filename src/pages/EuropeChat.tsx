@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Globe, Send, Info, Link, Users, MessageSquare, Heart, MessageCircleMore } from "lucide-react";
+import { Globe, Send, Info, Link, Users, MessageSquare, Heart, MessageCircleMore, Pencil, X, Check } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -43,6 +43,8 @@ export default function EuropeChat() {
   const [newPost, setNewPost] = useState("");
   const [expandedComments, setExpandedComments] = useState<string[]>([]);
   const [commentInputs, setCommentInputs] = useState<Record<string, string>>({});
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState("");
 
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ["europe-posts"],
@@ -150,6 +152,26 @@ export default function EuropeChat() {
     },
   });
 
+  const updatePost = useMutation({
+    mutationFn: async ({ postId, content }: { postId: string; content: string }) => {
+      const { error } = await supabase
+        .from("posts")
+        .update({ content })
+        .eq("id", postId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["europe-posts"] });
+      setEditingPostId(null);
+      setEditContent("");
+      toast.success("Post updated!");
+    },
+    onError: (error) => {
+      toast.error("Failed to update post: " + error.message);
+    },
+  });
+
   const toggleComments = (postId: string) => {
     setExpandedComments((prev) =>
       prev.includes(postId) ? prev.filter((id) => id !== postId) : [...prev, postId]
@@ -168,8 +190,27 @@ export default function EuropeChat() {
     addComment.mutate({ postId, content });
   };
 
+  const handleStartEdit = (post: Post) => {
+    setEditingPostId(post.id);
+    setEditContent(post.content);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingPostId(null);
+    setEditContent("");
+  };
+
+  const handleSaveEdit = (postId: string) => {
+    if (!editContent.trim()) return;
+    updatePost.mutate({ postId, content: editContent.trim() });
+  };
+
   const isLikedByUser = (post: Post) => {
     return post.likes.some((l) => l.user_id === profile?.id);
+  };
+
+  const isAuthor = (post: Post) => {
+    return post.author?.id === profile?.id;
   };
 
   return (
@@ -308,15 +349,58 @@ export default function EuropeChat() {
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
-                          <div className="flex items-baseline gap-2">
-                            <span className="font-medium text-sm text-foreground">
-                              {post.author?.full_name || "Unknown"}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {format(new Date(post.created_at), "MMM d, h:mm a")}
-                            </span>
+                          <div className="flex items-baseline justify-between gap-2">
+                            <div className="flex items-baseline gap-2">
+                              <span className="font-medium text-sm text-foreground">
+                                {post.author?.full_name || "Unknown"}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                {format(new Date(post.created_at), "MMM d, h:mm a")}
+                              </span>
+                            </div>
+                            {isAuthor(post) && editingPostId !== post.id && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                                onClick={() => handleStartEdit(post)}
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                            )}
                           </div>
-                          <p className="text-sm text-foreground/80 mt-1 whitespace-pre-wrap">{post.content}</p>
+                          
+                          {editingPostId === post.id ? (
+                            <div className="mt-2 space-y-2">
+                              <Textarea
+                                value={editContent}
+                                onChange={(e) => setEditContent(e.target.value)}
+                                className="min-h-[80px] resize-none"
+                              />
+                              <div className="flex gap-2 justify-end">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={handleCancelEdit}
+                                  className="gap-1"
+                                >
+                                  <X className="h-3.5 w-3.5" />
+                                  Cancel
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleSaveEdit(post.id)}
+                                  disabled={!editContent.trim() || updatePost.isPending}
+                                  className="gap-1"
+                                >
+                                  <Check className="h-3.5 w-3.5" />
+                                  {updatePost.isPending ? "Saving..." : "Save"}
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-foreground/80 mt-1 whitespace-pre-wrap">{post.content}</p>
+                          )}
 
                           {/* Like and Comment buttons */}
                           <div className="flex items-center gap-4 mt-3">
