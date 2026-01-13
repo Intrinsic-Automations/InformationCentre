@@ -45,6 +45,8 @@ export default function EuropeChat() {
   const [commentInputs, setCommentInputs] = useState<Record<string, string>>({});
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editCommentContent, setEditCommentContent] = useState("");
 
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ["europe-posts"],
@@ -172,6 +174,26 @@ export default function EuropeChat() {
     },
   });
 
+  const updateComment = useMutation({
+    mutationFn: async ({ commentId, content }: { commentId: string; content: string }) => {
+      const { error } = await supabase
+        .from("comments")
+        .update({ content })
+        .eq("id", commentId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["europe-posts"] });
+      setEditingCommentId(null);
+      setEditCommentContent("");
+      toast.success("Comment updated!");
+    },
+    onError: (error) => {
+      toast.error("Failed to update comment: " + error.message);
+    },
+  });
+
   const toggleComments = (postId: string) => {
     setExpandedComments((prev) =>
       prev.includes(postId) ? prev.filter((id) => id !== postId) : [...prev, postId]
@@ -203,6 +225,25 @@ export default function EuropeChat() {
   const handleSaveEdit = (postId: string) => {
     if (!editContent.trim()) return;
     updatePost.mutate({ postId, content: editContent.trim() });
+  };
+
+  const handleStartEditComment = (comment: Comment) => {
+    setEditingCommentId(comment.id);
+    setEditCommentContent(comment.content);
+  };
+
+  const handleCancelEditComment = () => {
+    setEditingCommentId(null);
+    setEditCommentContent("");
+  };
+
+  const handleSaveEditComment = (commentId: string) => {
+    if (!editCommentContent.trim()) return;
+    updateComment.mutate({ commentId, content: editCommentContent.trim() });
+  };
+
+  const isCommentAuthor = (comment: Comment) => {
+    return comment.author?.id === profile?.id;
   };
 
   const isLikedByUser = (post: Post) => {
@@ -432,22 +473,72 @@ export default function EuropeChat() {
                             <div className="mt-3 pl-4 border-l-2 border-border space-y-3">
                               {post.comments.map((comment) => (
                                 <div key={comment.id} className="flex gap-2">
-                                  <Avatar className="h-6 w-6">
+                                  <Avatar className="h-6 w-6 shrink-0">
                                     <AvatarImage src={comment.author?.avatar_url || undefined} />
                                     <AvatarFallback className="bg-secondary text-secondary-foreground text-xs">
                                       {comment.author?.initials || "?"}
                                     </AvatarFallback>
                                   </Avatar>
-                                  <div>
-                                    <div className="flex items-baseline gap-2">
-                                      <span className="font-medium text-xs text-foreground">
-                                        {comment.author?.full_name || "Unknown"}
-                                      </span>
-                                      <span className="text-xs text-muted-foreground">
-                                        {format(new Date(comment.created_at), "MMM d, h:mm a")}
-                                      </span>
+                                  <div className="flex-1">
+                                    <div className="flex items-baseline justify-between gap-2">
+                                      <div className="flex items-baseline gap-2">
+                                        <span className="font-medium text-xs text-foreground">
+                                          {comment.author?.full_name || "Unknown"}
+                                        </span>
+                                        <span className="text-xs text-muted-foreground">
+                                          {format(new Date(comment.created_at), "MMM d, h:mm a")}
+                                        </span>
+                                      </div>
+                                      {isCommentAuthor(comment) && editingCommentId !== comment.id && (
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          className="h-5 w-5 text-muted-foreground hover:text-foreground"
+                                          onClick={() => handleStartEditComment(comment)}
+                                        >
+                                          <Pencil className="h-3 w-3" />
+                                        </Button>
+                                      )}
                                     </div>
-                                    <p className="text-xs text-foreground/80">{comment.content}</p>
+                                    
+                                    {editingCommentId === comment.id ? (
+                                      <div className="mt-1 space-y-2">
+                                        <Input
+                                          value={editCommentContent}
+                                          onChange={(e) => setEditCommentContent(e.target.value)}
+                                          className="h-7 text-xs"
+                                          onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                              handleSaveEditComment(comment.id);
+                                            } else if (e.key === "Escape") {
+                                              handleCancelEditComment();
+                                            }
+                                          }}
+                                        />
+                                        <div className="flex gap-1 justify-end">
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-6 px-2 text-xs"
+                                            onClick={handleCancelEditComment}
+                                          >
+                                            <X className="h-3 w-3 mr-1" />
+                                            Cancel
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            className="h-6 px-2 text-xs"
+                                            onClick={() => handleSaveEditComment(comment.id)}
+                                            disabled={!editCommentContent.trim() || updateComment.isPending}
+                                          >
+                                            <Check className="h-3 w-3 mr-1" />
+                                            {updateComment.isPending ? "Saving..." : "Save"}
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <p className="text-xs text-foreground/80">{comment.content}</p>
+                                    )}
                                   </div>
                                 </div>
                               ))}
