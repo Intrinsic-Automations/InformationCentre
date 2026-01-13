@@ -28,6 +28,7 @@ import {
   FileText,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
+import { SearchBar } from "@/components/layout/SearchBar";
 import {
   Sidebar,
   SidebarContent,
@@ -155,7 +156,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar className="border-r border-sidebar-border">
-      <SidebarHeader className="p-4 border-b border-sidebar-border">
+      <SidebarHeader className="p-4 border-b border-sidebar-border space-y-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
             <Users className="h-5 w-5 text-primary-foreground" />
@@ -165,6 +166,7 @@ export function AppSidebar() {
             <p className="text-xs text-muted-foreground">Connect & Collaborate</p>
           </div>
         </div>
+        <SearchBar />
       </SidebarHeader>
       
       <SidebarContent className="px-2 py-4">
