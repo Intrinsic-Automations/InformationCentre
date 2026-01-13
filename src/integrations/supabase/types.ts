@@ -139,6 +139,95 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_documents: {
+        Row: {
+          created_at: string
+          customer_id: string
+          document_name: string
+          document_type: string
+          document_url: string | null
+          id: string
+          notes: string | null
+          shared_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          document_name: string
+          document_type: string
+          document_url?: string | null
+          id?: string
+          notes?: string | null
+          shared_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          document_name?: string
+          document_type?: string
+          document_url?: string | null
+          id?: string
+          notes?: string | null
+          shared_date?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_documents_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customers: {
+        Row: {
+          address: string | null
+          company_name: string
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          industry: string | null
+          notes: string | null
+          status: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          company_name: string
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          industry?: string | null
+          notes?: string | null
+          status?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          company_name?: string
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          industry?: string | null
+          notes?: string | null
+          status?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       likes: {
         Row: {
           created_at: string
@@ -215,6 +304,118 @@ export type Database = {
             columns: ["author_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opportunities: {
+        Row: {
+          blockers: string | null
+          compelling_reasons: string | null
+          created_at: string
+          customer_id: string
+          deal_summary: string | null
+          estimated_value: number | null
+          expected_close_date: string | null
+          id: string
+          key_issues: string | null
+          opportunity_name: string
+          probability: number | null
+          stage: string | null
+          status: string | null
+          updated_at: string
+          value_proposition: string | null
+        }
+        Insert: {
+          blockers?: string | null
+          compelling_reasons?: string | null
+          created_at?: string
+          customer_id: string
+          deal_summary?: string | null
+          estimated_value?: number | null
+          expected_close_date?: string | null
+          id?: string
+          key_issues?: string | null
+          opportunity_name: string
+          probability?: number | null
+          stage?: string | null
+          status?: string | null
+          updated_at?: string
+          value_proposition?: string | null
+        }
+        Update: {
+          blockers?: string | null
+          compelling_reasons?: string | null
+          created_at?: string
+          customer_id?: string
+          deal_summary?: string | null
+          estimated_value?: number | null
+          expected_close_date?: string | null
+          id?: string
+          key_issues?: string | null
+          opportunity_name?: string
+          probability?: number | null
+          stage?: string | null
+          status?: string | null
+          updated_at?: string
+          value_proposition?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunities_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opportunity_interactions: {
+        Row: {
+          attendees: string | null
+          created_at: string
+          id: string
+          interaction_date: string
+          interaction_type: string
+          next_steps: string | null
+          opportunity_id: string
+          outcome: string | null
+          presentation_shared: string | null
+          summary: string
+          updated_at: string
+        }
+        Insert: {
+          attendees?: string | null
+          created_at?: string
+          id?: string
+          interaction_date?: string
+          interaction_type: string
+          next_steps?: string | null
+          opportunity_id: string
+          outcome?: string | null
+          presentation_shared?: string | null
+          summary: string
+          updated_at?: string
+        }
+        Update: {
+          attendees?: string | null
+          created_at?: string
+          id?: string
+          interaction_date?: string
+          interaction_type?: string
+          next_steps?: string | null
+          opportunity_id?: string
+          outcome?: string | null
+          presentation_shared?: string | null
+          summary?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_interactions_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
             referencedColumns: ["id"]
           },
         ]
