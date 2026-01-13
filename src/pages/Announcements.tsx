@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bell, Pin, Plus, AlertCircle } from "lucide-react";
+import { Bell, Pin, Plus, AlertCircle, Pencil } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,8 +17,19 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import announcementsHero from "@/assets/announcements-hero.jpg";
 
+interface Announcement {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  is_pinned: boolean;
+  author_id: string | null;
+  published_at: string;
+}
+
 export default function Announcements() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("Company");
@@ -37,7 +48,7 @@ export default function Announcements() {
         .order("published_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as Announcement[];
     },
   });
 
@@ -58,11 +69,7 @@ export default function Announcements() {
         title: "Announcement posted",
         description: "Your announcement has been published.",
       });
-      setIsDialogOpen(false);
-      setTitle("");
-      setContent("");
-      setCategory("Company");
-      setIsPinned(false);
+      resetForm();
     },
     onError: (error: Error) => {
       toast({
@@ -72,6 +79,55 @@ export default function Announcements() {
       });
     },
   });
+
+  const updateAnnouncement = useMutation({
+    mutationFn: async () => {
+      if (!editingAnnouncement) return;
+      const { error } = await supabase
+        .from("announcements")
+        .update({
+          title,
+          content,
+          category,
+          is_pinned: isPinned,
+        })
+        .eq("id", editingAnnouncement.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["announcements"] });
+      toast({
+        title: "Announcement updated",
+        description: "Your announcement has been updated.",
+      });
+      resetForm();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update announcement.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const resetForm = () => {
+    setIsDialogOpen(false);
+    setEditingAnnouncement(null);
+    setTitle("");
+    setContent("");
+    setCategory("Company");
+    setIsPinned(false);
+  };
+
+  const handleEdit = (announcement: Announcement) => {
+    setEditingAnnouncement(announcement);
+    setTitle(announcement.title);
+    setContent(announcement.content);
+    setCategory(announcement.category);
+    setIsPinned(announcement.is_pinned);
+    setIsDialogOpen(true);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,8 +139,14 @@ export default function Announcements() {
       });
       return;
     }
-    createAnnouncement.mutate();
+    if (editingAnnouncement) {
+      updateAnnouncement.mutate();
+    } else {
+      createAnnouncement.mutate();
+    }
   };
+
+  const isSubmitting = createAnnouncement.isPending || updateAnnouncement.isPending;
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -105,7 +167,10 @@ export default function Announcements() {
               <h1 className="text-lg md:text-xl font-bold text-secondary-foreground">Announcements</h1>
             </div>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            if (!open) resetForm();
+            else setIsDialogOpen(true);
+          }}>
             <DialogTrigger asChild>
               <Button size="sm" className="gap-2">
                 <Plus className="h-4 w-4" />
@@ -114,9 +179,9 @@ export default function Announcements() {
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px]">
               <DialogHeader>
-                <DialogTitle>Post New Announcement</DialogTitle>
+                <DialogTitle>{editingAnnouncement ? "Edit Announcement" : "Post New Announcement"}</DialogTitle>
                 <DialogDescription>
-                  Create a new announcement to share with the team.
+                  {editingAnnouncement ? "Update your announcement." : "Create a new announcement to share with the team."}
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -165,11 +230,11 @@ export default function Announcements() {
                   </Label>
                 </div>
                 <div className="flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  <Button type="button" variant="outline" onClick={resetForm}>
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={createAnnouncement.isPending}>
-                    {createAnnouncement.isPending ? "Posting..." : "Post Announcement"}
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? (editingAnnouncement ? "Updating..." : "Posting...") : (editingAnnouncement ? "Update Announcement" : "Post Announcement")}
                   </Button>
                 </div>
               </form>
@@ -213,7 +278,19 @@ export default function Announcements() {
                       )}
                       <CardTitle className="text-lg">{announcement.title}</CardTitle>
                     </div>
-                    <Badge variant="secondary">{announcement.category}</Badge>
+                    <div className="flex items-center gap-2">
+                      {user?.id === announcement.author_id && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handleEdit(announcement)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      )}
+                      <Badge variant="secondary">{announcement.category}</Badge>
+                    </div>
                   </div>
                   <CardDescription>
                     {format(new Date(announcement.published_at), "MMMM d, yyyy")}
