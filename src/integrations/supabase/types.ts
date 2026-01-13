@@ -662,12 +662,61 @@ export type Database = {
           },
         ]
       }
+      project_insight_documents: {
+        Row: {
+          created_at: string
+          file_path: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          insight_id: string
+          name: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          file_path: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          insight_id: string
+          name: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          insight_id?: string
+          name?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_insight_documents_insight_id_fkey"
+            columns: ["insight_id"]
+            isOneToOne: false
+            referencedRelation: "project_insights"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_insight_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_insights: {
         Row: {
           author_id: string
           category: string
           created_at: string
           description: string
+          extended_content: string | null
           id: string
           tags: string[] | null
           title: string
@@ -678,6 +727,7 @@ export type Database = {
           category: string
           created_at?: string
           description: string
+          extended_content?: string | null
           id?: string
           tags?: string[] | null
           title: string
@@ -688,6 +738,7 @@ export type Database = {
           category?: string
           created_at?: string
           description?: string
+          extended_content?: string | null
           id?: string
           tags?: string[] | null
           title?: string
