@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Lightbulb, BookOpen, Wrench, Target, ArrowRight, Plus, ChevronDown, ChevronUp, FileText, Download } from "lucide-react";
+import { useState, useRef } from "react";
+import { Lightbulb, BookOpen, Wrench, Target, ArrowRight, Plus, ChevronDown, ChevronUp, FileText, Download, Upload, X } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 type InsightCategory = "strategy" | "software_tip";
+
+interface PendingFile {
+  file: File;
+  id: string;
+}
 
 interface InsightDocument {
   id: string;
@@ -161,6 +166,34 @@ export default function ProjectsInsights() {
   const [extendedContent, setExtendedContent] = useState("");
   const [category, setCategory] = useState<InsightCategory>("strategy");
   const [tagsInput, setTagsInput] = useState("");
+  const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    
+    const newFiles: PendingFile[] = Array.from(files).map(file => ({
+      file,
+      id: crypto.randomUUID(),
+    }));
+    
+    setPendingFiles(prev => [...prev, ...newFiles]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const removeFile = (id: string) => {
+    setPendingFiles(prev => prev.filter(f => f.id !== id));
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  };
 
   const { data: insights = [], isLoading } = useQuery({
     queryKey: ["project-insights"],
@@ -198,18 +231,48 @@ export default function ProjectsInsights() {
     mutationFn: async () => {
       if (!profile?.id) throw new Error("You must be logged in");
       
+      setIsUploading(true);
       const tags = tagsInput.split(",").map(t => t.trim()).filter(Boolean);
       
-      const { error } = await supabase.from("project_insights").insert({
-        title,
-        description,
-        extended_content: extendedContent || null,
-        category,
-        tags,
-        author_id: profile.id,
-      });
+      // Create the insight first
+      const { data: newInsight, error: insertError } = await supabase
+        .from("project_insights")
+        .insert({
+          title,
+          description,
+          extended_content: extendedContent || null,
+          category,
+          tags,
+          author_id: profile.id,
+        })
+        .select("id")
+        .single();
       
-      if (error) throw error;
+      if (insertError) throw insertError;
+
+      // Upload files and create document records
+      for (const pendingFile of pendingFiles) {
+        const fileExt = pendingFile.file.name.split(".").pop();
+        const filePath = `${newInsight.id}/${crypto.randomUUID()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from("insight-documents")
+          .upload(filePath, pendingFile.file);
+
+        if (uploadError) {
+          console.error("Upload error:", uploadError);
+          continue;
+        }
+
+        await supabase.from("project_insight_documents").insert({
+          insight_id: newInsight.id,
+          name: pendingFile.file.name,
+          file_path: filePath,
+          file_type: pendingFile.file.type || null,
+          file_size: pendingFile.file.size,
+          uploaded_by: profile.id,
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["project-insights"] });
@@ -220,8 +283,11 @@ export default function ProjectsInsights() {
       setExtendedContent("");
       setCategory("strategy");
       setTagsInput("");
+      setPendingFiles([]);
+      setIsUploading(false);
     },
     onError: (error) => {
+      setIsUploading(false);
       toast.error("Failed to create insight: " + error.message);
     },
   });
@@ -324,12 +390,63 @@ export default function ProjectsInsights() {
                       placeholder="e.g., Agile, Planning, Migration"
                     />
                   </div>
+                  
+                  <div className="space-y-2">
+                    <Label>Documents</Label>
+                    <div className="space-y-2">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        multiple
+                        onChange={handleFileSelect}
+                        className="hidden"
+                        id="file-upload"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="w-full gap-2"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <Upload className="h-4 w-4" />
+                        Add Documents
+                      </Button>
+                      
+                      {pendingFiles.length > 0 && (
+                        <div className="space-y-1 max-h-32 overflow-auto">
+                          {pendingFiles.map((pf) => (
+                            <div
+                              key={pf.id}
+                              className="flex items-center gap-2 p-2 rounded-md bg-muted/50 text-sm"
+                            >
+                              <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                              <span className="flex-1 truncate">{pf.file.name}</span>
+                              <span className="text-muted-foreground text-xs shrink-0">
+                                {formatFileSize(pf.file.size)}
+                              </span>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 shrink-0"
+                                onClick={() => removeFile(pf.id)}
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   <div className="flex justify-end gap-2 pt-2">
                     <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                       Cancel
                     </Button>
-                    <Button type="submit" disabled={createInsight.isPending}>
-                      {createInsight.isPending ? "Creating..." : "Create Insight"}
+                    <Button type="submit" disabled={createInsight.isPending || isUploading}>
+                      {createInsight.isPending || isUploading ? "Creating..." : "Create Insight"}
                     </Button>
                   </div>
                 </form>
