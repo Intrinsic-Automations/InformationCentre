@@ -5,7 +5,6 @@ import {
   Bell,
   Lightbulb,
   Newspaper,
-  MessageCircle,
   Globe,
   Users,
   Trophy,
@@ -74,7 +73,6 @@ const navigationConfig: NavGroup[] = [
   {
     label: "Community",
     items: [
-      { title: "India Chat", url: "/india-chat", icon: MessageCircle },
       { title: "Europe Chat", url: "/europe-chat", icon: Globe },
       { title: "Introductions", url: "/introductions", icon: Users },
       { title: "Wins", url: "/wins", icon: Trophy },
