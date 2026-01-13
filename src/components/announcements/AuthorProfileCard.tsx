@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Badge } from "@/components/ui/badge";
-import { User, Building, Briefcase, Sparkles } from "lucide-react";
+import { User, Building, Briefcase, Sparkles, Mail } from "lucide-react";
 
 interface Author {
   id: string;
@@ -49,24 +49,32 @@ export function AuthorProfileCard({ author }: AuthorProfileCardProps) {
       </HoverCardTrigger>
       <HoverCardContent className="w-80" align="start">
         <div className="flex gap-4">
-          <Avatar className="h-14 w-14">
+          <Avatar className="h-14 w-14 shrink-0">
             <AvatarImage src={author.avatar_url || undefined} alt={author.full_name} />
             <AvatarFallback className="bg-primary/10 text-primary text-lg font-medium">
               {author.initials}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 space-y-1">
+          <div className="flex-1 space-y-1.5 min-w-0">
             <h4 className="text-sm font-semibold">{author.full_name}</h4>
             {author.role && (
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Briefcase className="h-3 w-3" />
-                <span>{author.role}</span>
+                <Briefcase className="h-3 w-3 shrink-0" />
+                <span className="truncate">{author.role}</span>
               </div>
             )}
             {author.department && (
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Building className="h-3 w-3" />
+                <Building className="h-3 w-3 shrink-0" />
                 <span>{author.department}</span>
+              </div>
+            )}
+            {author.email && (
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Mail className="h-3 w-3 shrink-0" />
+                <a href={`mailto:${author.email}`} className="truncate hover:underline hover:text-foreground">
+                  {author.email}
+                </a>
               </div>
             )}
           </div>
