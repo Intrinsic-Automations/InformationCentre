@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Lightbulb, BookOpen, Wrench, Target, ArrowRight, Plus, Pencil } from "lucide-react";
+import { Lightbulb, BookOpen, Wrench, Target, ArrowRight, Plus, ChevronDown, ChevronUp, FileText, Download } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Separator } from "@/components/ui/separator";
 import projectsInsightsHero from "@/assets/projects-insights-hero.jpg";
 import { AuthorProfileCard } from "@/components/announcements/AuthorProfileCard";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,10 +19,19 @@ import { toast } from "sonner";
 
 type InsightCategory = "strategy" | "software_tip";
 
+interface InsightDocument {
+  id: string;
+  name: string;
+  file_path: string;
+  file_type: string | null;
+  file_size: number | null;
+}
+
 interface ProjectInsight {
   id: string;
   title: string;
   description: string;
+  extended_content: string | null;
   category: InsightCategory;
   tags: string[];
   author_id: string;
@@ -35,6 +46,110 @@ interface ProjectInsight {
     email: string | null;
     skills: string[] | null;
   } | null;
+  documents: InsightDocument[];
+}
+
+function InsightCard({ item, isStrategy }: { item: ProjectInsight; isStrategy: boolean }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const Icon = isStrategy ? Target : Wrench;
+
+  const getDocumentUrl = (filePath: string) => {
+    const { data } = supabase.storage.from("insight-documents").getPublicUrl(filePath);
+    return data.publicUrl;
+  };
+
+  const hasExpandedContent = item.extended_content || item.documents.length > 0;
+
+  return (
+    <Card className="bg-card hover:shadow-md transition-shadow">
+      <CardHeader className="pb-2">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${isStrategy ? 'bg-primary/10 text-primary' : 'bg-secondary text-secondary-foreground'}`}>
+              <Icon className="h-5 w-5" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">{item.title}</CardTitle>
+              <CardDescription>{isStrategy ? "Strategy" : "Software Tip"}</CardDescription>
+            </div>
+          </div>
+          {item.author && <AuthorProfileCard author={item.author} />}
+        </div>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-foreground/80 mb-3">{item.description}</p>
+        <div className="flex items-center justify-between">
+          <div className="flex flex-wrap gap-1">
+            {item.tags.map((tag, i) => (
+              <Badge key={i} variant={isStrategy ? "secondary" : "outline"} className="text-xs">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+          
+          <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="gap-2">
+                {isOpen ? (
+                  <>
+                    Show Less <ChevronUp className="h-3 w-3" />
+                  </>
+                ) : (
+                  <>
+                    Learn More <ChevronDown className="h-3 w-3" />
+                  </>
+                )}
+              </Button>
+            </CollapsibleTrigger>
+          </Collapsible>
+        </div>
+
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+          <CollapsibleContent className="mt-4 space-y-4">
+            <Separator />
+            
+            {item.extended_content ? (
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-foreground">Detailed Information</h4>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{item.extended_content}</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-foreground">Detailed Information</h4>
+                <p className="text-sm text-muted-foreground italic">No additional details have been added yet.</p>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium text-foreground flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Documents
+              </h4>
+              {item.documents.length > 0 ? (
+                <div className="space-y-2">
+                  {item.documents.map((doc) => (
+                    <a
+                      key={doc.id}
+                      href={getDocumentUrl(doc.file_path)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-2 rounded-md bg-muted/50 hover:bg-muted transition-colors group"
+                    >
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                      <span className="flex-1 text-sm truncate">{doc.name}</span>
+                      <Download className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    </a>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground italic">No documents attached.</p>
+              )}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </CardContent>
+    </Card>
+  );
 }
 
 export default function ProjectsInsights() {
@@ -43,6 +158,7 @@ export default function ProjectsInsights() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [extendedContent, setExtendedContent] = useState("");
   const [category, setCategory] = useState<InsightCategory>("strategy");
   const [tagsInput, setTagsInput] = useState("");
 
@@ -62,6 +178,13 @@ export default function ProjectsInsights() {
             department,
             email,
             skills
+          ),
+          documents:project_insight_documents (
+            id,
+            name,
+            file_path,
+            file_type,
+            file_size
           )
         `)
         .order("created_at", { ascending: false });
@@ -80,6 +203,7 @@ export default function ProjectsInsights() {
       const { error } = await supabase.from("project_insights").insert({
         title,
         description,
+        extended_content: extendedContent || null,
         category,
         tags,
         author_id: profile.id,
@@ -93,6 +217,7 @@ export default function ProjectsInsights() {
       setIsDialogOpen(false);
       setTitle("");
       setDescription("");
+      setExtendedContent("");
       setCategory("strategy");
       setTagsInput("");
     },
@@ -111,10 +236,6 @@ export default function ProjectsInsights() {
       return;
     }
     createInsight.mutate();
-  };
-
-  const getIcon = (category: InsightCategory) => {
-    return category === "strategy" ? Target : Wrench;
   };
 
   return (
@@ -175,12 +296,22 @@ export default function ProjectsInsights() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="description">Description *</Label>
+                    <Label htmlFor="description">Summary *</Label>
                     <Textarea
                       id="description"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      placeholder="Describe the insight in detail..."
+                      placeholder="Brief summary of the insight..."
+                      rows={2}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="extendedContent">Detailed Information</Label>
+                    <Textarea
+                      id="extendedContent"
+                      value={extendedContent}
+                      onChange={(e) => setExtendedContent(e.target.value)}
+                      placeholder="Add more detailed information that will be shown when 'Learn More' is clicked..."
                       rows={4}
                     />
                   </div>
@@ -229,42 +360,9 @@ export default function ProjectsInsights() {
                   <h2 className="text-xl font-semibold text-foreground">Actionable Strategies</h2>
                 </div>
                 <div className="space-y-4">
-                  {strategies.map((item) => {
-                    const Icon = getIcon(item.category);
-                    return (
-                      <Card key={item.id} className="bg-card hover:shadow-md transition-shadow">
-                        <CardHeader className="pb-2">
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                <Icon className="h-5 w-5" />
-                              </div>
-                              <div>
-                                <CardTitle className="text-lg">{item.title}</CardTitle>
-                                <CardDescription>Strategy</CardDescription>
-                              </div>
-                            </div>
-                            {item.author && <AuthorProfileCard author={item.author} />}
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-sm text-foreground/80 mb-3">{item.description}</p>
-                          <div className="flex items-center justify-between">
-                            <div className="flex flex-wrap gap-1">
-                              {item.tags.map((tag, i) => (
-                                <Badge key={i} variant="secondary" className="text-xs">
-                                  {tag}
-                                </Badge>
-                              ))}
-                            </div>
-                            <Button variant="ghost" size="sm" className="gap-2">
-                              Learn More <ArrowRight className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
+                  {strategies.map((item) => (
+                    <InsightCard key={item.id} item={item} isStrategy={true} />
+                  ))}
                 </div>
               </section>
             )}
@@ -277,42 +375,9 @@ export default function ProjectsInsights() {
                   <h2 className="text-xl font-semibold text-foreground">Practical Software Tips</h2>
                 </div>
                 <div className="space-y-4">
-                  {softwareTips.map((item) => {
-                    const Icon = getIcon(item.category);
-                    return (
-                      <Card key={item.id} className="bg-card hover:shadow-md transition-shadow">
-                        <CardHeader className="pb-2">
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
-                                <Icon className="h-5 w-5" />
-                              </div>
-                              <div>
-                                <CardTitle className="text-lg">{item.title}</CardTitle>
-                                <CardDescription>Software Tip</CardDescription>
-                              </div>
-                            </div>
-                            {item.author && <AuthorProfileCard author={item.author} />}
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-sm text-foreground/80 mb-3">{item.description}</p>
-                          <div className="flex items-center justify-between">
-                            <div className="flex flex-wrap gap-1">
-                              {item.tags.map((tag, i) => (
-                                <Badge key={i} variant="outline" className="text-xs">
-                                  {tag}
-                                </Badge>
-                              ))}
-                            </div>
-                            <Button variant="ghost" size="sm" className="gap-2">
-                              View Guide <ArrowRight className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
+                  {softwareTips.map((item) => (
+                    <InsightCard key={item.id} item={item} isStrategy={false} />
+                  ))}
                 </div>
               </section>
             )}
