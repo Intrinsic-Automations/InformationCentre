@@ -13,16 +13,16 @@ export function TopNav() {
   return (
     <nav className="h-12 border-b border-border bg-card flex items-center px-6">
       <div className="flex-1" />
-      <div className="flex items-center justify-evenly max-w-4xl flex-1">
+      <div className="flex items-center justify-center gap-1 sm:gap-2">
         {topNavItems.map((item) => (
           <NavLink
             key={item.title}
             to={item.url}
-            className="flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+            className="flex items-center justify-center gap-1.5 px-2 sm:px-3 py-2 rounded-md text-xs sm:text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors whitespace-nowrap"
             activeClassName="bg-primary/10 text-primary"
           >
-            <item.icon className="h-4 w-4" />
-            <span className="hidden sm:inline">{item.title}</span>
+            <item.icon className="h-4 w-4 shrink-0" />
+            <span>{item.title}</span>
           </NavLink>
         ))}
       </div>
