@@ -14,7 +14,6 @@ import {
   BookOpen,
   Wrench,
   ArrowRightLeft,
-  FolderKanban,
   Calendar,
   Clock,
   History,
@@ -26,12 +25,9 @@ import {
   Plug,
   Target,
   FileText,
-  LogOut,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { SearchBar } from "@/components/layout/SearchBar";
-import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -42,7 +38,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
-  SidebarFooter,
 } from "@/components/ui/sidebar";
 import {
   Collapsible,
@@ -140,7 +135,6 @@ const navigationConfig: NavGroup[] = [
 ];
 
 export function AppSidebar() {
-  const { profile, signOut } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -234,31 +228,6 @@ export function AppSidebar() {
           </Collapsible>
         ))}
       </SidebarContent>
-      
-      <SidebarFooter className="p-4 border-t border-sidebar-border">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-sm">
-            {profile?.initials || "?"}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-sidebar-foreground truncate">
-              {profile?.full_name || "User"}
-            </p>
-            <p className="text-xs text-muted-foreground truncate">
-              {profile?.role || "No role set"}
-            </p>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={signOut}
-            className="shrink-0 h-8 w-8"
-            title="Sign out"
-          >
-            <LogOut className="h-4 w-4" />
-          </Button>
-        </div>
-      </SidebarFooter>
     </Sidebar>
   );
 }
