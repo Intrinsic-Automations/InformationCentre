@@ -1,0 +1,1 @@
+UPDATE announcements SET author_id = '8fee531a-32c4-4162-a354-4cbb2aa199b7';
