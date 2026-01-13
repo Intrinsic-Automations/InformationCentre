@@ -1,4 +1,5 @@
 import { NavLink } from "@/components/NavLink";
+import { ProfileMenu } from "@/components/profile/ProfileMenu";
 import { GraduationCap, Building2, Network, Calendar } from "lucide-react";
 
 const topNavItems = [
@@ -10,19 +11,23 @@ const topNavItems = [
 
 export function TopNav() {
   return (
-    <nav className="h-12 border-b border-border bg-card flex items-center justify-center px-6">
-      <div className="flex items-center justify-evenly w-full max-w-4xl">
+    <nav className="h-12 border-b border-border bg-card flex items-center px-6">
+      <div className="flex-1" />
+      <div className="flex items-center justify-evenly max-w-4xl flex-1">
         {topNavItems.map((item) => (
           <NavLink
             key={item.title}
             to={item.url}
-            className="flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors flex-1"
+            className="flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
             activeClassName="bg-primary/10 text-primary"
           >
             <item.icon className="h-4 w-4" />
             <span className="hidden sm:inline">{item.title}</span>
           </NavLink>
         ))}
+      </div>
+      <div className="flex-1 flex justify-end">
+        <ProfileMenu />
       </div>
     </nav>
   );
