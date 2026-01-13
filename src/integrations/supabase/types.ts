@@ -316,11 +316,17 @@ export type Database = {
           customer_id: string
           deal_summary: string | null
           estimated_value: number | null
+          exec_owner: string | null
           expected_close_date: string | null
           id: string
+          industry: string | null
           key_issues: string | null
           opportunity_name: string
+          opportunity_owner: string | null
           probability: number | null
+          quarter_to_close: string | null
+          services_value: number | null
+          software_sales: number | null
           stage: string | null
           status: string | null
           updated_at: string
@@ -333,11 +339,17 @@ export type Database = {
           customer_id: string
           deal_summary?: string | null
           estimated_value?: number | null
+          exec_owner?: string | null
           expected_close_date?: string | null
           id?: string
+          industry?: string | null
           key_issues?: string | null
           opportunity_name: string
+          opportunity_owner?: string | null
           probability?: number | null
+          quarter_to_close?: string | null
+          services_value?: number | null
+          software_sales?: number | null
           stage?: string | null
           status?: string | null
           updated_at?: string
@@ -350,11 +362,17 @@ export type Database = {
           customer_id?: string
           deal_summary?: string | null
           estimated_value?: number | null
+          exec_owner?: string | null
           expected_close_date?: string | null
           id?: string
+          industry?: string | null
           key_issues?: string | null
           opportunity_name?: string
+          opportunity_owner?: string | null
           probability?: number | null
+          quarter_to_close?: string | null
+          services_value?: number | null
+          software_sales?: number | null
           stage?: string | null
           status?: string | null
           updated_at?: string
@@ -413,6 +431,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "opportunity_interactions_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opportunity_stakeholders: {
+        Row: {
+          comments: string | null
+          created_at: string
+          id: string
+          is_decision_maker: boolean | null
+          name: string
+          opportunity_id: string
+          relationship_owner: string | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string
+          id?: string
+          is_decision_maker?: boolean | null
+          name: string
+          opportunity_id: string
+          relationship_owner?: string | null
+          role: string
+          updated_at?: string
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string
+          id?: string
+          is_decision_maker?: boolean | null
+          name?: string
+          opportunity_id?: string
+          relationship_owner?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_stakeholders_opportunity_id_fkey"
             columns: ["opportunity_id"]
             isOneToOne: false
             referencedRelation: "opportunities"

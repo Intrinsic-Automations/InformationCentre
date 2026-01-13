@@ -42,6 +42,24 @@ export interface Opportunity {
   probability: number | null;
   expected_close_date: string | null;
   status: string | null;
+  industry: string | null;
+  exec_owner: string | null;
+  opportunity_owner: string | null;
+  quarter_to_close: string | null;
+  services_value: number | null;
+  software_sales: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OpportunityStakeholder {
+  id: string;
+  opportunity_id: string;
+  name: string;
+  role: string;
+  relationship_owner: string | null;
+  comments: string | null;
+  is_decision_maker: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -120,6 +138,23 @@ export function useOpportunityInteractions(opportunityId: string | null) {
         .order("interaction_date", { ascending: false });
       if (error) throw error;
       return data as OpportunityInteraction[];
+    },
+    enabled: !!opportunityId,
+  });
+}
+
+export function useOpportunityStakeholders(opportunityId: string | null) {
+  return useQuery({
+    queryKey: ["opportunity_stakeholders", opportunityId],
+    queryFn: async () => {
+      if (!opportunityId) return [];
+      const { data, error } = await supabase
+        .from("opportunity_stakeholders")
+        .select("*")
+        .eq("opportunity_id", opportunityId)
+        .order("is_decision_maker", { ascending: false });
+      if (error) throw error;
+      return data as OpportunityStakeholder[];
     },
     enabled: !!opportunityId,
   });
