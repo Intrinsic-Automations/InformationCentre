@@ -31,6 +31,7 @@ import PastProjects from "./pages/PastProjects";
 import CompanySites from "./pages/CompanySites";
 import SolutionsDatabase from "./pages/SolutionsDatabase";
 import Organization from "./pages/Organization";
+import WinPlanManagement from "./pages/WinPlanManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -75,6 +76,7 @@ const App = () => (
                   <Route path="/generic-training" element={<GenericTraining />} />
                   <Route path="/migration" element={<Migration />} />
                   <Route path="/integration" element={<Integration />} />
+                  <Route path="/win-plan-management" element={<WinPlanManagement />} />
                   <Route path="/upcoming-projects" element={<UpcomingProjects />} />
                   <Route path="/current-projects" element={<CurrentProjects />} />
                   <Route path="/past-projects" element={<PastProjects />} />

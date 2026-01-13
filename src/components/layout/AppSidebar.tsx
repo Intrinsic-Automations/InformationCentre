@@ -24,6 +24,7 @@ import {
   ChevronDown,
   BarChart3,
   Plug,
+  Target,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
@@ -100,6 +101,12 @@ const navigationConfig: NavGroup[] = [
     items: [
       { title: "Migration", url: "/migration", icon: ArrowRightLeft },
       { title: "Integration", url: "/integration", icon: Wrench },
+    ],
+  },
+  {
+    label: "Sales Centre",
+    items: [
+      { title: "Win Plan Management", url: "/win-plan-management", icon: Target },
     ],
   },
   {
