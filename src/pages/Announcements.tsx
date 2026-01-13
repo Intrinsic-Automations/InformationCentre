@@ -16,6 +16,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import announcementsHero from "@/assets/announcements-hero.jpg";
+import { AuthorProfileCard } from "@/components/announcements/AuthorProfileCard";
+
+interface Author {
+  id: string;
+  full_name: string;
+  initials: string;
+  avatar_url: string | null;
+  role: string | null;
+  department: string | null;
+  email: string | null;
+  skills: string[] | null;
+}
 
 interface Announcement {
   id: string;
@@ -25,6 +37,7 @@ interface Announcement {
   is_pinned: boolean;
   author_id: string | null;
   published_at: string;
+  author: Author | null;
 }
 
 export default function Announcements() {
@@ -43,7 +56,19 @@ export default function Announcements() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("announcements")
-        .select("*")
+        .select(`
+          *,
+          author:profiles!announcements_author_id_fkey (
+            id,
+            full_name,
+            initials,
+            avatar_url,
+            role,
+            department,
+            email,
+            skills
+          )
+        `)
         .order("is_pinned", { ascending: false })
         .order("published_at", { ascending: false });
 
@@ -295,9 +320,12 @@ export default function Announcements() {
                       <Badge variant="secondary">{announcement.category}</Badge>
                     </div>
                   </div>
-                  <CardDescription>
-                    {format(new Date(announcement.published_at), "MMMM d, yyyy")}
-                  </CardDescription>
+                  <div className="flex items-center justify-between mt-2">
+                    <AuthorProfileCard author={announcement.author} />
+                    <CardDescription>
+                      {format(new Date(announcement.published_at), "MMMM d, yyyy")}
+                    </CardDescription>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-foreground/80">{announcement.content}</p>
