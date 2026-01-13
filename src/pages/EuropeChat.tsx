@@ -73,7 +73,7 @@ export default function EuropeChat() {
             )
           )
         `)
-        .eq("channel", "europe")
+        .eq("channel", "europe_chat")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -87,7 +87,7 @@ export default function EuropeChat() {
 
       const { error } = await supabase.from("posts").insert({
         content,
-        channel: "europe",
+        channel: "europe_chat",
         author_id: profile.id,
       });
 
