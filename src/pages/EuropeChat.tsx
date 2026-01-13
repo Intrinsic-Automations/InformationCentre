@@ -3,127 +3,173 @@ import { Globe, Send, Info, Link, Users, MessageSquare, Heart, MessageCircleMore
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Textarea } from "@/components/ui/textarea";
 import europeChatHero from "@/assets/europe-chat-hero.jpg";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { format } from "date-fns";
 
-interface Comment {
-  user: string;
+interface Author {
+  id: string;
+  full_name: string;
   initials: string;
-  text: string;
-  time: string;
+  avatar_url: string | null;
 }
 
-interface Message {
-  id: number;
-  user: string;
-  initials: string;
-  message: string;
-  time: string;
-  likes: number;
-  liked: boolean;
+interface Comment {
+  id: string;
+  content: string;
+  created_at: string;
+  author: Author | null;
+}
+
+interface Post {
+  id: string;
+  content: string;
+  title: string | null;
+  created_at: string;
+  author_id: string;
+  author: Author | null;
+  likes: { id: string; user_id: string }[];
   comments: Comment[];
 }
 
-const initialMessages: Message[] = [
-  { 
-    id: 1,
-    user: "Hans M.", 
-    initials: "HM", 
-    message: "Just shared my project proposal for the GDPR compliance automation! Would love some feedback on the implementation approach 🙏 https://docs.company.com/projects/gdpr-automation", 
-    time: "8:00 AM",
-    likes: 6,
-    liked: false,
-    comments: [
-      { user: "Elena R.", initials: "ER", text: "Excellent approach! The data mapping section is very thorough.", time: "8:15 AM" }
-    ]
-  },
-  { 
-    id: 2,
-    user: "Sophie L.", 
-    initials: "SL", 
-    message: "Reviewed it! The architecture looks solid. One suggestion - consider adding a dedicated audit trail module. Here's my localization project doc if anyone can take a look: https://docs.company.com/projects/multi-language-support", 
-    time: "8:15 AM",
-    likes: 4,
-    liked: false,
-    comments: []
-  },
-  { 
-    id: 3,
-    user: "Marcus B.", 
-    initials: "MB", 
-    message: "Great work on both! 👍 I'm putting together a project plan for the UK market expansion. Should I prioritize the payment gateway integration or the customer support localization first? Would appreciate input before the leadership meeting.", 
-    time: "8:30 AM",
-    likes: 3,
-    liked: false,
-    comments: []
-  },
-  { 
-    id: 4,
-    user: "Anna K.", 
-    initials: "AK", 
-    message: "@Marcus I'd recommend payment gateway first - it's critical for revenue flow. The support team can manage with translation tools initially. Happy to review the scope with you!", 
-    time: "8:45 AM",
-    likes: 5,
-    liked: false,
-    comments: []
-  },
-  { 
-    id: 5,
-    user: "Hans M.", 
-    initials: "HM", 
-    message: "Thanks everyone for the valuable feedback! Already incorporated the suggestions. Cross-regional collaboration like this really elevates our project quality 🚀", 
-    time: "9:00 AM",
-    likes: 9,
-    liked: false,
-    comments: []
-  },
-];
-
 export default function EuropeChat() {
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
-  const [expandedComments, setExpandedComments] = useState<number[]>([]);
-  const [commentInputs, setCommentInputs] = useState<Record<number, string>>({});
+  const { user, profile } = useAuth();
+  const queryClient = useQueryClient();
+  const [newPost, setNewPost] = useState("");
+  const [expandedComments, setExpandedComments] = useState<string[]>([]);
+  const [commentInputs, setCommentInputs] = useState<Record<string, string>>({});
 
-  const handleLike = (messageId: number) => {
-    setMessages(prev => prev.map(msg => {
-      if (msg.id === messageId) {
-        return {
-          ...msg,
-          liked: !msg.liked,
-          likes: msg.liked ? msg.likes - 1 : msg.likes + 1
-        };
+  const { data: posts = [], isLoading } = useQuery({
+    queryKey: ["europe-posts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("posts")
+        .select(`
+          *,
+          author:profiles!posts_author_id_fkey (
+            id,
+            full_name,
+            initials,
+            avatar_url
+          ),
+          likes (
+            id,
+            user_id
+          ),
+          comments (
+            id,
+            content,
+            created_at,
+            author:profiles!comments_author_id_fkey (
+              id,
+              full_name,
+              initials,
+              avatar_url
+            )
+          )
+        `)
+        .eq("channel", "europe")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data as Post[];
+    },
+  });
+
+  const createPost = useMutation({
+    mutationFn: async (content: string) => {
+      if (!profile?.id) throw new Error("You must be logged in");
+
+      const { error } = await supabase.from("posts").insert({
+        content,
+        channel: "europe",
+        author_id: profile.id,
+      });
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["europe-posts"] });
+      setNewPost("");
+      toast.success("Post created!");
+    },
+    onError: (error) => {
+      toast.error("Failed to create post: " + error.message);
+    },
+  });
+
+  const toggleLike = useMutation({
+    mutationFn: async (postId: string) => {
+      if (!profile?.id) throw new Error("You must be logged in");
+
+      const post = posts.find((p) => p.id === postId);
+      const existingLike = post?.likes.find((l) => l.user_id === profile.id);
+
+      if (existingLike) {
+        const { error } = await supabase.from("likes").delete().eq("id", existingLike.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("likes").insert({
+          post_id: postId,
+          user_id: profile.id,
+        });
+        if (error) throw error;
       }
-      return msg;
-    }));
-  };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["europe-posts"] });
+    },
+    onError: (error) => {
+      toast.error("Failed to update like: " + error.message);
+    },
+  });
 
-  const toggleComments = (messageId: number) => {
-    setExpandedComments(prev => 
-      prev.includes(messageId) 
-        ? prev.filter(id => id !== messageId)
-        : [...prev, messageId]
+  const addComment = useMutation({
+    mutationFn: async ({ postId, content }: { postId: string; content: string }) => {
+      if (!profile?.id) throw new Error("You must be logged in");
+
+      const { error } = await supabase.from("comments").insert({
+        post_id: postId,
+        content,
+        author_id: profile.id,
+      });
+
+      if (error) throw error;
+    },
+    onSuccess: (_, { postId }) => {
+      queryClient.invalidateQueries({ queryKey: ["europe-posts"] });
+      setCommentInputs((prev) => ({ ...prev, [postId]: "" }));
+    },
+    onError: (error) => {
+      toast.error("Failed to add comment: " + error.message);
+    },
+  });
+
+  const toggleComments = (postId: string) => {
+    setExpandedComments((prev) =>
+      prev.includes(postId) ? prev.filter((id) => id !== postId) : [...prev, postId]
     );
   };
 
-  const handleAddComment = (messageId: number) => {
-    const commentText = commentInputs[messageId]?.trim();
-    if (!commentText) return;
+  const handleSubmitPost = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPost.trim()) return;
+    createPost.mutate(newPost.trim());
+  };
 
-    setMessages(prev => prev.map(msg => {
-      if (msg.id === messageId) {
-        return {
-          ...msg,
-          comments: [...msg.comments, {
-            user: "You",
-            initials: "YO",
-            text: commentText,
-            time: "Just now"
-          }]
-        };
-      }
-      return msg;
-    }));
-    setCommentInputs(prev => ({ ...prev, [messageId]: "" }));
+  const handleAddComment = (postId: string) => {
+    const content = commentInputs[postId]?.trim();
+    if (!content) return;
+    addComment.mutate({ postId, content });
+  };
+
+  const isLikedByUser = (post: Post) => {
+    return post.likes.some((l) => l.user_id === profile?.id);
   };
 
   return (
@@ -199,103 +245,159 @@ export default function EuropeChat() {
             </CardContent>
           </Card>
 
-          {/* Chat Area */}
-          <div className="flex flex-col">
+          {/* New Post Input */}
+          {user ? (
             <Card className="bg-card">
-              <CardContent className="p-4 space-y-4">
-                {messages.map((msg) => (
-                  <div key={msg.id} className="border-b border-border pb-4 last:border-0 last:pb-0">
-                    <div className="flex gap-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-primary/20 text-primary text-xs">
-                          {msg.initials}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <div className="flex items-baseline gap-2">
-                          <span className="font-medium text-sm text-foreground">{msg.user}</span>
-                          <span className="text-xs text-muted-foreground">{msg.time}</span>
-                        </div>
-                        <p className="text-sm text-foreground/80 mt-1">{msg.message}</p>
-                        
-                        {/* Like and Comment buttons */}
-                        <div className="flex items-center gap-4 mt-3">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className={`gap-2 h-8 px-2 ${msg.liked ? "text-destructive" : "text-muted-foreground hover:text-destructive"}`}
-                            onClick={() => handleLike(msg.id)}
-                          >
-                            <Heart className={`h-4 w-4 ${msg.liked ? "fill-current" : ""}`} />
-                            <span className="text-xs">{msg.likes}</span>
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="gap-2 h-8 px-2 text-muted-foreground hover:text-primary"
-                            onClick={() => toggleComments(msg.id)}
-                          >
-                            <MessageCircleMore className="h-4 w-4" />
-                            <span className="text-xs">{msg.comments.length}</span>
-                          </Button>
-                        </div>
-
-                        {/* Comments Section */}
-                        {expandedComments.includes(msg.id) && (
-                          <div className="mt-3 pl-4 border-l-2 border-border space-y-3">
-                            {msg.comments.map((comment, idx) => (
-                              <div key={idx} className="flex gap-2">
-                                <Avatar className="h-6 w-6">
-                                  <AvatarFallback className="bg-secondary text-secondary-foreground text-xs">
-                                    {comment.initials}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div>
-                                  <div className="flex items-baseline gap-2">
-                                    <span className="font-medium text-xs text-foreground">{comment.user}</span>
-                                    <span className="text-xs text-muted-foreground">{comment.time}</span>
-                                  </div>
-                                  <p className="text-xs text-foreground/80">{comment.text}</p>
-                                </div>
-                              </div>
-                            ))}
-                            
-                            {/* Add Comment Input */}
-                            <div className="flex gap-2 mt-2">
-                              <Input 
-                                placeholder="Write a comment..." 
-                                className="h-8 text-xs"
-                                value={commentInputs[msg.id] || ""}
-                                onChange={(e) => setCommentInputs(prev => ({ ...prev, [msg.id]: e.target.value }))}
-                                onKeyDown={(e) => {
-                                  if (e.key === "Enter") {
-                                    handleAddComment(msg.id);
-                                  }
-                                }}
-                              />
-                              <Button 
-                                size="sm" 
-                                className="h-8 px-3"
-                                onClick={() => handleAddComment(msg.id)}
-                              >
-                                <Send className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
+              <CardContent className="p-4">
+                <form onSubmit={handleSubmitPost} className="flex gap-3">
+                  <Avatar className="h-10 w-10 shrink-0">
+                    <AvatarImage src={profile?.avatar_url || undefined} />
+                    <AvatarFallback className="bg-primary/20 text-primary text-sm">
+                      {profile?.initials || "?"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 space-y-2">
+                    <Textarea
+                      placeholder="Share something with the Europe team..."
+                      value={newPost}
+                      onChange={(e) => setNewPost(e.target.value)}
+                      className="min-h-[80px] resize-none"
+                    />
+                    <div className="flex justify-end">
+                      <Button type="submit" disabled={!newPost.trim() || createPost.isPending} className="gap-2">
+                        <Send className="h-4 w-4" />
+                        {createPost.isPending ? "Posting..." : "Post"}
+                      </Button>
                     </div>
                   </div>
-                ))}
+                </form>
               </CardContent>
             </Card>
-            
-            <div className="flex gap-2 mt-4">
-              <Input placeholder="Type your message..." className="flex-1" />
-              <Button size="icon">
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
+          ) : (
+            <Card className="bg-card">
+              <CardContent className="p-4 text-center text-muted-foreground">
+                Please log in to post in this channel.
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Posts Feed */}
+          <div className="flex flex-col">
+            {isLoading ? (
+              <Card className="bg-card">
+                <CardContent className="p-4 text-center text-muted-foreground">
+                  Loading posts...
+                </CardContent>
+              </Card>
+            ) : posts.length === 0 ? (
+              <Card className="bg-card">
+                <CardContent className="p-4 text-center text-muted-foreground">
+                  No posts yet. Be the first to share!
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="bg-card">
+                <CardContent className="p-4 space-y-4">
+                  {posts.map((post) => (
+                    <div key={post.id} className="border-b border-border pb-4 last:border-0 last:pb-0">
+                      <div className="flex gap-3">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={post.author?.avatar_url || undefined} />
+                          <AvatarFallback className="bg-primary/20 text-primary text-xs">
+                            {post.author?.initials || "?"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="flex items-baseline gap-2">
+                            <span className="font-medium text-sm text-foreground">
+                              {post.author?.full_name || "Unknown"}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {format(new Date(post.created_at), "MMM d, h:mm a")}
+                            </span>
+                          </div>
+                          <p className="text-sm text-foreground/80 mt-1 whitespace-pre-wrap">{post.content}</p>
+
+                          {/* Like and Comment buttons */}
+                          <div className="flex items-center gap-4 mt-3">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className={`gap-2 h-8 px-2 ${
+                                isLikedByUser(post) ? "text-destructive" : "text-muted-foreground hover:text-destructive"
+                              }`}
+                              onClick={() => toggleLike.mutate(post.id)}
+                              disabled={!user}
+                            >
+                              <Heart className={`h-4 w-4 ${isLikedByUser(post) ? "fill-current" : ""}`} />
+                              <span className="text-xs">{post.likes.length}</span>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="gap-2 h-8 px-2 text-muted-foreground hover:text-primary"
+                              onClick={() => toggleComments(post.id)}
+                            >
+                              <MessageCircleMore className="h-4 w-4" />
+                              <span className="text-xs">{post.comments.length}</span>
+                            </Button>
+                          </div>
+
+                          {/* Comments Section */}
+                          {expandedComments.includes(post.id) && (
+                            <div className="mt-3 pl-4 border-l-2 border-border space-y-3">
+                              {post.comments.map((comment) => (
+                                <div key={comment.id} className="flex gap-2">
+                                  <Avatar className="h-6 w-6">
+                                    <AvatarImage src={comment.author?.avatar_url || undefined} />
+                                    <AvatarFallback className="bg-secondary text-secondary-foreground text-xs">
+                                      {comment.author?.initials || "?"}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <div className="flex items-baseline gap-2">
+                                      <span className="font-medium text-xs text-foreground">
+                                        {comment.author?.full_name || "Unknown"}
+                                      </span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {format(new Date(comment.created_at), "MMM d, h:mm a")}
+                                      </span>
+                                    </div>
+                                    <p className="text-xs text-foreground/80">{comment.content}</p>
+                                  </div>
+                                </div>
+                              ))}
+
+                              {/* Add Comment Input */}
+                              {user && (
+                                <div className="flex gap-2 mt-2">
+                                  <Input
+                                    placeholder="Write a comment..."
+                                    className="h-8 text-xs"
+                                    value={commentInputs[post.id] || ""}
+                                    onChange={(e) =>
+                                      setCommentInputs((prev) => ({ ...prev, [post.id]: e.target.value }))
+                                    }
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter") {
+                                        handleAddComment(post.id);
+                                      }
+                                    }}
+                                  />
+                                  <Button size="sm" className="h-8 px-3" onClick={() => handleAddComment(post.id)}>
+                                    <Send className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>
