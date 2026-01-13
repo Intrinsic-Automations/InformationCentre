@@ -25,6 +25,7 @@ import {
   BarChart3,
   Plug,
   Target,
+  FileText,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
@@ -107,6 +108,12 @@ const navigationConfig: NavGroup[] = [
     label: "Sales Centre",
     items: [
       { title: "Win Plan Management", url: "/win-plan-management", icon: Target },
+    ],
+  },
+  {
+    label: "HR Centre",
+    items: [
+      { title: "Info & Resources", url: "/info-resources", icon: FileText },
     ],
   },
   {
