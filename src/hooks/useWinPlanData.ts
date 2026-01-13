@@ -78,6 +78,18 @@ export interface OpportunityInteraction {
   updated_at: string;
 }
 
+export interface OpportunityActionStep {
+  id: string;
+  opportunity_id: string;
+  action_description: string;
+  owner: string;
+  due_date: string | null;
+  rag_status: 'red' | 'amber' | 'green';
+  is_completed: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export function useCustomers() {
   return useQuery({
     queryKey: ["customers"],
@@ -155,6 +167,23 @@ export function useOpportunityStakeholders(opportunityId: string | null) {
         .order("is_decision_maker", { ascending: false });
       if (error) throw error;
       return data as OpportunityStakeholder[];
+    },
+    enabled: !!opportunityId,
+  });
+}
+
+export function useOpportunityActionSteps(opportunityId: string | null) {
+  return useQuery({
+    queryKey: ["opportunity_action_steps", opportunityId],
+    queryFn: async () => {
+      if (!opportunityId) return [];
+      const { data, error } = await supabase
+        .from("opportunity_action_steps")
+        .select("*")
+        .eq("opportunity_id", opportunityId)
+        .order("due_date", { ascending: true });
+      if (error) throw error;
+      return data as OpportunityActionStep[];
     },
     enabled: !!opportunityId,
   });

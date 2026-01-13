@@ -13,6 +13,7 @@ import {
   useOpportunities,
   useOpportunityInteractions,
   useOpportunityStakeholders,
+  useOpportunityActionSteps,
 } from "@/hooks/useWinPlanData";
 
 const WinPlanManagement = () => {
@@ -24,6 +25,7 @@ const WinPlanManagement = () => {
   const { data: opportunities, isLoading: isLoadingOpportunities } = useOpportunities(selectedCustomerId);
   const { data: interactions, isLoading: isLoadingInteractions } = useOpportunityInteractions(selectedOpportunityId);
   const { data: stakeholders, isLoading: isLoadingStakeholders } = useOpportunityStakeholders(selectedOpportunityId);
+  const { data: actionSteps, isLoading: isLoadingActionSteps } = useOpportunityActionSteps(selectedOpportunityId);
 
   const selectedCustomer = customers?.find((c) => c.id === selectedCustomerId);
   const selectedOpportunity = opportunities?.find((o) => o.id === selectedOpportunityId);
@@ -127,8 +129,10 @@ const WinPlanManagement = () => {
                 opportunity={selectedOpportunity}
                 interactions={interactions}
                 stakeholders={stakeholders}
+                actionSteps={actionSteps}
                 isLoadingInteractions={isLoadingInteractions}
                 isLoadingStakeholders={isLoadingStakeholders}
+                isLoadingActionSteps={isLoadingActionSteps}
               />
             </div>
           )}
