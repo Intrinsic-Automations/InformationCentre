@@ -3,6 +3,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import projectsInsightsHero from "@/assets/projects-insights-hero.jpg";
+import { AuthorProfileCard } from "@/components/announcements/AuthorProfileCard";
+
+// Arran Johnson's profile for all insights
+const arran = {
+  id: "8fee531a-32c4-4162-a354-4cbb2aa199b7",
+  full_name: "Arran Johnson",
+  initials: "AJ",
+  avatar_url: null,
+  role: "Senior Project Manager",
+  department: "Projects",
+  email: "arran.johnson@company.com",
+  skills: ["Project Management", "Agile", "Integration", "Migration"],
+};
 
 const strategies = [
   {
@@ -98,6 +111,7 @@ export default function ProjectsInsights() {
                           <CardDescription>{item.category}</CardDescription>
                         </div>
                       </div>
+                      <AuthorProfileCard author={arran} />
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -140,6 +154,7 @@ export default function ProjectsInsights() {
                           <CardDescription>{item.category}</CardDescription>
                         </div>
                       </div>
+                      <AuthorProfileCard author={arran} />
                     </div>
                   </CardHeader>
                   <CardContent>
