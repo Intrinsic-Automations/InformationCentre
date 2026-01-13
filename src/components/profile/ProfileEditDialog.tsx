@@ -249,13 +249,16 @@ export function ProfileEditDialog({ open, onOpenChange }: ProfileEditDialogProps
 
             <div className="space-y-2">
               <Label htmlFor="manager">Reporting Manager</Label>
-              <Select value={reportingManager} onValueChange={setReportingManager}>
+              <Select 
+                value={reportingManager || "none"} 
+                onValueChange={(val) => setReportingManager(val === "none" ? "" : val)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select your manager" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
-                  {managers.map((manager) => (
+                  <SelectItem value="none">None</SelectItem>
+                  {managers.filter(m => m.id).map((manager) => (
                     <SelectItem key={manager.id} value={manager.id}>
                       {manager.full_name}
                     </SelectItem>
