@@ -35,7 +35,7 @@ export default function Announcements() {
   const [category, setCategory] = useState("Company");
   const [isPinned, setIsPinned] = useState(false);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const queryClient = useQueryClient();
 
   const { data: announcements = [], isLoading } = useQuery({
@@ -54,12 +54,15 @@ export default function Announcements() {
 
   const createAnnouncement = useMutation({
     mutationFn: async () => {
+      if (!user) throw new Error("You must be logged in to post an announcement.");
+      if (!profile?.id) throw new Error("Your profile is still loading. Please try again in a moment.");
+
       const { error } = await supabase.from("announcements").insert({
         title,
         content,
         category,
         is_pinned: isPinned,
-        author_id: user?.id,
+        author_id: profile.id,
       });
       if (error) throw error;
     },
@@ -279,7 +282,7 @@ export default function Announcements() {
                       <CardTitle className="text-lg">{announcement.title}</CardTitle>
                     </div>
                     <div className="flex items-center gap-2">
-                      {user?.id === announcement.author_id && (
+                      {profile?.id === announcement.author_id && (
                         <Button
                           variant="ghost"
                           size="icon"
