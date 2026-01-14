@@ -1,11 +1,17 @@
 import { useState } from "react";
-import { History, CheckCircle2, ArrowRight, FileDown, Info, Calendar, Wrench, AlertTriangle, Ticket, X } from "lucide-react";
+import { History, CheckCircle2, ArrowRight, FileDown, Info, Wrench, AlertTriangle, Ticket } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import pastProjectsHero from "@/assets/past-projects-hero.jpg";
+
+// Arran Johnson's profile ID
+const ARRAN_JOHNSON_ID = "8fee531a-32c4-4162-a354-4cbb2aa199b7";
 
 interface Project {
   name: string;
@@ -14,6 +20,7 @@ interface Project {
   description: string;
   highlights: string;
   type: string;
+  author_id: string;
   closure: {
     summary: string;
     challenges: string;
@@ -22,7 +29,7 @@ interface Project {
   };
 }
 
-const projects = [
+const projects: Project[] = [
   {
     name: "Enterprise Analytics Migration",
     completedDate: "December 15, 2025",
@@ -30,6 +37,7 @@ const projects = [
     description: "Full migration of enterprise analytics platform with 500+ dashboards.",
     highlights: "30% performance improvement, zero data loss",
     type: "Migration",
+    author_id: ARRAN_JOHNSON_ID,
     closure: {
       summary: "Successfully migrated 500+ dashboards and 2TB of data to cloud-native infrastructure.",
       challenges: "Data validation complexity, legacy system dependencies, tight timeline",
@@ -44,6 +52,7 @@ const projects = [
     description: "Complete integration with Salesforce CRM for real-time sales analytics.",
     highlights: "Real-time sync, automated reporting",
     type: "Integration",
+    author_id: ARRAN_JOHNSON_ID,
     closure: {
       summary: "Integrated Salesforce CRM with internal analytics platform enabling real-time sales insights.",
       challenges: "API rate limits, data mapping inconsistencies, SSO configuration",
@@ -58,6 +67,7 @@ const projects = [
     description: "Multi-region analytics dashboard supporting 5 global data centers.",
     highlights: "99.9% uptime, sub-second query response",
     type: "Analytics",
+    author_id: ARRAN_JOHNSON_ID,
     closure: {
       summary: "Deployed multi-region dashboard with geo-distributed data processing and caching.",
       challenges: "Latency optimization, data consistency across regions, timezone handling",
@@ -72,6 +82,7 @@ const projects = [
     description: "Migration from Oracle to cloud-native analytics infrastructure.",
     highlights: "40% cost reduction, improved scalability",
     type: "Migration",
+    author_id: ARRAN_JOHNSON_ID,
     closure: {
       summary: "Migrated Oracle-based reporting to modern cloud infrastructure with cost savings.",
       challenges: "Complex stored procedures, data transformation logic, user training",
@@ -83,6 +94,20 @@ const projects = [
 
 export default function PastProjects() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+
+  // Fetch Arran Johnson's profile for avatar display
+  const { data: authorProfile } = useQuery({
+    queryKey: ['profile', ARRAN_JOHNSON_ID],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', ARRAN_JOHNSON_ID)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+  });
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -136,7 +161,7 @@ export default function PastProjects() {
                       <CardDescription>Completed {project.completedDate}</CardDescription>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-2">
                     <Badge variant="outline" className={
                       project.type === "Migration" ? "border-orange-500/50 text-orange-600" :
                       project.type === "Integration" ? "border-blue-500/50 text-blue-600" :
@@ -147,6 +172,20 @@ export default function PastProjects() {
                     <Badge variant="default">{project.status}</Badge>
                   </div>
                 </div>
+                {/* Author info */}
+                {authorProfile && (
+                  <div className="flex items-center gap-2 mt-3 pt-2 border-t border-border/30">
+                    <Avatar className="h-6 w-6">
+                      <AvatarImage src={authorProfile.avatar_url || undefined} alt={authorProfile.full_name} />
+                      <AvatarFallback className="text-xs bg-primary/20 text-primary">
+                        {authorProfile.initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-xs text-muted-foreground">
+                      Uploaded by <span className="font-medium text-foreground">{authorProfile.full_name}</span>
+                    </span>
+                  </div>
+                )}
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-foreground/80 mb-2">{project.description}</p>
