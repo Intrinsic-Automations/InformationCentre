@@ -7,11 +7,8 @@ import infoResourcesHero from "@/assets/generic-training-hero.jpg";
 // Define files for each HR topic
 const topicFiles: Record<string, { name: string; type: string; size: string }[]> = {
   "absence-management": [
-    { name: "Absence Policy Document.pdf", type: "pdf", size: "245 KB" },
-    { name: "Absence Request Form.docx", type: "doc", size: "52 KB" },
-    { name: "Return to Work Interview Template.docx", type: "doc", size: "38 KB" },
-    { name: "Absence Tracking Spreadsheet.xlsx", type: "excel", size: "124 KB" },
-    { name: "Long-term Absence Guidelines.pdf", type: "pdf", size: "189 KB" },
+    { name: "Return to Work Record Form.docx", type: "doc", size: "45 KB" },
+    { name: "Wellness Assessment and Action Plan.docx", type: "doc", size: "62 KB" },
   ],
   "appraisals": [
     { name: "Annual Appraisal Form.docx", type: "doc", size: "78 KB" },
