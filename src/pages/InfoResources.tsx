@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { FileText } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import infoResourcesHero from "@/assets/generic-training-hero.jpg";
 import hrAbsenceManagement from "@/assets/hr-absence-management.jpg";
 import hrAppraisals from "@/assets/hr-appraisals.jpg";
@@ -13,19 +14,21 @@ import hrRecruiting from "@/assets/hr-recruiting.jpg";
 import hrTraining from "@/assets/hr-training.jpg";
 
 const hrTiles = [
-  { title: "Absence Management", image: hrAbsenceManagement, description: "Policies and procedures for managing employee absence" },
-  { title: "Appraisals", image: hrAppraisals, description: "Performance review processes and templates" },
-  { title: "Employee Benefits Info", image: hrBenefits, description: "Information about employee benefits and perks" },
-  { title: "Employee Exit", image: hrEmployeeExit, description: "Offboarding procedures and exit documentation" },
-  { title: "Induction", image: hrInduction, description: "New starter onboarding and induction materials" },
-  { title: "Job Descriptions", image: hrJobDescriptions, description: "Role definitions and job description templates" },
-  { title: "Performance Management", image: hrPerformance, description: "Performance tracking and improvement resources" },
-  { title: "Probation", image: hrProbation, description: "Probation period guidelines and review processes" },
-  { title: "Recruiting", image: hrRecruiting, description: "Recruitment processes and hiring guidelines" },
-  { title: "Training", image: hrTraining, description: "Training programs and development resources" },
+  { title: "Absence Management", image: hrAbsenceManagement, description: "Policies and procedures for managing employee absence", slug: "absence-management" },
+  { title: "Appraisals", image: hrAppraisals, description: "Performance review processes and templates", slug: "appraisals" },
+  { title: "Employee Benefits Info", image: hrBenefits, description: "Information about employee benefits and perks", slug: "employee-benefits-info" },
+  { title: "Employee Exit", image: hrEmployeeExit, description: "Offboarding procedures and exit documentation", slug: "employee-exit" },
+  { title: "Induction", image: hrInduction, description: "New starter onboarding and induction materials", slug: "induction" },
+  { title: "Job Descriptions", image: hrJobDescriptions, description: "Role definitions and job description templates", slug: "job-descriptions" },
+  { title: "Performance Management", image: hrPerformance, description: "Performance tracking and improvement resources", slug: "performance-management" },
+  { title: "Probation", image: hrProbation, description: "Probation period guidelines and review processes", slug: "probation" },
+  { title: "Recruiting", image: hrRecruiting, description: "Recruitment processes and hiring guidelines", slug: "recruiting" },
+  { title: "Training", image: hrTraining, description: "Training programs and development resources", slug: "training" },
 ];
 
 export default function InfoResources() {
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Hero Banner with Title - Sticky */}
@@ -55,6 +58,7 @@ export default function InfoResources() {
             <Card 
               key={tile.title} 
               className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+              onClick={() => navigate(`/info-resources/${tile.slug}`)}
             >
               <div className="relative h-32 overflow-hidden">
                 <img 
