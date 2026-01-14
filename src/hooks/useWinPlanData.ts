@@ -169,6 +169,96 @@ export function useCustomerDocuments(customerId: string | null) {
   });
 }
 
+export function useUploadCustomerDocument() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      customerId,
+      file,
+      documentName,
+      documentType,
+      notes,
+    }: {
+      customerId: string;
+      file: File;
+      documentName: string;
+      documentType: string;
+      notes?: string;
+    }) => {
+      // Upload file to storage
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${customerId}/${Date.now()}-${file.name}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("customer-documents")
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get the public URL
+      const { data: urlData } = supabase.storage
+        .from("customer-documents")
+        .getPublicUrl(fileName);
+
+      // Create document record
+      const { data, error } = await supabase
+        .from("customer_documents")
+        .insert({
+          customer_id: customerId,
+          document_name: documentName,
+          document_type: documentType,
+          document_url: urlData.publicUrl,
+          shared_date: new Date().toISOString(),
+          notes: notes || null,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["customer_documents", variables.customerId] });
+      toast.success("Document uploaded successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to upload document: " + error.message);
+    },
+  });
+}
+
+export function useDeleteCustomerDocument() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ documentId, documentUrl, customerId }: { documentId: string; documentUrl: string; customerId: string }) => {
+      // Extract file path from URL
+      const urlParts = documentUrl.split("/customer-documents/");
+      if (urlParts.length > 1) {
+        const filePath = urlParts[1];
+        await supabase.storage.from("customer-documents").remove([filePath]);
+      }
+
+      // Delete document record
+      const { error } = await supabase
+        .from("customer_documents")
+        .delete()
+        .eq("id", documentId);
+
+      if (error) throw error;
+      return { customerId };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["customer_documents", data.customerId] });
+      toast.success("Document deleted successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to delete document: " + error.message);
+    },
+  });
+}
+
 export function useOpportunities(customerId: string | null) {
   return useQuery({
     queryKey: ["opportunities", customerId],
