@@ -316,6 +316,29 @@ export function useOpportunityInteractions(opportunityId: string | null) {
   });
 }
 
+export function useCreateInteraction() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: Omit<OpportunityInteraction, "id" | "created_at" | "updated_at">) => {
+      const { data: result, error } = await supabase
+        .from("opportunity_interactions")
+        .insert(data)
+        .select()
+        .single();
+      if (error) throw error;
+      return result;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["opportunity_interactions", data.opportunity_id] });
+      toast.success("Interaction added successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to add interaction: " + error.message);
+    },
+  });
+}
+
 export function useOpportunityStakeholders(opportunityId: string | null) {
   return useQuery({
     queryKey: ["opportunity_stakeholders", opportunityId],
@@ -333,6 +356,29 @@ export function useOpportunityStakeholders(opportunityId: string | null) {
   });
 }
 
+export function useCreateStakeholder() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: Omit<OpportunityStakeholder, "id" | "created_at" | "updated_at">) => {
+      const { data: result, error } = await supabase
+        .from("opportunity_stakeholders")
+        .insert(data)
+        .select()
+        .single();
+      if (error) throw error;
+      return result;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["opportunity_stakeholders", data.opportunity_id] });
+      toast.success("Stakeholder added successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to add stakeholder: " + error.message);
+    },
+  });
+}
+
 export function useOpportunityActionSteps(opportunityId: string | null) {
   return useQuery({
     queryKey: ["opportunity_action_steps", opportunityId],
@@ -347,5 +393,76 @@ export function useOpportunityActionSteps(opportunityId: string | null) {
       return data as OpportunityActionStep[];
     },
     enabled: !!opportunityId,
+  });
+}
+
+export function useCreateActionStep() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: Omit<OpportunityActionStep, "id" | "created_at" | "updated_at">) => {
+      const { data: result, error } = await supabase
+        .from("opportunity_action_steps")
+        .insert(data)
+        .select()
+        .single();
+      if (error) throw error;
+      return result;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["opportunity_action_steps", data.opportunity_id] });
+      toast.success("Action step added successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to add action step: " + error.message);
+    },
+  });
+}
+
+export function useUpdateActionStep() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, opportunityId, ...data }: { id: string; opportunityId: string } & Partial<Omit<OpportunityActionStep, "id" | "created_at" | "updated_at">>) => {
+      const { data: result, error } = await supabase
+        .from("opportunity_action_steps")
+        .update(data)
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      return { ...result, opportunityId };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["opportunity_action_steps", data.opportunityId] });
+      toast.success("Action step updated successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to update action step: " + error.message);
+    },
+  });
+}
+
+export function useUpdateOpportunity() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, ...data }: { id: string } & Partial<Omit<Opportunity, "id" | "created_at" | "updated_at">>) => {
+      const { data: result, error } = await supabase
+        .from("opportunities")
+        .update(data)
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      return result;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["opportunities", data.customer_id] });
+      toast.success("Opportunity updated successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to update opportunity: " + error.message);
+    },
   });
 }
