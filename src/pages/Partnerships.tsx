@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Handshake, ExternalLink, Building2, Calendar, FileText, Users, Plus, Pencil } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,6 +19,13 @@ import { toast } from "sonner";
 import { PartnershipForm, PartnershipFormData } from "@/components/partnerships/PartnershipForm";
 import partnershipsHero from "@/assets/partnerships-hero.jpg";
 
+interface PartnershipAuthor {
+  id: string;
+  full_name: string;
+  initials: string;
+  avatar_url: string | null;
+}
+
 interface Partnership {
   id: string;
   author_id: string | null;
@@ -32,6 +40,7 @@ interface Partnership {
   focus_areas: string[] | null;
   created_at: string;
   updated_at: string;
+  author: PartnershipAuthor | null;
 }
 
 const getInitialFormData = (): PartnershipFormData => ({
@@ -54,13 +63,21 @@ export default function Partnerships() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [formData, setFormData] = useState<PartnershipFormData>(getInitialFormData());
 
-  // Fetch partnerships
+  // Fetch partnerships with author info
   const { data: partnerships = [], isLoading } = useQuery({
     queryKey: ["partnerships"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("partnerships")
-        .select("*")
+        .select(`
+          *,
+          author:profiles!partnerships_author_id_fkey (
+            id,
+            full_name,
+            initials,
+            avatar_url
+          )
+        `)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Partnership[];
@@ -229,21 +246,32 @@ export default function Partnerships() {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="flex items-end justify-between gap-4">
+                <CardContent className="space-y-3">
                   <p className="text-sm text-foreground/80 line-clamp-2">
                     {partner.description || "No description provided."}
                   </p>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="gap-2 shrink-0"
-                    onClick={() => {
-                      setSelectedPartnership(partner);
-                      setIsEditMode(false);
-                    }}
-                  >
-                    Details <ExternalLink className="h-3 w-3" />
-                  </Button>
+                  <div className="flex items-center justify-between">
+                    {partner.author && (
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage src={partner.author.avatar_url || undefined} alt={partner.author.full_name} />
+                          <AvatarFallback className="text-xs">{partner.author.initials}</AvatarFallback>
+                        </Avatar>
+                        <span className="text-xs text-muted-foreground">{partner.author.full_name}</span>
+                      </div>
+                    )}
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="gap-2 shrink-0"
+                      onClick={() => {
+                        setSelectedPartnership(partner);
+                        setIsEditMode(false);
+                      }}
+                    >
+                      Details <ExternalLink className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
