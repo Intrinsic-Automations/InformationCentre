@@ -14,8 +14,6 @@ import {
   BookOpen,
   Wrench,
   ArrowRightLeft,
-  Calendar,
-  Clock,
   History,
   Building2,
   Database,
@@ -119,8 +117,6 @@ const navigationConfig: NavGroup[] = [
   {
     label: "Project Centre",
     items: [
-      { title: "Upcoming Projects", url: "/upcoming-projects", icon: Calendar },
-      { title: "Current Projects", url: "/current-projects", icon: Clock },
       { title: "Past Projects", url: "/past-projects", icon: History },
     ],
   },

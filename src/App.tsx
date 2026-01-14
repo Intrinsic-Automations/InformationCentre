@@ -31,8 +31,6 @@ import SellingTraining from "./pages/SellingTraining";
 import GenericTraining from "./pages/GenericTraining";
 import Migration from "./pages/Migration";
 import Integration from "./pages/Integration";
-import UpcomingProjects from "./pages/UpcomingProjects";
-import CurrentProjects from "./pages/CurrentProjects";
 import PastProjects from "./pages/PastProjects";
 import CompanySites from "./pages/CompanySites";
 import SolutionsDatabase from "./pages/SolutionsDatabase";
@@ -108,8 +106,6 @@ const App = () => (
                       <Route path="/migration" element={<Migration />} />
                       <Route path="/integration" element={<Integration />} />
                       <Route path="/win-plan-management" element={<WinPlanManagement />} />
-                      <Route path="/upcoming-projects" element={<UpcomingProjects />} />
-                      <Route path="/current-projects" element={<CurrentProjects />} />
                       <Route path="/past-projects" element={<PastProjects />} />
                       <Route path="/company-sites" element={<CompanySites />} />
                       <Route path="/solutions-database" element={<SolutionsDatabase />} />
