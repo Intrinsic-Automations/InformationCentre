@@ -1,8 +1,26 @@
-import { History, CheckCircle2, ArrowRight, FileDown, Info } from "lucide-react";
+import { useState } from "react";
+import { History, CheckCircle2, ArrowRight, FileDown, Info, Calendar, Wrench, AlertTriangle, Ticket, X } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import pastProjectsHero from "@/assets/past-projects-hero.jpg";
+
+interface Project {
+  name: string;
+  completedDate: string;
+  status: string;
+  description: string;
+  highlights: string;
+  type: string;
+  closure: {
+    summary: string;
+    challenges: string;
+    tools: string;
+    tickets: number;
+  };
+}
 
 const projects = [
   {
@@ -64,6 +82,8 @@ const projects = [
 ];
 
 export default function PastProjects() {
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Hero Banner with Title - Sticky */}
@@ -163,7 +183,12 @@ export default function PastProjects() {
                   </div>
                 </div>
                 
-                <Button variant="ghost" size="sm" className="gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="gap-2"
+                  onClick={() => setSelectedProject(project)}
+                >
                   View Full Report <ArrowRight className="h-3 w-3" />
                 </Button>
               </CardContent>
@@ -171,6 +196,111 @@ export default function PastProjects() {
           ))}
         </div>
       </div>
+
+      {/* Full Report Dialog */}
+      <Dialog open={!!selectedProject} onOpenChange={() => setSelectedProject(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          {selectedProject && (
+            <>
+              <DialogHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle2 className="h-6 w-6 text-primary" />
+                    <div>
+                      <DialogTitle className="text-xl">{selectedProject.name}</DialogTitle>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Completed {selectedProject.completedDate}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Badge variant="outline" className={
+                      selectedProject.type === "Migration" ? "border-orange-500/50 text-orange-600" :
+                      selectedProject.type === "Integration" ? "border-blue-500/50 text-blue-600" :
+                      "border-green-500/50 text-green-600"
+                    }>
+                      {selectedProject.type}
+                    </Badge>
+                    <Badge variant="default">{selectedProject.status}</Badge>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <Separator className="my-4" />
+
+              {/* Project Overview */}
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground mb-2">Project Overview</h3>
+                  <p className="text-sm text-foreground/80">{selectedProject.description}</p>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground mb-2">Key Highlights</h3>
+                  <p className="text-sm text-primary font-medium">{selectedProject.highlights}</p>
+                </div>
+
+                <Separator />
+
+                {/* Project Closure Report */}
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground mb-4">Project Closure Report</h3>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-muted/30 rounded-lg p-4 border border-border/30">
+                      <h4 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                        <History className="h-4 w-4 text-primary" />
+                        Executive Summary
+                      </h4>
+                      <p className="text-sm text-foreground/80">{selectedProject.closure.summary}</p>
+                    </div>
+
+                    <div className="bg-muted/30 rounded-lg p-4 border border-border/30">
+                      <h4 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4 text-orange-500" />
+                        Challenges Faced
+                      </h4>
+                      <p className="text-sm text-foreground/80">{selectedProject.closure.challenges}</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="bg-muted/30 rounded-lg p-4 border border-border/30">
+                        <h4 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                          <Wrench className="h-4 w-4 text-blue-500" />
+                          Tools & Technologies
+                        </h4>
+                        <p className="text-sm text-foreground/80">{selectedProject.closure.tools}</p>
+                      </div>
+
+                      <div className="bg-muted/30 rounded-lg p-4 border border-border/30">
+                        <h4 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                          <Ticket className="h-4 w-4 text-purple-500" />
+                          Tickets Raised
+                        </h4>
+                        <p className="text-2xl font-bold text-primary">{selectedProject.closure.tickets}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Download Section */}
+                <div className="flex items-center justify-between bg-primary/5 rounded-lg p-4 border border-primary/20">
+                  <div>
+                    <h4 className="text-sm font-medium text-foreground">Full Project Closure Document</h4>
+                    <p className="text-xs text-muted-foreground">Download the complete project report with all details</p>
+                  </div>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <FileDown className="h-4 w-4" />
+                    Download PDF
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
