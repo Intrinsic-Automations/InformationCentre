@@ -1,14 +1,24 @@
 import { useState } from "react";
-import { Target, Building2, ChevronLeft } from "lucide-react";
+import { Target, Building2, ChevronLeft, Plus } from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { CustomerList } from "@/components/winplan/CustomerList";
 import { CustomerDetails } from "@/components/winplan/CustomerDetails";
+import { CustomerForm, CustomerFormData } from "@/components/winplan/CustomerForm";
 import { OpportunityList } from "@/components/winplan/OpportunityList";
 import { OpportunityDetails } from "@/components/winplan/OpportunityDetails";
 import {
   useCustomers,
+  useCreateCustomer,
   useCustomerDocuments,
   useOpportunities,
   useOpportunityInteractions,
@@ -16,9 +26,23 @@ import {
   useOpportunityActionSteps,
 } from "@/hooks/useWinPlanData";
 
+const getInitialFormData = (): CustomerFormData => ({
+  company_name: "",
+  industry: "",
+  website: "",
+  contact_name: "",
+  contact_email: "",
+  contact_phone: "",
+  address: "",
+  notes: "",
+  status: "prospect",
+});
+
 const WinPlanManagement = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
+  const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
+  const [formData, setFormData] = useState<CustomerFormData>(getInitialFormData());
 
   const { data: customers, isLoading: isLoadingCustomers } = useCustomers();
   const { data: documents, isLoading: isLoadingDocuments } = useCustomerDocuments(selectedCustomerId);
@@ -26,6 +50,7 @@ const WinPlanManagement = () => {
   const { data: interactions, isLoading: isLoadingInteractions } = useOpportunityInteractions(selectedOpportunityId);
   const { data: stakeholders, isLoading: isLoadingStakeholders } = useOpportunityStakeholders(selectedOpportunityId);
   const { data: actionSteps, isLoading: isLoadingActionSteps } = useOpportunityActionSteps(selectedOpportunityId);
+  const createCustomer = useCreateCustomer();
 
   const selectedCustomer = customers?.find((c) => c.id === selectedCustomerId);
   const selectedOpportunity = opportunities?.find((o) => o.id === selectedOpportunityId);
@@ -41,6 +66,28 @@ const WinPlanManagement = () => {
     } else if (selectedCustomerId) {
       setSelectedCustomerId(null);
     }
+  };
+
+  const handleAddCustomer = () => {
+    createCustomer.mutate(
+      {
+        company_name: formData.company_name,
+        industry: formData.industry || null,
+        website: formData.website || null,
+        contact_name: formData.contact_name || null,
+        contact_email: formData.contact_email || null,
+        contact_phone: formData.contact_phone || null,
+        address: formData.address || null,
+        notes: formData.notes || null,
+        status: formData.status || null,
+      },
+      {
+        onSuccess: () => {
+          setIsAddCustomerOpen(false);
+          setFormData(getInitialFormData());
+        },
+      }
+    );
   };
 
   return (
@@ -79,14 +126,42 @@ const WinPlanManagement = () => {
           {!selectedCustomerId ? (
             /* Customer List View */
             <div className="h-full overflow-auto">
-              <div className="mb-4">
-                <h2 className="text-lg font-semibold flex items-center gap-2">
-                  <Building2 className="h-5 w-5" />
-                  Customers
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Select a customer to view their details and opportunities
-                </p>
+              <div className="mb-4 flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold flex items-center gap-2">
+                    <Building2 className="h-5 w-5" />
+                    Customers
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    Select a customer to view their details and opportunities
+                  </p>
+                </div>
+                <Dialog open={isAddCustomerOpen} onOpenChange={setIsAddCustomerOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="gap-2">
+                      <Plus className="h-4 w-4" />
+                      Add Customer
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Add New Customer</DialogTitle>
+                      <DialogDescription>
+                        Add a new customer to track opportunities and win plans.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <CustomerForm
+                      formData={formData}
+                      onFormDataChange={setFormData}
+                      onSubmit={handleAddCustomer}
+                      onCancel={() => {
+                        setIsAddCustomerOpen(false);
+                        setFormData(getInitialFormData());
+                      }}
+                      isSubmitting={createCustomer.isPending}
+                    />
+                  </DialogContent>
+                </Dialog>
               </div>
               <CustomerList
                 customers={customers}

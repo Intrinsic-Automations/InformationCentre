@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export interface Customer {
   id: string;
@@ -100,6 +101,29 @@ export function useCustomers() {
         .order("company_name");
       if (error) throw error;
       return data as Customer[];
+    },
+  });
+}
+
+export function useCreateCustomer() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (customerData: Omit<Customer, "id" | "created_at" | "updated_at">) => {
+      const { data, error } = await supabase
+        .from("customers")
+        .insert(customerData)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      toast.success("Customer added successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to add customer: " + error.message);
     },
   });
 }
