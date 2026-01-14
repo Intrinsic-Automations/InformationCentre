@@ -1,4 +1,4 @@
-import { History, CheckCircle2, ArrowRight, FileDown } from "lucide-react";
+import { History, CheckCircle2, ArrowRight, FileDown, Info } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -88,6 +88,22 @@ export default function PastProjects() {
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
+        {/* Posting Guidelines */}
+        <Card className="mb-6 border-primary/20 bg-primary/5">
+          <CardContent className="py-4">
+            <div className="flex items-start gap-3">
+              <Info className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">Posting Guidelines</h3>
+                <p className="text-sm text-muted-foreground">
+                  Please upload a detailed overview of your project including key outcomes, challenges faced, and lessons learned. 
+                  Don't forget to upload your <strong>End of Project Report</strong> documents to help the team learn from your experience.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="grid gap-4 md:grid-cols-2">
           {projects.map((project, index) => (
             <Card key={index} className="bg-card">
