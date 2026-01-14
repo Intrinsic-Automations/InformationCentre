@@ -15,6 +15,7 @@ import { CustomerList } from "@/components/winplan/CustomerList";
 import { CustomerDetails } from "@/components/winplan/CustomerDetails";
 import { CustomerForm, CustomerFormData } from "@/components/winplan/CustomerForm";
 import { OpportunityList } from "@/components/winplan/OpportunityList";
+import { OpportunityForm, OpportunityFormData } from "@/components/winplan/OpportunityForm";
 import { OpportunityDetails } from "@/components/winplan/OpportunityDetails";
 import {
   useCustomers,
@@ -22,6 +23,7 @@ import {
   useUpdateCustomer,
   useCustomerDocuments,
   useOpportunities,
+  useCreateOpportunity,
   useOpportunityInteractions,
   useOpportunityStakeholders,
   useOpportunityActionSteps,
@@ -39,12 +41,33 @@ const getInitialFormData = (): CustomerFormData => ({
   status: "prospect",
 });
 
+const getInitialOpportunityFormData = (): OpportunityFormData => ({
+  opportunity_name: "",
+  deal_summary: "",
+  value_proposition: "",
+  compelling_reasons: "",
+  key_issues: "",
+  blockers: "",
+  estimated_value: "",
+  stage: "prospecting",
+  probability: "",
+  expected_close_date: "",
+  industry: "",
+  exec_owner: "",
+  opportunity_owner: "",
+  quarter_to_close: "",
+  services_value: "",
+  software_sales: "",
+});
+
 const WinPlanManagement = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
   const [isEditCustomerOpen, setIsEditCustomerOpen] = useState(false);
+  const [isAddOpportunityOpen, setIsAddOpportunityOpen] = useState(false);
   const [formData, setFormData] = useState<CustomerFormData>(getInitialFormData());
+  const [opportunityFormData, setOpportunityFormData] = useState<OpportunityFormData>(getInitialOpportunityFormData());
 
   const { data: customers, isLoading: isLoadingCustomers } = useCustomers();
   const { data: documents, isLoading: isLoadingDocuments } = useCustomerDocuments(selectedCustomerId);
@@ -54,6 +77,7 @@ const WinPlanManagement = () => {
   const { data: actionSteps, isLoading: isLoadingActionSteps } = useOpportunityActionSteps(selectedOpportunityId);
   const createCustomer = useCreateCustomer();
   const updateCustomer = useUpdateCustomer();
+  const createOpportunity = useCreateOpportunity();
 
   const selectedCustomer = customers?.find((c) => c.id === selectedCustomerId);
   const selectedOpportunity = opportunities?.find((o) => o.id === selectedOpportunityId);
@@ -132,6 +156,38 @@ const WinPlanManagement = () => {
       });
       setIsEditCustomerOpen(true);
     }
+  };
+
+  const handleAddOpportunity = () => {
+    if (!selectedCustomerId) return;
+    createOpportunity.mutate(
+      {
+        customer_id: selectedCustomerId,
+        opportunity_name: opportunityFormData.opportunity_name,
+        deal_summary: opportunityFormData.deal_summary || null,
+        value_proposition: opportunityFormData.value_proposition || null,
+        compelling_reasons: opportunityFormData.compelling_reasons || null,
+        key_issues: opportunityFormData.key_issues || null,
+        blockers: opportunityFormData.blockers || null,
+        estimated_value: opportunityFormData.estimated_value ? parseFloat(opportunityFormData.estimated_value) : null,
+        stage: opportunityFormData.stage || null,
+        probability: opportunityFormData.probability ? parseInt(opportunityFormData.probability) : null,
+        expected_close_date: opportunityFormData.expected_close_date || null,
+        status: "active",
+        industry: opportunityFormData.industry || null,
+        exec_owner: opportunityFormData.exec_owner || null,
+        opportunity_owner: opportunityFormData.opportunity_owner || null,
+        quarter_to_close: opportunityFormData.quarter_to_close || null,
+        services_value: opportunityFormData.services_value ? parseFloat(opportunityFormData.services_value) : null,
+        software_sales: opportunityFormData.software_sales ? parseFloat(opportunityFormData.software_sales) : null,
+      },
+      {
+        onSuccess: () => {
+          setIsAddOpportunityOpen(false);
+          setOpportunityFormData(getInitialOpportunityFormData());
+        },
+      }
+    );
   };
 
   return (
@@ -261,6 +317,34 @@ const WinPlanManagement = () => {
                   />
                 </TabsContent>
                 <TabsContent value="opportunities" className="flex-1 overflow-auto mt-4">
+                  <div className="mb-4 flex justify-end">
+                    <Dialog open={isAddOpportunityOpen} onOpenChange={setIsAddOpportunityOpen}>
+                      <DialogTrigger asChild>
+                        <Button className="gap-2">
+                          <Plus className="h-4 w-4" />
+                          Add Opportunity
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>Add New Opportunity</DialogTitle>
+                          <DialogDescription>
+                            Add a new opportunity for {selectedCustomer?.company_name}.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <OpportunityForm
+                          formData={opportunityFormData}
+                          onFormDataChange={setOpportunityFormData}
+                          onSubmit={handleAddOpportunity}
+                          onCancel={() => {
+                            setIsAddOpportunityOpen(false);
+                            setOpportunityFormData(getInitialOpportunityFormData());
+                          }}
+                          isSubmitting={createOpportunity.isPending}
+                        />
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                   <OpportunityList
                     opportunities={opportunities}
                     isLoading={isLoadingOpportunities}
