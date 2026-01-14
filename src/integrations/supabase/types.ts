@@ -228,6 +228,50 @@ export type Database = {
         }
         Relationships: []
       }
+      hr_topic_documents: {
+        Row: {
+          created_at: string
+          document_name: string
+          file_path: string
+          file_size: string | null
+          file_type: string | null
+          id: string
+          topic_slug: string
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          document_name: string
+          file_path: string
+          file_size?: string | null
+          file_type?: string | null
+          id?: string
+          topic_slug: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          document_name?: string
+          file_path?: string
+          file_size?: string | null
+          file_type?: string | null
+          id?: string
+          topic_slug?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_topic_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       likes: {
         Row: {
           created_at: string
