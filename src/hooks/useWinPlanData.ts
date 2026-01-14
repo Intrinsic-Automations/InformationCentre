@@ -276,6 +276,29 @@ export function useOpportunities(customerId: string | null) {
   });
 }
 
+export function useCreateOpportunity() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (opportunityData: Omit<Opportunity, "id" | "created_at" | "updated_at">) => {
+      const { data, error } = await supabase
+        .from("opportunities")
+        .insert(opportunityData)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["opportunities", data.customer_id] });
+      toast.success("Opportunity added successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to add opportunity: " + error.message);
+    },
+  });
+}
+
 export function useOpportunityInteractions(opportunityId: string | null) {
   return useQuery({
     queryKey: ["opportunity_interactions", opportunityId],
