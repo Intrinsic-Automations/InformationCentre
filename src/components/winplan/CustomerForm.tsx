@@ -28,6 +28,7 @@ interface CustomerFormProps {
   onSubmit: () => void;
   onCancel: () => void;
   isSubmitting: boolean;
+  isEditMode?: boolean;
 }
 
 const industryOptions = [
@@ -56,6 +57,7 @@ export function CustomerForm({
   onSubmit,
   onCancel,
   isSubmitting,
+  isEditMode = false,
 }: CustomerFormProps) {
   const updateField = (field: keyof CustomerFormData, value: string) => {
     onFormDataChange({ ...formData, [field]: value });
@@ -186,7 +188,7 @@ export function CustomerForm({
           onClick={onSubmit}
           disabled={isSubmitting || !formData.company_name.trim()}
         >
-          {isSubmitting ? "Adding..." : "Add Customer"}
+          {isSubmitting ? (isEditMode ? "Saving..." : "Adding...") : (isEditMode ? "Save Changes" : "Add Customer")}
         </Button>
       </div>
     </div>

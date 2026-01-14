@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Target, Building2, ChevronLeft, Plus } from "lucide-react";
+import { Target, Building2, ChevronLeft, Plus, Pencil } from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,6 +19,7 @@ import { OpportunityDetails } from "@/components/winplan/OpportunityDetails";
 import {
   useCustomers,
   useCreateCustomer,
+  useUpdateCustomer,
   useCustomerDocuments,
   useOpportunities,
   useOpportunityInteractions,
@@ -42,6 +43,7 @@ const WinPlanManagement = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
+  const [isEditCustomerOpen, setIsEditCustomerOpen] = useState(false);
   const [formData, setFormData] = useState<CustomerFormData>(getInitialFormData());
 
   const { data: customers, isLoading: isLoadingCustomers } = useCustomers();
@@ -51,6 +53,7 @@ const WinPlanManagement = () => {
   const { data: stakeholders, isLoading: isLoadingStakeholders } = useOpportunityStakeholders(selectedOpportunityId);
   const { data: actionSteps, isLoading: isLoadingActionSteps } = useOpportunityActionSteps(selectedOpportunityId);
   const createCustomer = useCreateCustomer();
+  const updateCustomer = useUpdateCustomer();
 
   const selectedCustomer = customers?.find((c) => c.id === selectedCustomerId);
   const selectedOpportunity = opportunities?.find((o) => o.id === selectedOpportunityId);
@@ -88,6 +91,47 @@ const WinPlanManagement = () => {
         },
       }
     );
+  };
+
+  const handleEditCustomer = () => {
+    if (!selectedCustomerId) return;
+    updateCustomer.mutate(
+      {
+        id: selectedCustomerId,
+        company_name: formData.company_name,
+        industry: formData.industry || null,
+        website: formData.website || null,
+        contact_name: formData.contact_name || null,
+        contact_email: formData.contact_email || null,
+        contact_phone: formData.contact_phone || null,
+        address: formData.address || null,
+        notes: formData.notes || null,
+        status: formData.status || null,
+      },
+      {
+        onSuccess: () => {
+          setIsEditCustomerOpen(false);
+          setFormData(getInitialFormData());
+        },
+      }
+    );
+  };
+
+  const openEditDialog = () => {
+    if (selectedCustomer) {
+      setFormData({
+        company_name: selectedCustomer.company_name,
+        industry: selectedCustomer.industry || "",
+        website: selectedCustomer.website || "",
+        contact_name: selectedCustomer.contact_name || "",
+        contact_email: selectedCustomer.contact_email || "",
+        contact_phone: selectedCustomer.contact_phone || "",
+        address: selectedCustomer.address || "",
+        notes: selectedCustomer.notes || "",
+        status: selectedCustomer.status || "prospect",
+      });
+      setIsEditCustomerOpen(true);
+    }
   };
 
   return (
@@ -174,12 +218,41 @@ const WinPlanManagement = () => {
             /* Customer Details & Opportunities View */
             <div className="h-full overflow-hidden">
               <Tabs defaultValue="details" className="h-full flex flex-col">
-                <TabsList className="shrink-0">
-                  <TabsTrigger value="details">Customer Details</TabsTrigger>
-                  <TabsTrigger value="opportunities">
-                    Opportunities ({opportunities?.length || 0})
-                  </TabsTrigger>
-                </TabsList>
+                <div className="flex items-center justify-between mb-2">
+                  <TabsList className="shrink-0">
+                    <TabsTrigger value="details">Customer Details</TabsTrigger>
+                    <TabsTrigger value="opportunities">
+                      Opportunities ({opportunities?.length || 0})
+                    </TabsTrigger>
+                  </TabsList>
+                  <Dialog open={isEditCustomerOpen} onOpenChange={setIsEditCustomerOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm" className="gap-2" onClick={openEditDialog}>
+                        <Pencil className="h-4 w-4" />
+                        Edit Customer
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Edit Customer</DialogTitle>
+                        <DialogDescription>
+                          Update customer information.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <CustomerForm
+                        formData={formData}
+                        onFormDataChange={setFormData}
+                        onSubmit={handleEditCustomer}
+                        onCancel={() => {
+                          setIsEditCustomerOpen(false);
+                          setFormData(getInitialFormData());
+                        }}
+                        isSubmitting={updateCustomer.isPending}
+                        isEditMode
+                      />
+                    </DialogContent>
+                  </Dialog>
+                </div>
                 <TabsContent value="details" className="flex-1 overflow-auto mt-4">
                   <CustomerDetails
                     customer={selectedCustomer}
