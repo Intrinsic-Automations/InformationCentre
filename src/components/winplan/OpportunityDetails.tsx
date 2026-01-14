@@ -61,6 +61,7 @@ import {
   useCreateActionStep,
   useUpdateActionStep,
   useCreateInteraction,
+  useUpdateInteraction,
   useUpdateOpportunity,
 } from "@/hooks/useWinPlanData";
 import { OpportunityForm, OpportunityFormData } from "./OpportunityForm";
@@ -149,6 +150,8 @@ export function OpportunityDetails({
   const [isAddStakeholderOpen, setIsAddStakeholderOpen] = useState(false);
   const [isAddActionOpen, setIsAddActionOpen] = useState(false);
   const [isAddInteractionOpen, setIsAddInteractionOpen] = useState(false);
+  const [isEditInteractionOpen, setIsEditInteractionOpen] = useState(false);
+  const [editingInteraction, setEditingInteraction] = useState<OpportunityInteraction | null>(null);
 
   // Form states
   const [editFormData, setEditFormData] = useState<OpportunityFormData>(getInitialOpportunityFormData());
@@ -174,6 +177,15 @@ export function OpportunityDetails({
     outcome: "",
     next_steps: "",
   });
+  const [editInteractionForm, setEditInteractionForm] = useState({
+    interaction_type: "meeting",
+    interaction_date: "",
+    summary: "",
+    attendees: "",
+    presentation_shared: "",
+    outcome: "",
+    next_steps: "",
+  });
 
   // Mutations
   const updateOpportunity = useUpdateOpportunity();
@@ -181,6 +193,7 @@ export function OpportunityDetails({
   const createActionStep = useCreateActionStep();
   const updateActionStep = useUpdateActionStep();
   const createInteraction = useCreateInteraction();
+  const updateInteraction = useUpdateInteraction();
 
   if (!opportunity) {
     return (
@@ -307,6 +320,43 @@ export function OpportunityDetails({
   const openEditDialog = () => {
     setEditFormData(getInitialOpportunityFormData(opportunity));
     setIsEditOpen(true);
+  };
+
+  const openEditInteractionDialog = (interaction: OpportunityInteraction) => {
+    setEditingInteraction(interaction);
+    setEditInteractionForm({
+      interaction_type: interaction.interaction_type,
+      interaction_date: interaction.interaction_date,
+      summary: interaction.summary,
+      attendees: interaction.attendees || "",
+      presentation_shared: interaction.presentation_shared || "",
+      outcome: interaction.outcome || "",
+      next_steps: interaction.next_steps || "",
+    });
+    setIsEditInteractionOpen(true);
+  };
+
+  const handleEditInteraction = () => {
+    if (!editingInteraction) return;
+    updateInteraction.mutate(
+      {
+        id: editingInteraction.id,
+        opportunityId: opportunity.id,
+        interaction_type: editInteractionForm.interaction_type,
+        interaction_date: editInteractionForm.interaction_date,
+        summary: editInteractionForm.summary,
+        attendees: editInteractionForm.attendees || null,
+        presentation_shared: editInteractionForm.presentation_shared || null,
+        outcome: editInteractionForm.outcome || null,
+        next_steps: editInteractionForm.next_steps || null,
+      },
+      {
+        onSuccess: () => {
+          setIsEditInteractionOpen(false);
+          setEditingInteraction(null);
+        },
+      }
+    );
   };
 
   return (
@@ -916,6 +966,14 @@ export function OpportunityDetails({
                           {format(new Date(interaction.interaction_date), "MMM d, yyyy")}
                         </span>
                       </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => openEditInteractionDialog(interaction)}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
                     </div>
 
                     <p className="text-sm mt-2 font-medium">{interaction.summary}</p>
@@ -960,6 +1018,104 @@ export function OpportunityDetails({
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Interaction Dialog */}
+      <Dialog open={isEditInteractionOpen} onOpenChange={setIsEditInteractionOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Edit Interaction</DialogTitle>
+            <DialogDescription>Update the interaction details.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit_interaction_type">Type *</Label>
+                <Select
+                  value={editInteractionForm.interaction_type}
+                  onValueChange={(value) => setEditInteractionForm({ ...editInteractionForm, interaction_type: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {interactionTypeOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit_interaction_date">Date *</Label>
+                <Input
+                  id="edit_interaction_date"
+                  type="date"
+                  value={editInteractionForm.interaction_date}
+                  onChange={(e) => setEditInteractionForm({ ...editInteractionForm, interaction_date: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit_summary">Summary *</Label>
+              <Textarea
+                id="edit_summary"
+                value={editInteractionForm.summary}
+                onChange={(e) => setEditInteractionForm({ ...editInteractionForm, summary: e.target.value })}
+                placeholder="Brief summary of the interaction..."
+                rows={2}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit_attendees">Attendees</Label>
+              <Input
+                id="edit_attendees"
+                value={editInteractionForm.attendees}
+                onChange={(e) => setEditInteractionForm({ ...editInteractionForm, attendees: e.target.value })}
+                placeholder="Who attended?"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit_presentation_shared">Presentation/Material Shared</Label>
+              <Input
+                id="edit_presentation_shared"
+                value={editInteractionForm.presentation_shared}
+                onChange={(e) => setEditInteractionForm({ ...editInteractionForm, presentation_shared: e.target.value })}
+                placeholder="Any materials shared?"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit_outcome">Outcome</Label>
+              <Textarea
+                id="edit_outcome"
+                value={editInteractionForm.outcome}
+                onChange={(e) => setEditInteractionForm({ ...editInteractionForm, outcome: e.target.value })}
+                placeholder="What was the outcome?"
+                rows={2}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit_next_steps">Next Steps</Label>
+              <Textarea
+                id="edit_next_steps"
+                value={editInteractionForm.next_steps}
+                onChange={(e) => setEditInteractionForm({ ...editInteractionForm, next_steps: e.target.value })}
+                placeholder="What are the next steps?"
+                rows={2}
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => setIsEditInteractionOpen(false)}>Cancel</Button>
+              <Button
+                onClick={handleEditInteraction}
+                disabled={!editInteractionForm.summary || !editInteractionForm.interaction_date || updateInteraction.isPending}
+              >
+                {updateInteraction.isPending ? "Saving..." : "Save Changes"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

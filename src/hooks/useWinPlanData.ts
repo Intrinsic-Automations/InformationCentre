@@ -339,6 +339,30 @@ export function useCreateInteraction() {
   });
 }
 
+export function useUpdateInteraction() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, opportunityId, ...data }: { id: string; opportunityId: string } & Partial<Omit<OpportunityInteraction, "id" | "created_at" | "updated_at">>) => {
+      const { data: result, error } = await supabase
+        .from("opportunity_interactions")
+        .update(data)
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      return { ...result, opportunityId };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["opportunity_interactions", data.opportunityId] });
+      toast.success("Interaction updated successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to update interaction: " + error.message);
+    },
+  });
+}
+
 export function useOpportunityStakeholders(opportunityId: string | null) {
   return useQuery({
     queryKey: ["opportunity_stakeholders", opportunityId],
