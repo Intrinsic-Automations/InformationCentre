@@ -865,6 +865,7 @@ export type Database = {
       }
       projects: {
         Row: {
+          author_id: string | null
           challenges: string | null
           client_name: string | null
           created_at: string
@@ -883,6 +884,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          author_id?: string | null
           challenges?: string | null
           client_name?: string | null
           created_at?: string
@@ -901,6 +903,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          author_id?: string | null
           challenges?: string | null
           client_name?: string | null
           created_at?: string
@@ -918,7 +921,15 @@ export type Database = {
           type?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "projects_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       solutions: {
         Row: {
