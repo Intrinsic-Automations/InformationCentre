@@ -1,12 +1,11 @@
 import { NavLink } from "@/components/NavLink";
 import { ProfileMenu } from "@/components/profile/ProfileMenu";
-import { GraduationCap, Building2, Network, Calendar } from "lucide-react";
+import { GraduationCap, Building2, Network } from "lucide-react";
 
 const topNavItems = [
   { title: "eQ Training", url: "/eq-training", icon: GraduationCap },
   { title: "Company Sites", url: "/company-sites", icon: Building2 },
   { title: "Organization", url: "/organization", icon: Network },
-  { title: "Upcoming Projects", url: "/upcoming-projects", icon: Calendar },
 ];
 
 export function TopNav() {
