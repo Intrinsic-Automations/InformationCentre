@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Target,
   Lightbulb,
@@ -19,11 +20,33 @@ import {
   UserCheck,
   ListTodo,
   Circle,
+  Plus,
+  Pencil,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -33,6 +56,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Opportunity, OpportunityInteraction, OpportunityStakeholder, OpportunityActionStep } from "@/hooks/useWinPlanData";
+import {
+  useCreateStakeholder,
+  useCreateActionStep,
+  useUpdateActionStep,
+  useCreateInteraction,
+  useUpdateOpportunity,
+} from "@/hooks/useWinPlanData";
+import { OpportunityForm, OpportunityFormData } from "./OpportunityForm";
 import { format } from "date-fns";
 
 interface OpportunityDetailsProps {
@@ -77,6 +108,33 @@ const ragStatusConfig = {
   green: { label: "Green", bgClass: "bg-green-100 dark:bg-green-950/50", textClass: "text-green-700 dark:text-green-400", dotClass: "bg-green-500" },
 };
 
+const interactionTypeOptions = [
+  { value: "meeting", label: "Meeting" },
+  { value: "call", label: "Call" },
+  { value: "email", label: "Email" },
+  { value: "presentation", label: "Presentation" },
+  { value: "conversation", label: "Conversation" },
+];
+
+const getInitialOpportunityFormData = (opp?: Opportunity): OpportunityFormData => ({
+  opportunity_name: opp?.opportunity_name || "",
+  deal_summary: opp?.deal_summary || "",
+  value_proposition: opp?.value_proposition || "",
+  compelling_reasons: opp?.compelling_reasons || "",
+  key_issues: opp?.key_issues || "",
+  blockers: opp?.blockers || "",
+  estimated_value: opp?.estimated_value?.toString() || "",
+  stage: opp?.stage || "prospecting",
+  probability: opp?.probability?.toString() || "",
+  expected_close_date: opp?.expected_close_date || "",
+  industry: opp?.industry || "",
+  exec_owner: opp?.exec_owner || "",
+  opportunity_owner: opp?.opportunity_owner || "",
+  quarter_to_close: opp?.quarter_to_close || "",
+  services_value: opp?.services_value?.toString() || "",
+  software_sales: opp?.software_sales?.toString() || "",
+});
+
 export function OpportunityDetails({
   opportunity,
   interactions,
@@ -86,6 +144,44 @@ export function OpportunityDetails({
   isLoadingStakeholders,
   isLoadingActionSteps,
 }: OpportunityDetailsProps) {
+  // Dialog states
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isAddStakeholderOpen, setIsAddStakeholderOpen] = useState(false);
+  const [isAddActionOpen, setIsAddActionOpen] = useState(false);
+  const [isAddInteractionOpen, setIsAddInteractionOpen] = useState(false);
+
+  // Form states
+  const [editFormData, setEditFormData] = useState<OpportunityFormData>(getInitialOpportunityFormData());
+  const [stakeholderForm, setStakeholderForm] = useState({
+    name: "",
+    role: "",
+    relationship_owner: "",
+    comments: "",
+    is_decision_maker: false,
+  });
+  const [actionForm, setActionForm] = useState({
+    action_description: "",
+    owner: "",
+    due_date: "",
+    rag_status: "green" as "red" | "amber" | "green",
+  });
+  const [interactionForm, setInteractionForm] = useState({
+    interaction_type: "meeting",
+    interaction_date: new Date().toISOString().split("T")[0],
+    summary: "",
+    attendees: "",
+    presentation_shared: "",
+    outcome: "",
+    next_steps: "",
+  });
+
+  // Mutations
+  const updateOpportunity = useUpdateOpportunity();
+  const createStakeholder = useCreateStakeholder();
+  const createActionStep = useCreateActionStep();
+  const updateActionStep = useUpdateActionStep();
+  const createInteraction = useCreateInteraction();
+
   if (!opportunity) {
     return (
       <div className="flex items-center justify-center h-full text-muted-foreground">
@@ -96,21 +192,162 @@ export function OpportunityDetails({
 
   const totalValue = (opportunity.services_value || 0) + (opportunity.software_sales || 0);
 
+  const handleEditOpportunity = () => {
+    updateOpportunity.mutate(
+      {
+        id: opportunity.id,
+        opportunity_name: editFormData.opportunity_name,
+        deal_summary: editFormData.deal_summary || null,
+        value_proposition: editFormData.value_proposition || null,
+        compelling_reasons: editFormData.compelling_reasons || null,
+        key_issues: editFormData.key_issues || null,
+        blockers: editFormData.blockers || null,
+        estimated_value: editFormData.estimated_value ? parseFloat(editFormData.estimated_value) : null,
+        stage: editFormData.stage || null,
+        probability: editFormData.probability ? parseInt(editFormData.probability) : null,
+        expected_close_date: editFormData.expected_close_date || null,
+        industry: editFormData.industry || null,
+        exec_owner: editFormData.exec_owner || null,
+        opportunity_owner: editFormData.opportunity_owner || null,
+        quarter_to_close: editFormData.quarter_to_close || null,
+        services_value: editFormData.services_value ? parseFloat(editFormData.services_value) : null,
+        software_sales: editFormData.software_sales ? parseFloat(editFormData.software_sales) : null,
+      },
+      {
+        onSuccess: () => {
+          setIsEditOpen(false);
+        },
+      }
+    );
+  };
+
+  const handleAddStakeholder = () => {
+    createStakeholder.mutate(
+      {
+        opportunity_id: opportunity.id,
+        name: stakeholderForm.name,
+        role: stakeholderForm.role,
+        relationship_owner: stakeholderForm.relationship_owner || null,
+        comments: stakeholderForm.comments || null,
+        is_decision_maker: stakeholderForm.is_decision_maker,
+      },
+      {
+        onSuccess: () => {
+          setIsAddStakeholderOpen(false);
+          setStakeholderForm({ name: "", role: "", relationship_owner: "", comments: "", is_decision_maker: false });
+        },
+      }
+    );
+  };
+
+  const handleAddAction = () => {
+    createActionStep.mutate(
+      {
+        opportunity_id: opportunity.id,
+        action_description: actionForm.action_description,
+        owner: actionForm.owner,
+        due_date: actionForm.due_date || null,
+        rag_status: actionForm.rag_status,
+        is_completed: false,
+      },
+      {
+        onSuccess: () => {
+          setIsAddActionOpen(false);
+          setActionForm({ action_description: "", owner: "", due_date: "", rag_status: "green" });
+        },
+      }
+    );
+  };
+
+  const handleToggleComplete = (step: OpportunityActionStep) => {
+    updateActionStep.mutate({
+      id: step.id,
+      opportunityId: opportunity.id,
+      is_completed: !step.is_completed,
+    });
+  };
+
+  const handleChangeRagStatus = (step: OpportunityActionStep, newStatus: "red" | "amber" | "green") => {
+    updateActionStep.mutate({
+      id: step.id,
+      opportunityId: opportunity.id,
+      rag_status: newStatus,
+    });
+  };
+
+  const handleAddInteraction = () => {
+    createInteraction.mutate(
+      {
+        opportunity_id: opportunity.id,
+        interaction_type: interactionForm.interaction_type,
+        interaction_date: interactionForm.interaction_date,
+        summary: interactionForm.summary,
+        attendees: interactionForm.attendees || null,
+        presentation_shared: interactionForm.presentation_shared || null,
+        outcome: interactionForm.outcome || null,
+        next_steps: interactionForm.next_steps || null,
+      },
+      {
+        onSuccess: () => {
+          setIsAddInteractionOpen(false);
+          setInteractionForm({
+            interaction_type: "meeting",
+            interaction_date: new Date().toISOString().split("T")[0],
+            summary: "",
+            attendees: "",
+            presentation_shared: "",
+            outcome: "",
+            next_steps: "",
+          });
+        },
+      }
+    );
+  };
+
+  const openEditDialog = () => {
+    setEditFormData(getInitialOpportunityFormData(opportunity));
+    setIsEditOpen(true);
+  };
+
   return (
     <div className="space-y-6">
       {/* Opportunity Overview */}
       <Card>
         <CardHeader className="pb-3">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Target className="h-6 w-6" />
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <Target className="h-6 w-6" />
+              </div>
+              <div>
+                <CardTitle className="text-xl">{opportunity.opportunity_name}</CardTitle>
+                <Badge variant="secondary" className="mt-1">
+                  {(opportunity.stage || "prospecting").replace("_", " ").toUpperCase()}
+                </Badge>
+              </div>
             </div>
-            <div>
-              <CardTitle className="text-xl">{opportunity.opportunity_name}</CardTitle>
-              <Badge variant="secondary" className="mt-1">
-                {(opportunity.stage || "prospecting").replace("_", " ").toUpperCase()}
-              </Badge>
-            </div>
+            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2" onClick={openEditDialog}>
+                  <Pencil className="h-4 w-4" />
+                  Edit
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Edit Opportunity</DialogTitle>
+                  <DialogDescription>Update opportunity information.</DialogDescription>
+                </DialogHeader>
+                <OpportunityForm
+                  formData={editFormData}
+                  onFormDataChange={setEditFormData}
+                  onSubmit={handleEditOpportunity}
+                  onCancel={() => setIsEditOpen(false)}
+                  isSubmitting={updateOpportunity.isPending}
+                  isEditMode
+                />
+              </DialogContent>
+            </Dialog>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -251,10 +488,84 @@ export function OpportunityDetails({
       {/* Key Stakeholders & Decision Makers */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <UserCheck className="h-5 w-5" />
-            Key Stakeholders & Decision Makers
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <UserCheck className="h-5 w-5" />
+              Key Stakeholders & Decision Makers
+            </CardTitle>
+            <Dialog open={isAddStakeholderOpen} onOpenChange={setIsAddStakeholderOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add Stakeholder
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add Stakeholder</DialogTitle>
+                  <DialogDescription>Add a new stakeholder for this opportunity.</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 pt-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="stakeholder_name">Name *</Label>
+                      <Input
+                        id="stakeholder_name"
+                        value={stakeholderForm.name}
+                        onChange={(e) => setStakeholderForm({ ...stakeholderForm, name: e.target.value })}
+                        placeholder="Stakeholder name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="stakeholder_role">Role *</Label>
+                      <Input
+                        id="stakeholder_role"
+                        value={stakeholderForm.role}
+                        onChange={(e) => setStakeholderForm({ ...stakeholderForm, role: e.target.value })}
+                        placeholder="e.g., CTO, Project Manager"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="relationship_owner">Relationship Owner</Label>
+                    <Input
+                      id="relationship_owner"
+                      value={stakeholderForm.relationship_owner}
+                      onChange={(e) => setStakeholderForm({ ...stakeholderForm, relationship_owner: e.target.value })}
+                      placeholder="Who owns this relationship?"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="stakeholder_comments">Comments</Label>
+                    <Textarea
+                      id="stakeholder_comments"
+                      value={stakeholderForm.comments}
+                      onChange={(e) => setStakeholderForm({ ...stakeholderForm, comments: e.target.value })}
+                      placeholder="Any notes about this stakeholder..."
+                      rows={2}
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="is_decision_maker"
+                      checked={stakeholderForm.is_decision_maker}
+                      onCheckedChange={(checked) => setStakeholderForm({ ...stakeholderForm, is_decision_maker: !!checked })}
+                    />
+                    <Label htmlFor="is_decision_maker" className="cursor-pointer">This person is a decision maker</Label>
+                  </div>
+                  <div className="flex justify-end gap-2 pt-2">
+                    <Button variant="outline" onClick={() => setIsAddStakeholderOpen(false)}>Cancel</Button>
+                    <Button
+                      onClick={handleAddStakeholder}
+                      disabled={!stakeholderForm.name || !stakeholderForm.role || createStakeholder.isPending}
+                    >
+                      {createStakeholder.isPending ? "Adding..." : "Add Stakeholder"}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoadingStakeholders ? (
@@ -304,10 +615,88 @@ export function OpportunityDetails({
       {/* Next Action Steps */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <ListTodo className="h-5 w-5" />
-            Next Action Steps
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <ListTodo className="h-5 w-5" />
+              Next Action Steps
+            </CardTitle>
+            <Dialog open={isAddActionOpen} onOpenChange={setIsAddActionOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add Action
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add Action Step</DialogTitle>
+                  <DialogDescription>Add a new action step for this opportunity.</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 pt-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="action_description">Action Description *</Label>
+                    <Textarea
+                      id="action_description"
+                      value={actionForm.action_description}
+                      onChange={(e) => setActionForm({ ...actionForm, action_description: e.target.value })}
+                      placeholder="What needs to be done?"
+                      rows={2}
+                    />
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="action_owner">Owner *</Label>
+                      <Input
+                        id="action_owner"
+                        value={actionForm.owner}
+                        onChange={(e) => setActionForm({ ...actionForm, owner: e.target.value })}
+                        placeholder="Who is responsible?"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="action_due_date">Due Date</Label>
+                      <Input
+                        id="action_due_date"
+                        type="date"
+                        value={actionForm.due_date}
+                        onChange={(e) => setActionForm({ ...actionForm, due_date: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>RAG Status</Label>
+                    <div className="flex gap-2">
+                      {(["green", "amber", "red"] as const).map((status) => {
+                        const config = ragStatusConfig[status];
+                        return (
+                          <Button
+                            key={status}
+                            type="button"
+                            variant={actionForm.rag_status === status ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setActionForm({ ...actionForm, rag_status: status })}
+                            className="gap-2"
+                          >
+                            <span className={`h-2 w-2 rounded-full ${config.dotClass}`} />
+                            {config.label}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-2 pt-2">
+                    <Button variant="outline" onClick={() => setIsAddActionOpen(false)}>Cancel</Button>
+                    <Button
+                      onClick={handleAddAction}
+                      disabled={!actionForm.action_description || !actionForm.owner || createActionStep.isPending}
+                    >
+                      {createActionStep.isPending ? "Adding..." : "Add Action"}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoadingActionSteps ? (
@@ -317,6 +706,7 @@ export function OpportunityDetails({
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-12">Done</TableHead>
                     <TableHead>Action</TableHead>
                     <TableHead>Owner</TableHead>
                     <TableHead>Due Date</TableHead>
@@ -328,27 +718,46 @@ export function OpportunityDetails({
                     const ragConfig = ragStatusConfig[step.rag_status];
                     return (
                       <TableRow key={step.id} className={step.is_completed ? "opacity-60" : ""}>
+                        <TableCell>
+                          <Checkbox
+                            checked={step.is_completed}
+                            onCheckedChange={() => handleToggleComplete(step)}
+                          />
+                        </TableCell>
                         <TableCell className="font-medium">
-                          <div className="flex items-center gap-2">
-                            {step.is_completed ? (
-                              <CheckCircle2 className="h-4 w-4 text-green-500" />
-                            ) : (
-                              <Circle className="h-4 w-4 text-muted-foreground" />
-                            )}
-                            <span className={step.is_completed ? "line-through" : ""}>
-                              {step.action_description}
-                            </span>
-                          </div>
+                          <span className={step.is_completed ? "line-through" : ""}>
+                            {step.action_description}
+                          </span>
                         </TableCell>
                         <TableCell>{step.owner}</TableCell>
                         <TableCell>
                           {step.due_date ? format(new Date(step.due_date), "MMM d, yyyy") : "—"}
                         </TableCell>
                         <TableCell>
-                          <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${ragConfig.bgClass} ${ragConfig.textClass}`}>
-                            <span className={`h-2 w-2 rounded-full ${ragConfig.dotClass}`} />
-                            {ragConfig.label}
-                          </div>
+                          <Select
+                            value={step.rag_status}
+                            onValueChange={(value: "red" | "amber" | "green") => handleChangeRagStatus(step, value)}
+                          >
+                            <SelectTrigger className="w-28">
+                              <div className={`inline-flex items-center gap-1.5 text-xs font-medium ${ragConfig.textClass}`}>
+                                <span className={`h-2 w-2 rounded-full ${ragConfig.dotClass}`} />
+                                {ragConfig.label}
+                              </div>
+                            </SelectTrigger>
+                            <SelectContent>
+                              {(["green", "amber", "red"] as const).map((status) => {
+                                const config = ragStatusConfig[status];
+                                return (
+                                  <SelectItem key={status} value={status}>
+                                    <div className="flex items-center gap-2">
+                                      <span className={`h-2 w-2 rounded-full ${config.dotClass}`} />
+                                      {config.label}
+                                    </div>
+                                  </SelectItem>
+                                );
+                              })}
+                            </SelectContent>
+                          </Select>
                         </TableCell>
                       </TableRow>
                     );
@@ -367,10 +776,114 @@ export function OpportunityDetails({
       {/* Interactions Timeline */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" />
-            Interactions & Conversations
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <MessageSquare className="h-5 w-5" />
+              Interactions & Conversations
+            </CardTitle>
+            <Dialog open={isAddInteractionOpen} onOpenChange={setIsAddInteractionOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add Interaction
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>Add Interaction</DialogTitle>
+                  <DialogDescription>Record a new interaction with the customer.</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 pt-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="interaction_type">Type *</Label>
+                      <Select
+                        value={interactionForm.interaction_type}
+                        onValueChange={(value) => setInteractionForm({ ...interactionForm, interaction_type: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {interactionTypeOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="interaction_date">Date *</Label>
+                      <Input
+                        id="interaction_date"
+                        type="date"
+                        value={interactionForm.interaction_date}
+                        onChange={(e) => setInteractionForm({ ...interactionForm, interaction_date: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="summary">Summary *</Label>
+                    <Textarea
+                      id="summary"
+                      value={interactionForm.summary}
+                      onChange={(e) => setInteractionForm({ ...interactionForm, summary: e.target.value })}
+                      placeholder="Brief summary of the interaction..."
+                      rows={2}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="attendees">Attendees</Label>
+                    <Input
+                      id="attendees"
+                      value={interactionForm.attendees}
+                      onChange={(e) => setInteractionForm({ ...interactionForm, attendees: e.target.value })}
+                      placeholder="Who attended?"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="presentation_shared">Presentation/Material Shared</Label>
+                    <Input
+                      id="presentation_shared"
+                      value={interactionForm.presentation_shared}
+                      onChange={(e) => setInteractionForm({ ...interactionForm, presentation_shared: e.target.value })}
+                      placeholder="Any materials shared?"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="outcome">Outcome</Label>
+                    <Textarea
+                      id="outcome"
+                      value={interactionForm.outcome}
+                      onChange={(e) => setInteractionForm({ ...interactionForm, outcome: e.target.value })}
+                      placeholder="What was the outcome?"
+                      rows={2}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="next_steps">Next Steps</Label>
+                    <Textarea
+                      id="next_steps"
+                      value={interactionForm.next_steps}
+                      onChange={(e) => setInteractionForm({ ...interactionForm, next_steps: e.target.value })}
+                      placeholder="What are the next steps?"
+                      rows={2}
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2 pt-2">
+                    <Button variant="outline" onClick={() => setIsAddInteractionOpen(false)}>Cancel</Button>
+                    <Button
+                      onClick={handleAddInteraction}
+                      disabled={!interactionForm.summary || !interactionForm.interaction_date || createInteraction.isPending}
+                    >
+                      {createInteraction.isPending ? "Adding..." : "Add Interaction"}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoadingInteractions ? (
@@ -384,7 +897,7 @@ export function OpportunityDetails({
               {/* Timeline line */}
               <div className="absolute left-4 top-6 bottom-6 w-0.5 bg-border" />
 
-              {interactions.map((interaction, index) => (
+              {interactions.map((interaction) => (
                 <div key={interaction.id} className="relative pl-10">
                   {/* Timeline dot */}
                   <div className="absolute left-2 top-2 h-5 w-5 rounded-full bg-background border-2 border-primary flex items-center justify-center">
