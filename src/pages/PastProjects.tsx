@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { History, CheckCircle2, ArrowRight, FileDown, Info, Wrench, AlertTriangle, Ticket, Pencil, Plus } from "lucide-react";
+import { History, CheckCircle2, ArrowRight, FileDown, Info, Wrench, AlertTriangle, Ticket, Pencil, Plus, Upload, FileText, X } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +41,8 @@ export default function PastProjects() {
   const [selectedProject, setSelectedProject] = useState<DatabaseProject | null>(null);
   const [editingProject, setEditingProject] = useState<DatabaseProject | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [pendingDocument, setPendingDocument] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [editForm, setEditForm] = useState({
     name: "",
     type: "",
@@ -111,7 +113,10 @@ export default function PastProjects() {
     mutationFn: async () => {
       if (!profile) throw new Error("You must be logged in to create a project");
       
-      const { error } = await supabase
+      setIsUploading(true);
+      
+      // Create the project first
+      const { data: newProject, error } = await supabase
         .from('projects')
         .insert({
           name: editForm.name,
@@ -124,20 +129,65 @@ export default function PastProjects() {
           end_date: editForm.end_date || null,
           status: 'completed',
           author_id: profile.id,
-        });
+        })
+        .select()
+        .single();
       
       if (error) throw error;
+      
+      // Upload document if one is pending
+      if (pendingDocument && newProject) {
+        const fileExt = pendingDocument.name.split('.').pop();
+        const filePath = `${profile.user_id}/${newProject.id}/${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('project-documents')
+          .upload(filePath, pendingDocument);
+        
+        if (uploadError) {
+          console.error("Document upload failed:", uploadError);
+          toast.error("Project created but document upload failed");
+        } else {
+          // Save document metadata
+          const { error: metaError } = await supabase
+            .from('project_documents')
+            .insert({
+              project_id: newProject.id,
+              document_name: pendingDocument.name,
+              file_path: filePath,
+              file_type: pendingDocument.type,
+              file_size: `${(pendingDocument.size / 1024).toFixed(1)} KB`,
+              uploaded_by: profile.id,
+            });
+          
+          if (metaError) {
+            console.error("Document metadata save failed:", metaError);
+          }
+        }
+      }
+      
+      return newProject;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['past-projects'] });
       toast.success("Project created successfully");
       setIsCreating(false);
       resetForm();
+      setPendingDocument(null);
+      setIsUploading(false);
     },
     onError: (error) => {
       toast.error("Failed to create project: " + error.message);
+      setIsUploading(false);
     },
   });
+
+  const handleDocumentSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPendingDocument(file);
+    }
+  };
 
   const resetForm = () => {
     setEditForm({
@@ -150,6 +200,7 @@ export default function PastProjects() {
       tickets_raised: 0,
       end_date: "",
     });
+    setPendingDocument(null);
   };
 
   const handleEditClick = (project: DatabaseProject) => {
@@ -643,15 +694,60 @@ export default function PastProjects() {
               />
             </div>
 
+            {/* Document Upload Section */}
+            <div className="space-y-2">
+              <Label>End of Project Report Document</Label>
+              <div className="border-2 border-dashed border-border rounded-lg p-4">
+                {pendingDocument ? (
+                  <div className="flex items-center justify-between bg-muted/30 rounded-md p-3">
+                    <div className="flex items-center gap-3">
+                      <FileText className="h-5 w-5 text-primary" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{pendingDocument.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {(pendingDocument.size / 1024).toFixed(1)} KB
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={() => setPendingDocument(null)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center cursor-pointer py-4">
+                    <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+                    <span className="text-sm text-muted-foreground">
+                      Click to upload your End of Project Report
+                    </span>
+                    <span className="text-xs text-muted-foreground mt-1">
+                      PDF, Word, or other document formats
+                    </span>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                      onChange={handleDocumentSelect}
+                    />
+                  </label>
+                )}
+              </div>
+            </div>
+
             <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setIsCreating(false)}>
+              <Button variant="outline" onClick={() => { setIsCreating(false); setPendingDocument(null); }}>
                 Cancel
               </Button>
               <Button 
                 onClick={() => createProject.mutate()} 
-                disabled={createProject.isPending || !editForm.name || !editForm.type || !editForm.description}
+                disabled={createProject.isPending || isUploading || !editForm.name || !editForm.type || !editForm.description}
               >
-                {createProject.isPending ? "Creating..." : "Create Project"}
+                {createProject.isPending || isUploading ? "Creating..." : "Create Project"}
               </Button>
             </div>
           </div>
