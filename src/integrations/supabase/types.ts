@@ -732,6 +732,54 @@ export type Database = {
           },
         ]
       }
+      project_documents: {
+        Row: {
+          created_at: string
+          document_name: string
+          file_path: string
+          file_size: string | null
+          file_type: string | null
+          id: string
+          project_id: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          document_name: string
+          file_path: string
+          file_size?: string | null
+          file_type?: string | null
+          id?: string
+          project_id: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          document_name?: string
+          file_path?: string
+          file_size?: string | null
+          file_type?: string | null
+          id?: string
+          project_id?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_documents_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_insight_documents: {
         Row: {
           created_at: string
