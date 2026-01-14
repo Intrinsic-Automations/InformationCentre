@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { History, CheckCircle2, ArrowRight, FileDown, Info, Wrench, AlertTriangle, Ticket, Pencil } from "lucide-react";
+import { History, CheckCircle2, ArrowRight, FileDown, Info, Wrench, AlertTriangle, Ticket, Pencil, Plus } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -40,6 +40,7 @@ interface DatabaseProject {
 export default function PastProjects() {
   const [selectedProject, setSelectedProject] = useState<DatabaseProject | null>(null);
   const [editingProject, setEditingProject] = useState<DatabaseProject | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
   const [editForm, setEditForm] = useState({
     name: "",
     type: "",
@@ -48,6 +49,7 @@ export default function PastProjects() {
     challenges: "",
     tools_used: "",
     tickets_raised: 0,
+    end_date: "",
   });
   
   const { profile } = useAuth();
@@ -104,6 +106,52 @@ export default function PastProjects() {
     },
   });
 
+  // Create project mutation
+  const createProject = useMutation({
+    mutationFn: async () => {
+      if (!profile) throw new Error("You must be logged in to create a project");
+      
+      const { error } = await supabase
+        .from('projects')
+        .insert({
+          name: editForm.name,
+          type: editForm.type,
+          description: editForm.description,
+          summary: editForm.summary,
+          challenges: editForm.challenges,
+          tools_used: editForm.tools_used.split(",").map(t => t.trim()).filter(Boolean),
+          tickets_raised: editForm.tickets_raised,
+          end_date: editForm.end_date || null,
+          status: 'completed',
+          author_id: profile.id,
+        });
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['past-projects'] });
+      toast.success("Project created successfully");
+      setIsCreating(false);
+      resetForm();
+    },
+    onError: (error) => {
+      toast.error("Failed to create project: " + error.message);
+    },
+  });
+
+  const resetForm = () => {
+    setEditForm({
+      name: "",
+      type: "",
+      description: "",
+      summary: "",
+      challenges: "",
+      tools_used: "",
+      tickets_raised: 0,
+      end_date: "",
+    });
+  };
+
   const handleEditClick = (project: DatabaseProject) => {
     setEditingProject(project);
     setEditForm({
@@ -114,7 +162,13 @@ export default function PastProjects() {
       challenges: project.challenges || "",
       tools_used: project.tools_used?.join(", ") || "",
       tickets_raised: project.tickets_raised || 0,
+      end_date: project.end_date || "",
     });
+  };
+
+  const handleCreateClick = () => {
+    resetForm();
+    setIsCreating(true);
   };
 
   const handleSaveEdit = () => {
@@ -171,21 +225,27 @@ export default function PastProjects() {
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
-        {/* Posting Guidelines */}
-        <Card className="mb-6 border-primary/20 bg-primary/5">
-          <CardContent className="py-4">
-            <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Posting Guidelines</h3>
-                <p className="text-sm text-muted-foreground">
-                  Please upload a detailed overview of your project including key outcomes, challenges faced, and lessons learned. 
-                  Don't forget to upload your <strong>End of Project Report</strong> documents to help the team learn from your experience.
-                </p>
+        {/* Header with Add Button */}
+        <div className="flex items-center justify-between mb-6">
+          <Card className="flex-1 mr-4 border-primary/20 bg-primary/5">
+            <CardContent className="py-4">
+              <div className="flex items-start gap-3">
+                <Info className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-foreground mb-1">Posting Guidelines</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Please upload a detailed overview of your project including key outcomes, challenges faced, and lessons learned. 
+                    Don't forget to upload your <strong>End of Project Report</strong> documents to help the team learn from your experience.
+                  </p>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+          <Button onClick={handleCreateClick} className="gap-2 shrink-0">
+            <Plus className="h-4 w-4" />
+            Add Project
+          </Button>
+        </div>
 
         {isLoading ? (
           <div className="text-center py-8 text-muted-foreground">Loading projects...</div>
@@ -477,6 +537,121 @@ export default function PastProjects() {
               </Button>
               <Button onClick={handleSaveEdit} disabled={updateProject.isPending}>
                 {updateProject.isPending ? "Saving..." : "Save Changes"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Project Dialog */}
+      <Dialog open={isCreating} onOpenChange={setIsCreating}>
+        <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add Past Project</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="create-name">Project Name *</Label>
+              <Input
+                id="create-name"
+                value={editForm.name}
+                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                placeholder="Enter project name"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="create-type">Project Type *</Label>
+                <Select
+                  value={editForm.type}
+                  onValueChange={(value) => setEditForm({ ...editForm, type: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Migration">Migration</SelectItem>
+                    <SelectItem value="Integration">Integration</SelectItem>
+                    <SelectItem value="Analytics">Analytics</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="create-date">Completion Date</Label>
+                <Input
+                  id="create-date"
+                  type="date"
+                  value={editForm.end_date}
+                  onChange={(e) => setEditForm({ ...editForm, end_date: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="create-description">Description *</Label>
+              <Textarea
+                id="create-description"
+                value={editForm.description}
+                onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                rows={3}
+                placeholder="Brief description of the project"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="create-summary">Executive Summary</Label>
+              <Textarea
+                id="create-summary"
+                value={editForm.summary}
+                onChange={(e) => setEditForm({ ...editForm, summary: e.target.value })}
+                rows={3}
+                placeholder="Detailed summary of project outcomes"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="create-challenges">Challenges Faced</Label>
+              <Textarea
+                id="create-challenges"
+                value={editForm.challenges}
+                onChange={(e) => setEditForm({ ...editForm, challenges: e.target.value })}
+                rows={2}
+                placeholder="Key challenges encountered during the project"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="create-tools">Tools Used (comma-separated)</Label>
+              <Input
+                id="create-tools"
+                value={editForm.tools_used}
+                onChange={(e) => setEditForm({ ...editForm, tools_used: e.target.value })}
+                placeholder="e.g., Analytics Suite, Power BI, Azure"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="create-tickets">Tickets Raised</Label>
+              <Input
+                id="create-tickets"
+                type="number"
+                value={editForm.tickets_raised}
+                onChange={(e) => setEditForm({ ...editForm, tickets_raised: parseInt(e.target.value) || 0 })}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={() => setIsCreating(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => createProject.mutate()} 
+                disabled={createProject.isPending || !editForm.name || !editForm.type || !editForm.description}
+              >
+                {createProject.isPending ? "Creating..." : "Create Project"}
               </Button>
             </div>
           </div>
