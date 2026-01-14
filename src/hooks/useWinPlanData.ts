@@ -128,6 +128,30 @@ export function useCreateCustomer() {
   });
 }
 
+export function useUpdateCustomer() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, ...customerData }: { id: string } & Partial<Omit<Customer, "id" | "created_at" | "updated_at">>) => {
+      const { data, error } = await supabase
+        .from("customers")
+        .update(customerData)
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      toast.success("Customer updated successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to update customer: " + error.message);
+    },
+  });
+}
+
 export function useCustomerDocuments(customerId: string | null) {
   return useQuery({
     queryKey: ["customer_documents", customerId],
