@@ -41,7 +41,7 @@ const sites = [
   },
   {
     name: "Jira",
-    url: "jira.eq.com",
+    url: "https://track.1eq.com",
     description: "Agile project management and issue tracking for software development.",
     category: "Projects",
     icon: Clipboard,
