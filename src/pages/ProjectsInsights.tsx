@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Lightbulb, BookOpen, Wrench, Target, ArrowRight, Plus, ChevronDown, ChevronUp, FileText, Download, Upload, X } from "lucide-react";
+import { Lightbulb, BookOpen, Wrench, Target, ArrowRight, Plus, ChevronDown, ChevronUp, FileText, Download, Upload, X, Pencil } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -54,9 +54,20 @@ interface ProjectInsight {
   documents: InsightDocument[];
 }
 
-function InsightCard({ item, isStrategy }: { item: ProjectInsight; isStrategy: boolean }) {
+function InsightCard({ 
+  item, 
+  isStrategy, 
+  currentProfileId,
+  onEdit 
+}: { 
+  item: ProjectInsight; 
+  isStrategy: boolean;
+  currentProfileId?: string;
+  onEdit: (item: ProjectInsight) => void;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const Icon = isStrategy ? Target : Wrench;
+  const isAuthor = currentProfileId && item.author_id === currentProfileId;
 
   const getDocumentUrl = (filePath: string) => {
     const { data } = supabase.storage.from("insight-documents").getPublicUrl(filePath);
@@ -78,7 +89,19 @@ function InsightCard({ item, isStrategy }: { item: ProjectInsight; isStrategy: b
               <CardDescription>{isStrategy ? "Strategy" : "Software Tip"}</CardDescription>
             </div>
           </div>
-          {item.author && <AuthorProfileCard author={item.author} />}
+          <div className="flex items-center gap-2">
+            {isAuthor && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => onEdit(item)}
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            )}
+            {item.author && <AuthorProfileCard author={item.author} />}
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -161,6 +184,8 @@ export default function ProjectsInsights() {
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingInsight, setEditingInsight] = useState<ProjectInsight | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [extendedContent, setExtendedContent] = useState("");
@@ -169,6 +194,27 @@ export default function ProjectsInsights() {
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleEditClick = (item: ProjectInsight) => {
+    setEditingInsight(item);
+    setTitle(item.title);
+    setDescription(item.description);
+    setExtendedContent(item.extended_content || "");
+    setCategory(item.category);
+    setTagsInput(item.tags?.join(", ") || "");
+    setPendingFiles([]);
+    setIsEditDialogOpen(true);
+  };
+
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setExtendedContent("");
+    setCategory("strategy");
+    setTagsInput("");
+    setPendingFiles([]);
+    setEditingInsight(null);
+  };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -278,17 +324,70 @@ export default function ProjectsInsights() {
       queryClient.invalidateQueries({ queryKey: ["project-insights"] });
       toast.success("Project insight created!");
       setIsDialogOpen(false);
-      setTitle("");
-      setDescription("");
-      setExtendedContent("");
-      setCategory("strategy");
-      setTagsInput("");
-      setPendingFiles([]);
+      resetForm();
       setIsUploading(false);
     },
     onError: (error) => {
       setIsUploading(false);
       toast.error("Failed to create insight: " + error.message);
+    },
+  });
+
+  const updateInsight = useMutation({
+    mutationFn: async () => {
+      if (!profile?.id || !editingInsight) throw new Error("You must be logged in");
+      
+      setIsUploading(true);
+      const tags = tagsInput.split(",").map(t => t.trim()).filter(Boolean);
+      
+      // Update the insight
+      const { error: updateError } = await supabase
+        .from("project_insights")
+        .update({
+          title,
+          description,
+          extended_content: extendedContent || null,
+          category,
+          tags,
+        })
+        .eq("id", editingInsight.id);
+      
+      if (updateError) throw updateError;
+
+      // Upload any new files
+      for (const pendingFile of pendingFiles) {
+        const fileExt = pendingFile.file.name.split(".").pop();
+        const filePath = `${editingInsight.id}/${crypto.randomUUID()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from("insight-documents")
+          .upload(filePath, pendingFile.file);
+
+        if (uploadError) {
+          console.error("Upload error:", uploadError);
+          continue;
+        }
+
+        await supabase.from("project_insight_documents").insert({
+          insight_id: editingInsight.id,
+          name: pendingFile.file.name,
+          file_path: filePath,
+          file_type: pendingFile.file.type || null,
+          file_size: pendingFile.file.size,
+          uploaded_by: profile.id,
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["project-insights"] });
+      toast.success("Project insight updated!");
+      setIsEditDialogOpen(false);
+      resetForm();
+      setIsUploading(false);
+    },
+    onError: (error) => {
+      setIsUploading(false);
+      toast.error("Failed to update insight: " + error.message);
     },
   });
 
@@ -302,6 +401,15 @@ export default function ProjectsInsights() {
       return;
     }
     createInsight.mutate();
+  };
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim() || !description.trim()) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    updateInsight.mutate();
   };
 
   return (
@@ -456,6 +564,124 @@ export default function ProjectsInsights() {
         </div>
       </div>
 
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={(open) => {
+        setIsEditDialogOpen(open);
+        if (!open) resetForm();
+      }}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Project Insight</DialogTitle>
+            <DialogDescription>
+              Update your insight details.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-title">Title *</Label>
+              <Input
+                id="edit-title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g., Agile Sprint Planning Tips"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-category">Category *</Label>
+              <Select value={category} onValueChange={(v) => setCategory(v as InsightCategory)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="strategy">Actionable Strategy</SelectItem>
+                  <SelectItem value="software_tip">Practical Software Tip</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-description">Summary *</Label>
+              <Textarea
+                id="edit-description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Brief summary of the insight..."
+                rows={2}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-extendedContent">Detailed Information</Label>
+              <Textarea
+                id="edit-extendedContent"
+                value={extendedContent}
+                onChange={(e) => setExtendedContent(e.target.value)}
+                placeholder="Add more detailed information..."
+                rows={4}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-tags">Tags (comma-separated)</Label>
+              <Input
+                id="edit-tags"
+                value={tagsInput}
+                onChange={(e) => setTagsInput(e.target.value)}
+                placeholder="e.g., Agile, Planning, Migration"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Add More Documents</Label>
+              <div className="space-y-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full gap-2"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload className="h-4 w-4" />
+                  Add Documents
+                </Button>
+                
+                {pendingFiles.length > 0 && (
+                  <div className="space-y-1 max-h-32 overflow-auto">
+                    {pendingFiles.map((pf) => (
+                      <div
+                        key={pf.id}
+                        className="flex items-center gap-2 p-2 rounded-md bg-muted/50 text-sm"
+                      >
+                        <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <span className="flex-1 truncate">{pf.file.name}</span>
+                        <span className="text-muted-foreground text-xs shrink-0">
+                          {formatFileSize(pf.file.size)}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 shrink-0"
+                          onClick={() => removeFile(pf.id)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={updateInsight.isPending || isUploading}>
+                {updateInsight.isPending || isUploading ? "Saving..." : "Save Changes"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
         {isLoading ? (
@@ -478,7 +704,13 @@ export default function ProjectsInsights() {
                 </div>
                 <div className="space-y-4">
                   {strategies.map((item) => (
-                    <InsightCard key={item.id} item={item} isStrategy={true} />
+                    <InsightCard 
+                      key={item.id} 
+                      item={item} 
+                      isStrategy={true} 
+                      currentProfileId={profile?.id}
+                      onEdit={handleEditClick}
+                    />
                   ))}
                 </div>
               </section>
@@ -493,7 +725,13 @@ export default function ProjectsInsights() {
                 </div>
                 <div className="space-y-4">
                   {softwareTips.map((item) => (
-                    <InsightCard key={item.id} item={item} isStrategy={false} />
+                    <InsightCard 
+                      key={item.id} 
+                      item={item} 
+                      isStrategy={false} 
+                      currentProfileId={profile?.id}
+                      onEdit={handleEditClick}
+                    />
                   ))}
                 </div>
               </section>
