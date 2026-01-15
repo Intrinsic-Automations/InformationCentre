@@ -127,14 +127,13 @@ export function useCreateCustomer() {
         author_id?: TablesInsert<"customers">["author_id"] | null;
       }
     ) => {
-      // author_id is enforced server-side via trigger; callers may omit it
-      const { data, error } = await supabase
+      // Avoid `return=representation` on insert (which requires SELECT permissions).
+      // We rely on query invalidation to refetch the customer list.
+      const { error } = await supabase
         .from("customers")
-        .insert(customerData as TablesInsert<"customers">)
-        .select()
-        .single();
+        .insert(customerData as TablesInsert<"customers">);
       if (error) throw error;
-      return data;
+      return null;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["customers"] });
