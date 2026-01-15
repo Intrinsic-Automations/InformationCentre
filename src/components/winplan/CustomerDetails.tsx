@@ -37,6 +37,7 @@ import {
 import type { Customer, CustomerDocument } from "@/hooks/useWinPlanData";
 import { useUploadCustomerDocument, useDeleteCustomerDocument } from "@/hooks/useWinPlanData";
 import { format } from "date-fns";
+import { CustomerAccessManager } from "./CustomerAccessManager";
 
 interface CustomerDetailsProps {
   customer: Customer | undefined;
@@ -211,6 +212,9 @@ export function CustomerDetails({
           )}
         </CardContent>
       </Card>
+
+      {/* Team Access Card */}
+      <CustomerAccessManager customer={customer} />
 
       {/* Documents Card */}
       <Card>
