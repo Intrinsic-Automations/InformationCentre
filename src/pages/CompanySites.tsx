@@ -76,7 +76,7 @@ const sites = [
   },
   {
     name: "eQ Website",
-    url: "www.eq.com",
+    url: "https://www.1eq.com/",
     description: "Main corporate website with company information, products, and news.",
     category: "Public",
     icon: Globe,
