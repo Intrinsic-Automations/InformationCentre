@@ -1,5 +1,6 @@
 import { BookOpen } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 
 import communicationImage from "@/assets/generic-communication.jpg";
 import timeImage from "@/assets/generic-time.jpg";
@@ -10,26 +11,31 @@ import genericTrainingHero from "@/assets/generic-training-hero.jpg";
 
 const courses = [
   {
+    slug: "effective-communication",
     title: "Effective Communication",
     description: "Enhance your written and verbal communication skills.",
     image: communicationImage,
   },
   {
+    slug: "time-management-mastery",
     title: "Time Management Mastery",
     description: "Learn to prioritize tasks and manage your time effectively.",
     image: timeImage,
   },
   {
+    slug: "leadership-fundamentals",
     title: "Leadership Fundamentals",
     description: "Core leadership skills for emerging and experienced leaders.",
     image: leadershipImage,
   },
   {
+    slug: "v-model",
     title: "V-Model",
     description: "Learn the V-Model software development methodology for verification and validation.",
     image: vmodelImage,
   },
   {
+    slug: "assertion-skills",
     title: "Assertion Skills",
     description: "Develop confidence and assertiveness in professional communication and interactions.",
     image: assertionImage,
@@ -37,6 +43,8 @@ const courses = [
 ];
 
 export default function GenericTraining() {
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Hero Banner with Title - Sticky */}
@@ -62,8 +70,12 @@ export default function GenericTraining() {
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {courses.map((course, index) => (
-            <Card key={index} className="bg-card overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
+          {courses.map((course) => (
+            <Card 
+              key={course.slug} 
+              className="bg-card overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => navigate(`/training/generic/${course.slug}`)}
+            >
               <div className="aspect-video overflow-hidden">
                 <img 
                   src={course.image} 

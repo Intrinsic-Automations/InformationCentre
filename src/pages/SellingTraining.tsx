@@ -1,5 +1,6 @@
 import { TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 
 import consultativeImage from "@/assets/selling-consultative.jpg";
 import objectionImage from "@/assets/selling-objection.jpg";
@@ -9,21 +10,25 @@ import salesTrainingHero from "@/assets/sales-training-hero.jpg";
 
 const courses = [
   {
+    slug: "consultative-selling",
     title: "Consultative Selling",
     description: "Master the art of understanding customer needs and providing solutions.",
     image: consultativeImage,
   },
   {
+    slug: "objection-handling",
     title: "Objection Handling",
     description: "Learn techniques to address and overcome common sales objections.",
     image: objectionImage,
   },
   {
+    slug: "enterprise-sales-strategy",
     title: "Enterprise Sales Strategy",
     description: "Strategies for complex enterprise sales cycles and stakeholder management.",
     image: enterpriseImage,
   },
   {
+    slug: "spin-selling",
     title: "Spin Selling",
     description: "Master the SPIN methodology: Situation, Problem, Implication, and Need-Payoff questions.",
     image: spinImage,
@@ -31,6 +36,8 @@ const courses = [
 ];
 
 export default function SellingTraining() {
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Hero Banner with Title - Sticky */}
@@ -56,8 +63,12 @@ export default function SellingTraining() {
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {courses.map((course, index) => (
-            <Card key={index} className="bg-card overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
+          {courses.map((course) => (
+            <Card 
+              key={course.slug} 
+              className="bg-card overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => navigate(`/training/sales/${course.slug}`)}
+            >
               <div className="aspect-video overflow-hidden">
                 <img 
                   src={course.image} 
