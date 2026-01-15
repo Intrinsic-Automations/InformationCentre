@@ -1172,6 +1172,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_profile_id: { Args: never; Returns: string }
       user_can_access_customer: {
         Args: { customer_id: string }
         Returns: boolean
