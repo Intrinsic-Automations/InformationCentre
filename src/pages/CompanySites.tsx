@@ -69,7 +69,7 @@ const sites = [
   },
   {
     name: "License Generator",
-    url: "licenses.eq.com",
+    url: "https://eqprojectcenter.technologic.com:8201/LicenseGeneration/",
     description: "Generate and manage software licenses for customer deployments.",
     category: "Internal",
     icon: Key,
