@@ -1,7 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, BookOpen, TrendingUp, Upload, FileText, Download, Trash2 } from "lucide-react";
+import { ArrowLeft, BookOpen, TrendingUp, Upload, FileText, Download, Trash2, Target, CheckCircle2, Clock, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -27,6 +28,9 @@ interface TrainingCourse {
   image: string;
   category: "sales" | "generic";
   content: string;
+  objectives: string[];
+  duration: string;
+  level: string;
 }
 
 const allCourses: TrainingCourse[] = [
@@ -38,6 +42,14 @@ const allCourses: TrainingCourse[] = [
     image: consultativeImage,
     category: "sales",
     content: "Consultative selling is a sales approach that prioritizes relationships and open dialogue to identify and provide solutions to a customer's needs. It focuses on creating value and trust with the prospect, exploring their needs before offering a solution.",
+    objectives: [
+      "Understand the core principles of consultative selling",
+      "Learn to ask probing questions to uncover customer needs",
+      "Develop skills to position solutions effectively",
+      "Build long-term customer relationships based on trust",
+    ],
+    duration: "2 hours",
+    level: "Intermediate",
   },
   {
     slug: "objection-handling",
@@ -46,6 +58,14 @@ const allCourses: TrainingCourse[] = [
     image: objectionImage,
     category: "sales",
     content: "Objection handling is when a prospect presents a concern about the product/service a salesperson is selling, and the salesperson responds in a way that alleviates those concerns and allows the deal to move forward.",
+    objectives: [
+      "Identify common types of sales objections",
+      "Learn the LAER framework for handling objections",
+      "Practice turning objections into opportunities",
+      "Build confidence in high-pressure situations",
+    ],
+    duration: "1.5 hours",
+    level: "Intermediate",
   },
   {
     slug: "enterprise-sales-strategy",
@@ -54,6 +74,14 @@ const allCourses: TrainingCourse[] = [
     image: enterpriseImage,
     category: "sales",
     content: "Enterprise sales involves selling products or services to large organizations. These deals are typically complex, involve multiple stakeholders, and have longer sales cycles. Success requires strategic account planning and relationship management.",
+    objectives: [
+      "Navigate complex organizational buying processes",
+      "Map and engage multiple stakeholders effectively",
+      "Develop strategic account plans",
+      "Manage long sales cycles with milestone tracking",
+    ],
+    duration: "3 hours",
+    level: "Advanced",
   },
   {
     slug: "spin-selling",
@@ -62,6 +90,14 @@ const allCourses: TrainingCourse[] = [
     image: spinImage,
     category: "sales",
     content: "SPIN Selling is a sales methodology based on asking the right questions. SPIN stands for Situation, Problem, Implication, and Need-Payoff. This approach helps salespeople understand the buyer's situation and guide them toward recognizing the value of a solution.",
+    objectives: [
+      "Master the four types of SPIN questions",
+      "Learn when and how to use each question type",
+      "Practice building questioning sequences",
+      "Apply SPIN to real sales scenarios",
+    ],
+    duration: "2.5 hours",
+    level: "Intermediate",
   },
   // Generic Training
   {
@@ -71,6 +107,14 @@ const allCourses: TrainingCourse[] = [
     image: communicationImage,
     category: "generic",
     content: "Effective communication is the process of exchanging ideas, thoughts, opinions, knowledge, and data so that the message is received and understood with clarity and purpose. This training covers both written and verbal communication techniques.",
+    objectives: [
+      "Understand the principles of clear communication",
+      "Improve active listening skills",
+      "Craft clear and concise written messages",
+      "Adapt communication style to different audiences",
+    ],
+    duration: "2 hours",
+    level: "Beginner",
   },
   {
     slug: "time-management-mastery",
@@ -79,6 +123,14 @@ const allCourses: TrainingCourse[] = [
     image: timeImage,
     category: "generic",
     content: "Time management is the process of organizing and planning how to divide your time between different activities. Good time management enables you to work smarter – not harder – so that you get more done in less time.",
+    objectives: [
+      "Identify and eliminate time-wasting activities",
+      "Learn prioritization frameworks (Eisenhower Matrix)",
+      "Master scheduling and planning techniques",
+      "Build sustainable productivity habits",
+    ],
+    duration: "1.5 hours",
+    level: "Beginner",
   },
   {
     slug: "leadership-fundamentals",
@@ -87,6 +139,14 @@ const allCourses: TrainingCourse[] = [
     image: leadershipImage,
     category: "generic",
     content: "Leadership fundamentals cover the essential skills needed to effectively lead teams and organizations. This includes communication, delegation, motivation, strategic thinking, and emotional intelligence.",
+    objectives: [
+      "Understand different leadership styles",
+      "Develop delegation and empowerment skills",
+      "Learn to motivate and inspire teams",
+      "Build emotional intelligence as a leader",
+    ],
+    duration: "3 hours",
+    level: "Intermediate",
   },
   {
     slug: "v-model",
@@ -95,6 +155,14 @@ const allCourses: TrainingCourse[] = [
     image: vmodelImage,
     category: "generic",
     content: "The V-Model is a software development methodology that emphasizes the relationship between each phase of the development lifecycle and its associated testing phase. It provides a systematic approach to verification and validation.",
+    objectives: [
+      "Understand the V-Model structure and phases",
+      "Learn verification vs validation concepts",
+      "Apply testing strategies at each development phase",
+      "Implement quality assurance best practices",
+    ],
+    duration: "2 hours",
+    level: "Intermediate",
   },
   {
     slug: "assertion-skills",
@@ -103,6 +171,14 @@ const allCourses: TrainingCourse[] = [
     image: assertionImage,
     category: "generic",
     content: "Assertion skills enable you to express your thoughts, feelings, and needs directly, honestly, and respectfully. This training helps you communicate more effectively while maintaining positive professional relationships.",
+    objectives: [
+      "Understand the difference between assertive, passive, and aggressive communication",
+      "Learn techniques to express yourself confidently",
+      "Practice saying no professionally",
+      "Handle difficult conversations with composure",
+    ],
+    duration: "1.5 hours",
+    level: "Beginner",
   },
 ];
 
@@ -234,117 +310,187 @@ export default function TrainingDetail() {
 
   const backUrl = category === "sales" ? "/selling-training" : "/generic-training";
   const Icon = category === "sales" ? TrendingUp : BookOpen;
+  const categoryLabel = category === "sales" ? "Sales Training" : "Generic Training";
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Hero Banner */}
-      <div className="sticky top-0 z-30 shrink-0 relative h-16 md:h-20 overflow-hidden">
-        <img
-          src={course.image}
-          alt={course.title}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-secondary/80 to-secondary/40" />
-        <div className="absolute inset-0 flex items-center px-6 md:px-12">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 text-primary-foreground backdrop-blur-sm">
-              <Icon className="h-4 w-4" />
+      {/* Content */}
+      <div className="flex-1 overflow-auto">
+        {/* Hero Section with Image */}
+        <div className="relative">
+          <div className="h-48 md:h-64 overflow-hidden">
+            <img
+              src={course.image}
+              alt={course.title}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+          </div>
+          
+          {/* Back Button - Floating */}
+          <Button
+            variant="secondary"
+            size="sm"
+            className="absolute top-4 left-4 gap-2 shadow-lg"
+            onClick={() => navigate(backUrl)}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+
+          {/* Course Title Overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-6">
+            <div className="flex items-center gap-2 mb-2">
+              <Badge variant="secondary" className="gap-1">
+                <Icon className="h-3 w-3" />
+                {categoryLabel}
+              </Badge>
+              <Badge variant="outline">{course.level}</Badge>
             </div>
-            <div>
-              <h1 className="text-lg md:text-xl font-bold text-secondary-foreground">{course.title}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">{course.title}</h1>
+            <p className="text-muted-foreground mt-1 max-w-2xl">{course.description}</p>
+          </div>
+        </div>
+
+        {/* Quick Stats */}
+        <div className="border-b border-border bg-card/50">
+          <div className="max-w-6xl mx-auto px-6 py-4">
+            <div className="flex flex-wrap gap-6">
+              <div className="flex items-center gap-2 text-sm">
+                <Clock className="h-4 w-4 text-primary" />
+                <span className="text-muted-foreground">Duration:</span>
+                <span className="font-medium">{course.duration}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Target className="h-4 w-4 text-primary" />
+                <span className="text-muted-foreground">Level:</span>
+                <span className="font-medium">{course.level}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Users className="h-4 w-4 text-primary" />
+                <span className="text-muted-foreground">Format:</span>
+                <span className="font-medium">Self-paced</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-auto p-6">
-        <Button
-          variant="ghost"
-          className="mb-6 gap-2"
-          onClick={() => navigate(backUrl)}
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to {category === "sales" ? "Sales" : "Generic"} Training
-        </Button>
+        {/* Main Content */}
+        <div className="max-w-6xl mx-auto p-6">
+          <div className="grid gap-6 lg:grid-cols-3">
+            {/* Left Column - Course Details */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* About This Course */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BookOpen className="h-5 w-5 text-primary" />
+                    About This Course
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-foreground leading-relaxed">{course.content}</p>
+                </CardContent>
+              </Card>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Course Overview */}
-          <div className="lg:col-span-2 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Course Overview</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">{course.description}</p>
-                <p className="text-foreground">{course.content}</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Training Materials */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-lg">Training Materials</CardTitle>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="gap-2"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
-                >
-                  <Upload className="h-4 w-4" />
-                  Upload
-                </Button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  className="hidden"
-                  onChange={handleFileSelect}
-                />
-              </CardHeader>
-              <CardContent>
-                {documentsLoading ? (
-                  <p className="text-sm text-muted-foreground">Loading documents...</p>
-                ) : documents.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No training materials uploaded yet.</p>
-                ) : (
-                  <div className="space-y-2">
-                    {documents.map((doc) => (
-                      <div
-                        key={doc.id}
-                        className="flex items-center justify-between p-2 rounded-md bg-muted/50 hover:bg-muted transition-colors"
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <FileText className="h-4 w-4 shrink-0 text-primary" />
-                          <span className="text-sm truncate">{doc.document_name}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8"
-                            onClick={() => handleDownload(doc.file_path, doc.document_name)}
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8 text-destructive hover:text-destructive"
-                            onClick={() => deleteMutation.mutate({ id: doc.id, filePath: doc.file_path })}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
+              {/* Learning Objectives */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="h-5 w-5 text-primary" />
+                    Learning Objectives
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">By the end of this course, you will be able to:</p>
+                  <ul className="space-y-3">
+                    {course.objectives.map((objective, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                        <span className="text-foreground">{objective}</span>
+                      </li>
                     ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Column - Training Materials */}
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <FileText className="h-5 w-5 text-primary" />
+                    Training Materials
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Button
+                    variant="outline"
+                    className="w-full gap-2"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                  >
+                    <Upload className="h-4 w-4" />
+                    {isUploading ? "Uploading..." : "Upload Materials"}
+                  </Button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    className="hidden"
+                    onChange={handleFileSelect}
+                  />
+
+                  {documentsLoading ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">Loading documents...</p>
+                  ) : documents.length === 0 ? (
+                    <div className="text-center py-6 border border-dashed border-border rounded-lg">
+                      <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                      <p className="text-sm text-muted-foreground">No materials uploaded yet</p>
+                      <p className="text-xs text-muted-foreground mt-1">Upload PDFs, documents, or presentations</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {documents.map((doc) => (
+                        <div
+                          key={doc.id}
+                          className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="flex h-8 w-8 items-center justify-center rounded bg-primary/10">
+                              <FileText className="h-4 w-4 text-primary" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium truncate">{doc.document_name}</p>
+                              <p className="text-xs text-muted-foreground">{doc.file_size}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8"
+                              onClick={() => handleDownload(doc.file_path, doc.document_name)}
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8 text-destructive hover:text-destructive"
+                              onClick={() => deleteMutation.mutate({ id: doc.id, filePath: doc.file_path })}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
