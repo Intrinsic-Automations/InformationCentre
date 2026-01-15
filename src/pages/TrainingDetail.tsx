@@ -352,7 +352,7 @@ export default function TrainingDetail() {
         </div>
 
         {/* Main Content */}
-        <div className="max-w-4xl mx-auto p-6 space-y-6">
+        <div className="max-w-6xl mx-auto p-6 space-y-6">
           {/* About This Course */}
           <Card>
             <CardHeader>
