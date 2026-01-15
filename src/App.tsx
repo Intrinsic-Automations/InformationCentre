@@ -34,7 +34,7 @@ import Integration from "./pages/Integration";
 import PastProjects from "./pages/PastProjects";
 import CompanySites from "./pages/CompanySites";
 import SolutionsDatabase from "./pages/SolutionsDatabase";
-
+import TrainingDetail from "./pages/TrainingDetail";
 import WinPlanManagement from "./pages/WinPlanManagement";
 import InfoResources from "./pages/InfoResources";
 import HRTopicDetail from "./pages/HRTopicDetail";
@@ -103,6 +103,7 @@ const App = () => (
                       <Route path="/eq-training/integration-suite" element={<IntegrationSuite />} />
                       <Route path="/selling-training" element={<SellingTraining />} />
                       <Route path="/generic-training" element={<GenericTraining />} />
+                      <Route path="/training/:category/:slug" element={<TrainingDetail />} />
                       <Route path="/migration" element={<Migration />} />
                       <Route path="/integration" element={<Integration />} />
                       <Route path="/win-plan-management" element={<WinPlanManagement />} />
