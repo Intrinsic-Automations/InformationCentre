@@ -111,7 +111,6 @@ export default function CompanySites() {
                   </div>
                   <div>
                     <CardTitle className="text-lg">{site.name}</CardTitle>
-                    <CardDescription>{site.url}</CardDescription>
                   </div>
                 </div>
               </CardHeader>
