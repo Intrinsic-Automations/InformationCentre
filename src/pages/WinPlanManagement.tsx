@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Target, Building2, ChevronLeft, Plus, Pencil } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -69,6 +70,7 @@ const WinPlanManagement = () => {
   const [formData, setFormData] = useState<CustomerFormData>(getInitialFormData());
   const [opportunityFormData, setOpportunityFormData] = useState<OpportunityFormData>(getInitialOpportunityFormData());
 
+  const { profile } = useAuth();
   const { data: customers, isLoading: isLoadingCustomers } = useCustomers();
   const { data: documents, isLoading: isLoadingDocuments } = useCustomerDocuments(selectedCustomerId);
   const { data: opportunities, isLoading: isLoadingOpportunities } = useOpportunities(selectedCustomerId);
@@ -96,6 +98,7 @@ const WinPlanManagement = () => {
   };
 
   const handleAddCustomer = () => {
+    if (!profile?.id) return;
     createCustomer.mutate(
       {
         company_name: formData.company_name,
@@ -107,6 +110,7 @@ const WinPlanManagement = () => {
         address: formData.address || null,
         notes: formData.notes || null,
         status: formData.status || null,
+        author_id: profile.id,
       },
       {
         onSuccess: () => {
