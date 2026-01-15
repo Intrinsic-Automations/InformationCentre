@@ -1,4 +1,4 @@
-import { Building2, ExternalLink, Monitor, Bug, CalendarDays, Clock, Receipt, Clipboard, GraduationCap, Database, Gauge, Video, Globe, Key } from "lucide-react";
+import { Building2, ExternalLink, Monitor, Bug, CalendarDays, Clock, Receipt, Clipboard, GraduationCap, Database, Globe, Key } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import companySitesHero from "@/assets/company-sites-hero.jpg";
@@ -59,20 +59,6 @@ const sites = [
     description: "Integrated reporting and information system for business analytics.",
     category: "Internal",
     icon: Database,
-  },
-  {
-    name: "PACE",
-    url: "pace.eq.com",
-    description: "Performance and capacity management platform for project delivery.",
-    category: "Projects",
-    icon: Gauge,
-  },
-  {
-    name: "Video Hub",
-    url: "video.eq.com",
-    description: "Internal video library for training materials, recordings, and company updates.",
-    category: "Learning",
-    icon: Video,
   },
   {
     name: "eQ Website",
