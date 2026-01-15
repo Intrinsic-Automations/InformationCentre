@@ -1,4 +1,4 @@
-import { Building2, ExternalLink, Monitor, Bug, CalendarDays, Clock, Receipt, Clipboard, GraduationCap, Database, Globe, Key } from "lucide-react";
+import { Building2, ExternalLink, Monitor, Bug, CalendarDays, Clock, Receipt, Clipboard, GraduationCap, Database, Globe, Key, Network } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import companySitesHero from "@/assets/company-sites-hero.jpg";
@@ -73,6 +73,13 @@ const sites = [
     description: "Generate and manage software licenses for customer deployments.",
     category: "Internal",
     icon: Key,
+  },
+  {
+    name: "Organization Chart",
+    url: "https://1eqtech.sharepoint.com/sites/eQKatta/SitePages/ChartOrg.aspx",
+    description: "View the company organizational structure and team hierarchy.",
+    category: "Internal",
+    icon: Network,
   },
 ];
 
