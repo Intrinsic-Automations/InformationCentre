@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, BookOpen, TrendingUp, Upload, FileText, Download, Trash2, Target, CheckCircle2, Clock, Users } from "lucide-react";
+import { ArrowLeft, BookOpen, TrendingUp, Upload, FileText, Download, Trash2, Target, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -345,33 +345,9 @@ export default function TrainingDetail() {
                 <Icon className="h-3 w-3" />
                 {categoryLabel}
               </Badge>
-              <Badge variant="outline">{course.level}</Badge>
             </div>
             <h1 className="text-2xl md:text-3xl font-bold text-foreground">{course.title}</h1>
             <p className="text-muted-foreground mt-1 max-w-2xl">{course.description}</p>
-          </div>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="border-b border-border bg-card/50">
-          <div className="max-w-6xl mx-auto px-6 py-4">
-            <div className="flex flex-wrap gap-6">
-              <div className="flex items-center gap-2 text-sm">
-                <Clock className="h-4 w-4 text-primary" />
-                <span className="text-muted-foreground">Duration:</span>
-                <span className="font-medium">{course.duration}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Target className="h-4 w-4 text-primary" />
-                <span className="text-muted-foreground">Level:</span>
-                <span className="font-medium">{course.level}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Users className="h-4 w-4 text-primary" />
-                <span className="text-muted-foreground">Format:</span>
-                <span className="font-medium">Self-paced</span>
-              </div>
-            </div>
           </div>
         </div>
 
