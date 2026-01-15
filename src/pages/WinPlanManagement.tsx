@@ -110,7 +110,7 @@ const WinPlanManagement = () => {
         address: formData.address || null,
         notes: formData.notes || null,
         status: formData.status || null,
-        author_id: profile.id,
+        // author_id is set automatically server-side
       },
       {
         onSuccess: () => {
