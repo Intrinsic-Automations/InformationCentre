@@ -2,11 +2,12 @@ import { useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, ArrowLeft, File, FileSpreadsheet, Trash2, Upload, Loader2 } from "lucide-react";
+import { FileText, Download, ArrowLeft, File, FileSpreadsheet, Trash2, Upload, Loader2, Pencil, Check, X } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
 import infoResourcesHero from "@/assets/generic-training-hero.jpg";
 
 const topicTitles: Record<string, string> = {
@@ -69,6 +70,8 @@ export default function HRTopicDetail() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [editingDocId, setEditingDocId] = useState<string | null>(null);
+  const [editingDescription, setEditingDescription] = useState("");
 
   const title = topicSlug ? topicTitles[topicSlug] || "Resources" : "Resources";
 
@@ -113,6 +116,26 @@ export default function HRTopicDetail() {
     onError: (error) => {
       console.error('Error deleting document:', error);
       toast.error('Failed to delete document');
+    },
+  });
+
+  // Update description mutation
+  const updateDescriptionMutation = useMutation({
+    mutationFn: async ({ id, description }: { id: string; description: string }) => {
+      const { error } = await supabase
+        .from('hr_topic_documents')
+        .update({ description })
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['hr-topic-documents', topicSlug] });
+      toast.success('Description updated');
+    },
+    onError: (error) => {
+      console.error('Error updating description:', error);
+      toast.error('Failed to update description');
     },
   });
 
@@ -261,49 +284,103 @@ export default function HRTopicDetail() {
                 </p>
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2">
-                  {documents.map((doc) => (
-                    <Card
-                      key={doc.id}
-                      className="group hover:shadow-md transition-shadow"
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-start gap-3 flex-1 min-w-0">
-                            <div className="shrink-0 mt-0.5">
-                              {getFileIcon(doc.file_type || 'other')}
+                  {documents.map((doc) => {
+                    const isEditing = editingDocId === doc.id;
+                    const displayDescription = doc.description || getFileDescription(doc.document_name, doc.file_type);
+
+                    return (
+                      <Card
+                        key={doc.id}
+                        className="group hover:shadow-md transition-shadow"
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-start gap-3 flex-1 min-w-0">
+                              <div className="shrink-0 mt-0.5">
+                                {getFileIcon(doc.file_type || 'other')}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-foreground truncate">{doc.document_name}</p>
+                                <p className="text-xs text-muted-foreground mb-2">{doc.file_size}</p>
+                                {isEditing ? (
+                                  <div className="space-y-2">
+                                    <Textarea
+                                      value={editingDescription}
+                                      onChange={(e) => setEditingDescription(e.target.value)}
+                                      className="text-sm min-h-[60px]"
+                                      placeholder="Enter description..."
+                                    />
+                                    <div className="flex gap-2">
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="gap-1"
+                                        onClick={() => {
+                                          updateDescriptionMutation.mutate({ id: doc.id, description: editingDescription });
+                                          setEditingDocId(null);
+                                        }}
+                                      >
+                                        <Check className="h-3 w-3" />
+                                        Save
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="gap-1"
+                                        onClick={() => setEditingDocId(null)}
+                                      >
+                                        <X className="h-3 w-3" />
+                                        Cancel
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="group/desc">
+                                    <div className="flex items-start gap-2">
+                                      <p className="text-sm text-muted-foreground leading-relaxed flex-1">
+                                        {displayDescription}
+                                      </p>
+                                      <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        className="h-6 w-6 opacity-0 group-hover/desc:opacity-100 transition-opacity shrink-0"
+                                        onClick={() => {
+                                          setEditingDocId(doc.id);
+                                          setEditingDescription(doc.description || '');
+                                        }}
+                                      >
+                                        <Pencil className="h-3 w-3" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-foreground truncate">{doc.document_name}</p>
-                              <p className="text-xs text-muted-foreground mb-2">{doc.file_size}</p>
-                              <p className="text-sm text-muted-foreground leading-relaxed">
-                                {getFileDescription(doc.document_name, doc.file_type)}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-1 shrink-0">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={() => handleDownload(doc.file_path, doc.document_name)}
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
-                            {profile && doc.uploaded_by === profile.id && (
+                            <div className="flex items-center gap-1 shrink-0">
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
-                                onClick={() => deleteDocument.mutate({ id: doc.id, file_path: doc.file_path })}
+                                className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => handleDownload(doc.file_path, doc.document_name)}
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Download className="h-4 w-4" />
                               </Button>
-                            )}
+                              {profile && doc.uploaded_by === profile.id && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
+                                  onClick={() => deleteDocument.mutate({ id: doc.id, file_path: doc.file_path })}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
               )}
             </CardContent>

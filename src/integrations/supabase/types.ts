@@ -231,6 +231,7 @@ export type Database = {
       hr_topic_documents: {
         Row: {
           created_at: string
+          description: string | null
           document_name: string
           file_path: string
           file_size: string | null
@@ -242,6 +243,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          description?: string | null
           document_name: string
           file_path: string
           file_size?: string | null
@@ -253,6 +255,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          description?: string | null
           document_name?: string
           file_path?: string
           file_size?: string | null

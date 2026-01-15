@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, BookOpen, TrendingUp, Upload, FileText, Download, Trash2, Target, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, BookOpen, TrendingUp, Upload, FileText, Download, Trash2, Target, CheckCircle2, Pencil, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +7,7 @@ import { useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
 
 // Sales Training Courses
 import consultativeImage from "@/assets/selling-consultative.jpg";
@@ -262,6 +263,28 @@ export default function TrainingDetail() {
     },
   });
 
+  const updateDescriptionMutation = useMutation({
+    mutationFn: async ({ id, description }: { id: string; description: string }) => {
+      const { error } = await supabase
+        .from("hr_topic_documents")
+        .update({ description })
+        .eq("id", id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["training-documents", slug] });
+      toast.success("Description updated");
+    },
+    onError: (error) => {
+      console.error("Update error:", error);
+      toast.error("Failed to update description");
+    },
+  });
+
+  const [editingDocId, setEditingDocId] = useState<string | null>(null);
+  const [editingDescription, setEditingDescription] = useState("");
+
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
@@ -424,8 +447,7 @@ export default function TrainingDetail() {
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2">
                   {documents.map((doc) => {
-                    // Generate a brief description based on file type
-                    const getFileDescription = (fileName: string, fileType: string | null) => {
+                    const getDefaultDescription = (fileName: string) => {
                       const ext = fileName.split('.').pop()?.toLowerCase();
                       if (ext === 'pdf') return 'PDF document containing course materials and reference guides.';
                       if (ext === 'pptx' || ext === 'ppt') return 'Presentation slides for training sessions and workshops.';
@@ -435,6 +457,9 @@ export default function TrainingDetail() {
                       if (ext === 'mp3' || ext === 'wav') return 'Audio recording for on-the-go learning.';
                       return 'Training resource to support your learning journey.';
                     };
+
+                    const isEditing = editingDocId === doc.id;
+                    const displayDescription = doc.description || getDefaultDescription(doc.document_name);
 
                     return (
                       <div
@@ -448,9 +473,58 @@ export default function TrainingDetail() {
                           <div className="flex-1 min-w-0">
                             <p className="font-medium text-foreground truncate">{doc.document_name}</p>
                             <p className="text-xs text-muted-foreground mt-0.5">{doc.file_size}</p>
-                            <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                              {getFileDescription(doc.document_name, doc.file_type)}
-                            </p>
+                            {isEditing ? (
+                              <div className="mt-2 space-y-2">
+                                <Textarea
+                                  value={editingDescription}
+                                  onChange={(e) => setEditingDescription(e.target.value)}
+                                  className="text-sm min-h-[60px]"
+                                  placeholder="Enter description..."
+                                />
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="gap-1"
+                                    onClick={() => {
+                                      updateDescriptionMutation.mutate({ id: doc.id, description: editingDescription });
+                                      setEditingDocId(null);
+                                    }}
+                                  >
+                                    <Check className="h-3 w-3" />
+                                    Save
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="gap-1"
+                                    onClick={() => setEditingDocId(null)}
+                                  >
+                                    <X className="h-3 w-3" />
+                                    Cancel
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="mt-2 group/desc">
+                                <div className="flex items-start gap-2">
+                                  <p className="text-sm text-muted-foreground line-clamp-2 flex-1">
+                                    {displayDescription}
+                                  </p>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-6 w-6 opacity-0 group-hover/desc:opacity-100 transition-opacity shrink-0"
+                                    onClick={() => {
+                                      setEditingDocId(doc.id);
+                                      setEditingDescription(doc.description || '');
+                                    }}
+                                  >
+                                    <Pencil className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
