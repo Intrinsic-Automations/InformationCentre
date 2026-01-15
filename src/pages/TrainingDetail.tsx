@@ -352,122 +352,133 @@ export default function TrainingDetail() {
         </div>
 
         {/* Main Content */}
-        <div className="max-w-6xl mx-auto p-6">
-          <div className="grid gap-6 lg:grid-cols-3">
-            {/* Left Column - Course Details */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* About This Course */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-primary" />
-                    About This Course
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-foreground leading-relaxed">{course.content}</p>
-                </CardContent>
-              </Card>
+        <div className="max-w-4xl mx-auto p-6 space-y-6">
+          {/* About This Course */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BookOpen className="h-5 w-5 text-primary" />
+                About This Course
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-foreground leading-relaxed">{course.content}</p>
+            </CardContent>
+          </Card>
 
-              {/* Learning Objectives */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="h-5 w-5 text-primary" />
-                    Learning Objectives
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">By the end of this course, you will be able to:</p>
-                  <ul className="space-y-3">
-                    {course.objectives.map((objective, index) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                        <span className="text-foreground">{objective}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            </div>
+          {/* Learning Objectives */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="h-5 w-5 text-primary" />
+                Learning Objectives
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">By the end of this course, you will be able to:</p>
+              <ul className="space-y-3">
+                {course.objectives.map((objective, index) => (
+                  <li key={index} className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-foreground">{objective}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
 
-            {/* Right Column - Training Materials */}
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <FileText className="h-5 w-5 text-primary" />
-                    Training Materials
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Button
-                    variant="outline"
-                    className="w-full gap-2"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploading}
-                  >
-                    <Upload className="h-4 w-4" />
-                    {isUploading ? "Uploading..." : "Upload Materials"}
-                  </Button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    multiple
-                    className="hidden"
-                    onChange={handleFileSelect}
-                  />
+          {/* Training Materials */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-primary" />
+                Training Materials
+              </CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+              >
+                <Upload className="h-4 w-4" />
+                {isUploading ? "Uploading..." : "Upload Material"}
+              </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                className="hidden"
+                onChange={handleFileSelect}
+              />
+            </CardHeader>
+            <CardContent>
+              {documentsLoading ? (
+                <p className="text-sm text-muted-foreground text-center py-4">Loading documents...</p>
+              ) : documents.length === 0 ? (
+                <div className="text-center py-8 border border-dashed border-border rounded-lg">
+                  <FileText className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-muted-foreground">No training materials uploaded yet</p>
+                  <p className="text-sm text-muted-foreground mt-1">Upload PDFs, documents, presentations, or videos</p>
+                </div>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {documents.map((doc) => {
+                    // Generate a brief description based on file type
+                    const getFileDescription = (fileName: string, fileType: string | null) => {
+                      const ext = fileName.split('.').pop()?.toLowerCase();
+                      if (ext === 'pdf') return 'PDF document containing course materials and reference guides.';
+                      if (ext === 'pptx' || ext === 'ppt') return 'Presentation slides for training sessions and workshops.';
+                      if (ext === 'docx' || ext === 'doc') return 'Word document with detailed course content and exercises.';
+                      if (ext === 'xlsx' || ext === 'xls') return 'Spreadsheet with templates, data, or exercises.';
+                      if (ext === 'mp4' || ext === 'webm' || ext === 'mov') return 'Video training content for visual learning.';
+                      if (ext === 'mp3' || ext === 'wav') return 'Audio recording for on-the-go learning.';
+                      return 'Training resource to support your learning journey.';
+                    };
 
-                  {documentsLoading ? (
-                    <p className="text-sm text-muted-foreground text-center py-4">Loading documents...</p>
-                  ) : documents.length === 0 ? (
-                    <div className="text-center py-6 border border-dashed border-border rounded-lg">
-                      <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                      <p className="text-sm text-muted-foreground">No materials uploaded yet</p>
-                      <p className="text-xs text-muted-foreground mt-1">Upload PDFs, documents, or presentations</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {documents.map((doc) => (
-                        <div
-                          key={doc.id}
-                          className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-                        >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="flex h-8 w-8 items-center justify-center rounded bg-primary/10">
-                              <FileText className="h-4 w-4 text-primary" />
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-sm font-medium truncate">{doc.document_name}</p>
-                              <p className="text-xs text-muted-foreground">{doc.file_size}</p>
-                            </div>
+                    return (
+                      <div
+                        key={doc.id}
+                        className="p-4 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
+                            <FileText className="h-5 w-5 text-primary" />
                           </div>
-                          <div className="flex items-center gap-1">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="h-8 w-8"
-                              onClick={() => handleDownload(doc.file_path, doc.document_name)}
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="h-8 w-8 text-destructive hover:text-destructive"
-                              onClick={() => deleteMutation.mutate({ id: doc.id, filePath: doc.file_path })}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-foreground truncate">{doc.document_name}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{doc.file_size}</p>
+                            <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                              {getFileDescription(doc.document_name, doc.file_type)}
+                            </p>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+                        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 gap-2"
+                            onClick={() => handleDownload(doc.file_path, doc.document_name)}
+                          >
+                            <Download className="h-4 w-4" />
+                            Download
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => deleteMutation.mutate({ id: doc.id, filePath: doc.file_path })}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
