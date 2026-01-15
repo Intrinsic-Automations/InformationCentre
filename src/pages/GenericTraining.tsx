@@ -5,6 +5,7 @@ import communicationImage from "@/assets/generic-communication.jpg";
 import timeImage from "@/assets/generic-time.jpg";
 import leadershipImage from "@/assets/generic-leadership.jpg";
 import vmodelImage from "@/assets/generic-vmodel.jpg";
+import assertionImage from "@/assets/generic-assertion.jpg";
 import genericTrainingHero from "@/assets/generic-training-hero.jpg";
 
 const courses = [
@@ -27,6 +28,11 @@ const courses = [
     title: "V-Model",
     description: "Learn the V-Model software development methodology for verification and validation.",
     image: vmodelImage,
+  },
+  {
+    title: "Assertion Skills",
+    description: "Develop confidence and assertiveness in professional communication and interactions.",
+    image: assertionImage,
   },
 ];
 
