@@ -8,6 +8,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import infoResourcesHero from "@/assets/generic-training-hero.jpg";
 
 const topicTitles: Record<string, string> = {
@@ -72,6 +82,8 @@ export default function HRTopicDetail() {
   const [isUploading, setIsUploading] = useState(false);
   const [editingDocId, setEditingDocId] = useState<string | null>(null);
   const [editingDescription, setEditingDescription] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [docToDelete, setDocToDelete] = useState<{ id: string; file_path: string } | null>(null);
 
   const title = topicSlug ? topicTitles[topicSlug] || "Resources" : "Resources";
 
@@ -370,7 +382,10 @@ export default function HRTopicDetail() {
                                   variant="ghost"
                                   size="icon"
                                   className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
-                                  onClick={() => deleteDocument.mutate({ id: doc.id, file_path: doc.file_path })}
+                                  onClick={() => {
+                                    setDocToDelete({ id: doc.id, file_path: doc.file_path });
+                                    setDeleteDialogOpen(true);
+                                  }}
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -387,6 +402,33 @@ export default function HRTopicDetail() {
           </Card>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to DELETE this document?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The document will be permanently removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (docToDelete) {
+                  deleteDocument.mutate(docToDelete);
+                }
+                setDeleteDialogOpen(false);
+                setDocToDelete(null);
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
