@@ -13,7 +13,7 @@ const sites = [
   },
   {
     name: "Redmine",
-    url: "redmine.eq.com",
+    url: "https://eqbugtrackin01.1eq.com",
     description: "Project management and issue tracking system for development teams.",
     category: "Projects",
     icon: Bug,
