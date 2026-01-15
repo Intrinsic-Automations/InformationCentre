@@ -46,6 +46,16 @@ function getFileType(fileName: string): string {
   return 'other';
 }
 
+function getFileDescription(fileName: string, fileType: string | null): string {
+  const ext = fileName.split('.').pop()?.toLowerCase();
+  if (ext === 'pdf') return 'PDF document containing HR policies, procedures, and reference guides.';
+  if (ext === 'pptx' || ext === 'ppt') return 'Presentation slides for training and informational sessions.';
+  if (ext === 'docx' || ext === 'doc') return 'Word document with detailed policies, forms, or procedures.';
+  if (ext === 'xlsx' || ext === 'xls') return 'Spreadsheet with templates, tracking tools, or data.';
+  if (ext === 'txt') return 'Text file with notes or reference information.';
+  return 'Document resource for this HR topic.';
+}
+
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return bytes + ' B';
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + ' KB';
@@ -197,7 +207,7 @@ export default function HRTopicDetail() {
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-4xl mx-auto">
+        <div className="w-full">
           {/* Back Button */}
           <Button
             variant="ghost"
@@ -250,40 +260,49 @@ export default function HRTopicDetail() {
                   No documents available for this topic.
                 </p>
               ) : (
-                <div className="space-y-2">
+                <div className="grid gap-4 sm:grid-cols-2">
                   {documents.map((doc) => (
-                    <div
+                    <Card
                       key={doc.id}
-                      className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors group"
+                      className="group hover:shadow-md transition-shadow"
                     >
-                      <div className="flex items-center gap-3">
-                        {getFileIcon(doc.file_type || 'other')}
-                        <div>
-                          <p className="font-medium text-foreground">{doc.document_name}</p>
-                          <p className="text-sm text-muted-foreground">{doc.file_size}</p>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-3 flex-1 min-w-0">
+                            <div className="shrink-0 mt-0.5">
+                              {getFileIcon(doc.file_type || 'other')}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-foreground truncate">{doc.document_name}</p>
+                              <p className="text-xs text-muted-foreground mb-2">{doc.file_size}</p>
+                              <p className="text-sm text-muted-foreground leading-relaxed">
+                                {getFileDescription(doc.document_name, doc.file_type)}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => handleDownload(doc.file_path, doc.document_name)}
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                            {profile && doc.uploaded_by === profile.id && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
+                                onClick={() => deleteDocument.mutate({ id: doc.id, file_path: doc.file_path })}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => handleDownload(doc.file_path, doc.document_name)}
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
-                        {profile && doc.uploaded_by === profile.id && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
-                            onClick={() => deleteDocument.mutate({ id: doc.id, file_path: doc.file_path })}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               )}
