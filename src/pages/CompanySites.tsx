@@ -27,7 +27,7 @@ const sites = [
   },
   {
     name: "OpenAir",
-    url: "openair.eq.com",
+    url: "https://auth.netsuitesuiteprojectspro.com/login_sso",
     description: "Time tracking, project management, and resource allocation platform.",
     category: "Projects",
     icon: Clock,
