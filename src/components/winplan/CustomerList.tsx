@@ -1,4 +1,4 @@
-import { Building2, ChevronRight, Mail, User } from "lucide-react";
+import { Building2, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -64,20 +64,6 @@ export function CustomerList({
                       {customer.industry}
                     </Badge>
                   )}
-                  <div className="mt-2 space-y-1 text-sm text-muted-foreground">
-                    {customer.contact_name && (
-                      <div className="flex items-center gap-1.5">
-                        <User className="h-3 w-3" />
-                        <span className="truncate">{customer.contact_name}</span>
-                      </div>
-                    )}
-                    {customer.contact_email && (
-                      <div className="flex items-center gap-1.5">
-                        <Mail className="h-3 w-3" />
-                        <span className="truncate">{customer.contact_email}</span>
-                      </div>
-                    )}
-                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
