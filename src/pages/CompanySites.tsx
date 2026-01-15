@@ -20,7 +20,7 @@ const sites = [
   },
   {
     name: "Leave Application",
-    url: "leave.eq.com",
+    url: "https://eqpayroll01.1eq.com",
     description: "Apply for leave, view balances, and manage time-off requests.",
     category: "HR",
     icon: CalendarDays,
