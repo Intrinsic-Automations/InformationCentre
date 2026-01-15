@@ -34,7 +34,7 @@ const sites = [
   },
   {
     name: "Expensify",
-    url: "expensify.com",
+    url: "https://www.expensify.com",
     description: "Submit and manage expense reports, receipts, and reimbursement claims.",
     category: "Finance",
     icon: Receipt,
