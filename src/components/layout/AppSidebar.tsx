@@ -17,7 +17,6 @@ import {
   History,
   Building2,
   Database,
-  Network,
   ChevronDown,
   BarChart3,
   Plug,
@@ -125,7 +124,6 @@ const navigationConfig: NavGroup[] = [
     items: [
       { title: "Company Sites", url: "/company-sites", icon: Building2 },
       { title: "Solutions Database", url: "/solutions-database", icon: Database },
-      { title: "Organization", url: "/organization", icon: Network },
     ],
   },
 ];
