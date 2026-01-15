@@ -502,3 +502,101 @@ export function useUpdateOpportunity() {
     },
   });
 }
+
+// Customer Access Types and Hooks
+export interface CustomerAccessUser {
+  id: string;
+  user_id: string;
+  customer_id: string;
+  granted_by: string;
+  created_at: string;
+  user?: {
+    id: string;
+    full_name: string | null;
+    initials: string | null;
+    avatar_url: string | null;
+    email: string | null;
+  };
+}
+
+export function useCustomerAccess(customerId: string | null) {
+  return useQuery({
+    queryKey: ["customer_access", customerId],
+    queryFn: async () => {
+      if (!customerId) return [];
+      const { data, error } = await supabase
+        .from("customer_access")
+        .select(`
+          *,
+          user:profiles!customer_access_user_id_fkey(id, full_name, initials, avatar_url, email)
+        `)
+        .eq("customer_id", customerId);
+      if (error) throw error;
+      return data as CustomerAccessUser[];
+    },
+    enabled: !!customerId,
+  });
+}
+
+export function useAllProfiles() {
+  return useQuery({
+    queryKey: ["all_profiles"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, full_name, initials, avatar_url, email")
+        .order("full_name");
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useGrantCustomerAccess() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ customerId, userId, grantedBy }: { customerId: string; userId: string; grantedBy: string }) => {
+      const { data, error } = await supabase
+        .from("customer_access")
+        .insert({
+          customer_id: customerId,
+          user_id: userId,
+          granted_by: grantedBy,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["customer_access", variables.customerId] });
+      toast.success("Access granted successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to grant access: " + error.message);
+    },
+  });
+}
+
+export function useRevokeCustomerAccess() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ accessId, customerId }: { accessId: string; customerId: string }) => {
+      const { error } = await supabase
+        .from("customer_access")
+        .delete()
+        .eq("id", accessId);
+      if (error) throw error;
+      return { customerId };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["customer_access", data.customerId] });
+      toast.success("Access revoked successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to revoke access: " + error.message);
+    },
+  });
+}
