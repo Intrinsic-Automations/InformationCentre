@@ -1,15 +1,36 @@
-import { Building2, ExternalLink, Monitor, Receipt, Clock, Key, Users, Handshake, Globe, CalendarDays } from "lucide-react";
+import { Building2, ExternalLink, Monitor, Bug, CalendarDays, Clock, Receipt, Clipboard, GraduationCap, Database, Gauge, Video, Globe, Key } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import companySitesHero from "@/assets/company-sites-hero.jpg";
 
 const sites = [
   {
-    name: "IT-Hub",
-    url: "ithub.company.com",
+    name: "eQ-IT Hub",
+    url: "ithub.eq.com",
     description: "Central IT service desk for support tickets, hardware requests, and technical assistance.",
     category: "Internal",
     icon: Monitor,
+  },
+  {
+    name: "Redmine",
+    url: "redmine.eq.com",
+    description: "Project management and issue tracking system for development teams.",
+    category: "Projects",
+    icon: Bug,
+  },
+  {
+    name: "Leave Application",
+    url: "leave.eq.com",
+    description: "Apply for leave, view balances, and manage time-off requests.",
+    category: "HR",
+    icon: CalendarDays,
+  },
+  {
+    name: "OpenAir",
+    url: "openair.eq.com",
+    description: "Time tracking, project management, and resource allocation platform.",
+    category: "Projects",
+    icon: Clock,
   },
   {
     name: "Expensify",
@@ -19,46 +40,53 @@ const sites = [
     icon: Receipt,
   },
   {
-    name: "OpenAir",
-    url: "openair.company.com",
-    description: "Time tracking, project management, and resource allocation platform.",
+    name: "Jira",
+    url: "jira.eq.com",
+    description: "Agile project management and issue tracking for software development.",
     category: "Projects",
-    icon: Clock,
+    icon: Clipboard,
   },
   {
-    name: "License Generator",
-    url: "licenses.company.com",
-    description: "Generate and manage software licenses for customer deployments.",
+    name: "eQ Learning Portal",
+    url: "learning.eq.com",
+    description: "Access training courses, certifications, and professional development resources.",
+    category: "Learning",
+    icon: GraduationCap,
+  },
+  {
+    name: "IRIS",
+    url: "iris.eq.com",
+    description: "Integrated reporting and information system for business analytics.",
     category: "Internal",
-    icon: Key,
+    icon: Database,
   },
   {
-    name: "Customer Portal",
-    url: "portal.company.com",
-    description: "Customer-facing portal for account management, support tickets, and documentation.",
-    category: "Customer",
-    icon: Users,
+    name: "PACE",
+    url: "pace.eq.com",
+    description: "Performance and capacity management platform for project delivery.",
+    category: "Projects",
+    icon: Gauge,
   },
   {
-    name: "SI Partner Portal",
-    url: "partners.company.com",
-    description: "System Integrator partner resources, certifications, and deal registration.",
-    category: "Partner",
-    icon: Handshake,
+    name: "Video Hub",
+    url: "video.eq.com",
+    description: "Internal video library for training materials, recordings, and company updates.",
+    category: "Learning",
+    icon: Video,
   },
   {
-    name: "Company Website",
-    url: "www.company.com",
+    name: "eQ Website",
+    url: "www.eq.com",
     description: "Main corporate website with company information, products, and news.",
     category: "Public",
     icon: Globe,
   },
   {
-    name: "Leave Application",
-    url: "leave.company.com",
-    description: "Apply for leave, view balances, and manage time-off requests.",
-    category: "HR",
-    icon: CalendarDays,
+    name: "License Generator",
+    url: "licenses.eq.com",
+    description: "Generate and manage software licenses for customer deployments.",
+    category: "Internal",
+    icon: Key,
   },
 ];
 
