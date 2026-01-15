@@ -6,7 +6,7 @@ import companySitesHero from "@/assets/company-sites-hero.jpg";
 const sites = [
   {
     name: "eQ-IT Hub",
-    url: "ithub.eq.com",
+    url: "https://eqithub.1eq.com/itauto/index.html",
     description: "Central IT service desk for support tickets, hardware requests, and technical assistance.",
     category: "Internal",
     icon: Monitor,
@@ -131,7 +131,12 @@ export default function CompanySites() {
               </CardHeader>
               <CardContent className="flex items-end justify-between gap-4">
                 <p className="text-sm text-foreground/80">{site.description}</p>
-                <Button variant="outline" size="sm" className="gap-2 shrink-0">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="gap-2 shrink-0"
+                  onClick={() => window.open(site.url, '_blank', 'noopener,noreferrer')}
+                >
                   Visit <ExternalLink className="h-3 w-3" />
                 </Button>
               </CardContent>
