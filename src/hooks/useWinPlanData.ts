@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { TablesInsert } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 
 export interface CustomerAuthor {
@@ -119,12 +120,17 @@ export function useCustomers() {
 
 export function useCreateCustomer() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async (customerData: Omit<Customer, "id" | "created_at" | "updated_at">) => {
+    mutationFn: async (
+      customerData: Omit<TablesInsert<"customers">, "author_id"> & {
+        author_id?: TablesInsert<"customers">["author_id"] | null;
+      }
+    ) => {
+      // author_id is enforced server-side via trigger; callers may omit it
       const { data, error } = await supabase
         .from("customers")
-        .insert(customerData)
+        .insert(customerData as TablesInsert<"customers">)
         .select()
         .single();
       if (error) throw error;
