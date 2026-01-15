@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Target, Building2, ChevronLeft, Plus, Pencil } from "lucide-react";
+import { Target, Building2, ChevronLeft, Plus, Pencil, Info } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/hooks/useAuth";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
@@ -200,6 +201,12 @@ const WinPlanManagement = () => {
       icon={<Target className="h-5 w-5" />}
     >
       <div className="h-full flex flex-col">
+        <Alert className="mb-4">
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            When you add a customer, you become the owner. For other users to view or manage a customer, you must assign them access via the Customer Details page.
+          </AlertDescription>
+        </Alert>
         {/* Breadcrumb / Back Navigation */}
         {(selectedCustomerId || selectedOpportunityId) && (
           <div className="mb-4 flex items-center gap-2">
