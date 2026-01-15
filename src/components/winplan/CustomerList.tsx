@@ -1,7 +1,9 @@
-import { Building2, ChevronRight, Globe, Mail, Phone, User } from "lucide-react";
+import { Building2, ChevronRight, Mail, User } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Customer } from "@/hooks/useWinPlanData";
 
 interface CustomerListProps {
@@ -53,7 +55,7 @@ export function CustomerList({
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Building2 className="h-5 w-5" />
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <h3 className="font-semibold text-foreground truncate">
                     {customer.company_name}
                   </h3>
@@ -78,7 +80,24 @@ export function CustomerList({
                   </div>
                 </div>
               </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
+              <div className="flex items-center gap-2">
+                {customer.author && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Avatar className="h-7 w-7 border-2 border-background">
+                        <AvatarImage src={customer.author.avatar_url || undefined} alt={customer.author.full_name || "Author"} />
+                        <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                          {customer.author.initials || "?"}
+                        </AvatarFallback>
+                      </Avatar>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Added by {customer.author.full_name || "Unknown"}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+                <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
+              </div>
             </div>
           </CardContent>
         </Card>

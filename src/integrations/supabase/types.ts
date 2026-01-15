@@ -186,6 +186,7 @@ export type Database = {
       customers: {
         Row: {
           address: string | null
+          author_id: string
           company_name: string
           contact_email: string | null
           contact_name: string | null
@@ -200,6 +201,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          author_id: string
           company_name: string
           contact_email?: string | null
           contact_name?: string | null
@@ -214,6 +216,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          author_id?: string
           company_name?: string
           contact_email?: string | null
           contact_name?: string | null
@@ -226,7 +229,15 @@ export type Database = {
           updated_at?: string
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "customers_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       hr_topic_documents: {
         Row: {

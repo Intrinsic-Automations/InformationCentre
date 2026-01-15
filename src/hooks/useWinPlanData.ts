@@ -2,6 +2,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+export interface CustomerAuthor {
+  id: string;
+  full_name: string | null;
+  initials: string | null;
+  avatar_url: string | null;
+}
+
 export interface Customer {
   id: string;
   company_name: string;
@@ -13,6 +20,8 @@ export interface Customer {
   address: string | null;
   notes: string | null;
   status: string | null;
+  author_id: string;
+  author?: CustomerAuthor;
   created_at: string;
   updated_at: string;
 }
@@ -97,7 +106,10 @@ export function useCustomers() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("customers")
-        .select("*")
+        .select(`
+          *,
+          author:profiles!customers_author_id_fkey(id, full_name, initials, avatar_url)
+        `)
         .order("company_name");
       if (error) throw error;
       return data as Customer[];
