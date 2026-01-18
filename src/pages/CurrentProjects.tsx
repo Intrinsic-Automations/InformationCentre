@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { FolderKanban, Users, Clock, ChevronRight, Plus, Rocket, Search, FileText, PenTool, Server, Code, TestTube, Cog, FlaskConical, CloudUpload, RefreshCw, CheckCircle2 } from "lucide-react";
+import { FolderKanban, Users, Clock, ChevronRight, Plus, Rocket, Search, FileText, PenTool, Server, Code, TestTube, Cog, FlaskConical, CloudUpload, RefreshCw, CheckCircle2, Pencil } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
@@ -81,6 +82,7 @@ interface Profile {
 export default function CurrentProjects() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [isManagingTeam, setIsManagingTeam] = useState(false);
   const [createForm, setCreateForm] = useState({
     name: "",
@@ -90,6 +92,14 @@ export default function CurrentProjects() {
     start_date: "",
     deadline: "",
     stage: "kick_off",
+  });
+  const [editForm, setEditForm] = useState({
+    name: "",
+    type: "Integration",
+    description: "",
+    client_name: "",
+    start_date: "",
+    deadline: "",
   });
 
   const { profile } = useAuth();
@@ -222,6 +232,46 @@ export default function CurrentProjects() {
     },
   });
 
+  // Update project details mutation
+  const updateProject = useMutation({
+    mutationFn: async () => {
+      if (!selectedProject) throw new Error("No project selected");
+
+      const { error } = await supabase
+        .from('projects')
+        .update({
+          name: editForm.name,
+          type: editForm.type,
+          description: editForm.description || null,
+          client_name: editForm.client_name || null,
+          start_date: editForm.start_date || null,
+          deadline: editForm.deadline || null,
+        })
+        .eq('id', selectedProject.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['current-projects'] });
+      toast.success("Project updated successfully");
+      setIsEditing(false);
+      if (selectedProject) {
+        setSelectedProject({
+          ...selectedProject,
+          name: editForm.name,
+          type: editForm.type,
+          description: editForm.description,
+          client_name: editForm.client_name,
+          start_date: editForm.start_date,
+          deadline: editForm.deadline,
+        });
+      }
+    },
+    onError: (error) => {
+      toast.error("Failed to update project: " + error.message);
+    },
+  });
+
   // Add team member mutation
   const addMember = useMutation({
     mutationFn: async ({ projectId, profileId, role }: { projectId: string; profileId: string; role: string }) => {
@@ -286,6 +336,19 @@ export default function CurrentProjects() {
   const handleAddMember = (profileId: string) => {
     if (!selectedProject) return;
     addMember.mutate({ projectId: selectedProject.id, profileId, role: "Team Member" });
+  };
+
+  const handleEditClick = () => {
+    if (!selectedProject) return;
+    setEditForm({
+      name: selectedProject.name,
+      type: selectedProject.type,
+      description: selectedProject.description || "",
+      client_name: selectedProject.client_name || "",
+      start_date: selectedProject.start_date || "",
+      deadline: selectedProject.deadline || "",
+    });
+    setIsEditing(true);
   };
 
   return (
@@ -451,12 +514,20 @@ export default function CurrentProjects() {
                       <p className="text-sm text-muted-foreground mt-1">{selectedProject.client_name}</p>
                     )}
                   </div>
-                  <Badge variant="outline" className={
-                    selectedProject.type === "Migration" ? "border-orange-500/50 text-orange-600" :
-                    "border-blue-500/50 text-blue-600"
-                  }>
-                    {selectedProject.type}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    {isOwner(selectedProject) && (
+                      <Button variant="outline" size="sm" onClick={handleEditClick}>
+                        <Pencil className="h-4 w-4 mr-1" />
+                        Edit
+                      </Button>
+                    )}
+                    <Badge variant="outline" className={
+                      selectedProject.type === "Migration" ? "border-orange-500/50 text-orange-600" :
+                      "border-blue-500/50 text-blue-600"
+                    }>
+                      {selectedProject.type}
+                    </Badge>
+                  </div>
                 </div>
               </DialogHeader>
 
@@ -817,6 +888,101 @@ export default function CurrentProjects() {
                 disabled={!createForm.name || createProject.isPending}
               >
                 {createProject.isPending ? "Creating..." : "Create Project"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Project Dialog */}
+      <Dialog open={isEditing} onOpenChange={setIsEditing}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Edit Project</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div>
+              <Label htmlFor="edit-name">Project Name *</Label>
+              <Input
+                id="edit-name"
+                value={editForm.name}
+                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                placeholder="Enter project name"
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="edit-client">Client Name</Label>
+              <Input
+                id="edit-client"
+                value={editForm.client_name}
+                onChange={(e) => setEditForm({ ...editForm, client_name: e.target.value })}
+                placeholder="Enter client name"
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="edit-type">Project Type</Label>
+              <Select
+                value={editForm.type}
+                onValueChange={(value) => setEditForm({ ...editForm, type: value })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Integration">Integration</SelectItem>
+                  <SelectItem value="Migration">Migration</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-start_date">Start Date</Label>
+                <Input
+                  id="edit-start_date"
+                  type="date"
+                  value={editForm.start_date}
+                  onChange={(e) => setEditForm({ ...editForm, start_date: e.target.value })}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-deadline">Deadline</Label>
+                <Input
+                  id="edit-deadline"
+                  type="date"
+                  value={editForm.deadline}
+                  onChange={(e) => setEditForm({ ...editForm, deadline: e.target.value })}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="edit-description">Description</Label>
+              <Textarea
+                id="edit-description"
+                value={editForm.description}
+                onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                placeholder="Describe the project..."
+                className="mt-1"
+                rows={3}
+              />
+            </div>
+
+            <Separator />
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
+              <Button
+                onClick={() => updateProject.mutate()}
+                disabled={!editForm.name || updateProject.isPending}
+              >
+                {updateProject.isPending ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </div>
