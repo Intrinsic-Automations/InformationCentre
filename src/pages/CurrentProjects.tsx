@@ -110,7 +110,7 @@ export default function CurrentProjects() {
             avatar_url
           )
         `)
-        .eq('status', 'active')
+        .eq('status', 'current')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -175,7 +175,7 @@ export default function CurrentProjects() {
           start_date: createForm.start_date || null,
           deadline: createForm.deadline || null,
           stage: createForm.stage,
-          status: 'active',
+          status: 'current',
           author_id: profile.id,
         });
 
