@@ -361,24 +361,59 @@ export default function CurrentProjects() {
                       {project.description || "No description"}
                     </p>
 
-                    {/* Current Stage */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${stageInfo.color} text-white`}>
-                        <StageIcon className="h-4 w-4" />
+                    {/* Current Stage Badge */}
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${stageInfo.color} text-white shadow-lg`}>
+                        <StageIcon className="h-5 w-5" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm font-medium">{stageInfo.title}</p>
-                        <Progress value={progress} className="h-1.5 mt-1" />
+                        <p className="text-sm font-semibold text-foreground">{stageInfo.title}</p>
+                        <p className="text-xs text-muted-foreground">Stage {getStageIndex(project.stage) + 1} of {timelineStages.length}</p>
                       </div>
                     </div>
 
-                    {/* Timeline info */}
+                    {/* Mini Timeline Visualization */}
+                    <div className="relative mb-4">
+                      {/* Background track */}
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        {/* Progress fill with gradient */}
+                        <div 
+                          className="h-full bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 rounded-full transition-all duration-500"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                      {/* Stage dots */}
+                      <div className="absolute inset-0 flex items-center justify-between px-0.5">
+                        {timelineStages.map((stage, index) => {
+                          const currentIndex = getStageIndex(project.stage);
+                          const isComplete = index < currentIndex;
+                          const isCurrent = index === currentIndex;
+                          return (
+                            <div
+                              key={stage.id}
+                              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                                isComplete 
+                                  ? 'bg-primary scale-100' 
+                                  : isCurrent 
+                                    ? 'bg-white border-2 border-primary scale-125 shadow-md' 
+                                    : 'bg-muted-foreground/30 scale-75'
+                              }`}
+                              title={stage.title}
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Timeline dates */}
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {project.start_date ? format(new Date(project.start_date), "MMM d, yyyy") : "No start date"}
+                        <span>Started: {project.start_date ? format(new Date(project.start_date), "MMM d") : "TBD"}</span>
                       </div>
-                      <ChevronRight className="h-4 w-4" />
+                      <div className="flex items-center gap-1">
+                        <span>Due: {project.deadline ? format(new Date(project.deadline), "MMM d") : "TBD"}</span>
+                      </div>
                     </div>
 
                     {/* Author */}
@@ -435,9 +470,12 @@ export default function CurrentProjects() {
                 )}
 
                 {/* Timeline Progress */}
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-semibold">Solution Timeline</h3>
+                <div className="bg-muted/20 rounded-xl p-6 border border-border/50">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                      <Rocket className="h-5 w-5 text-primary" />
+                      Solution Timeline
+                    </h3>
                     {isOwner(selectedProject) && (
                       <Select
                         value={selectedProject.stage || "kick_off"}
@@ -460,10 +498,30 @@ export default function CurrentProjects() {
                     )}
                   </div>
 
+                  {/* Progress Summary */}
+                  <div className="mb-6 p-4 bg-background rounded-lg border border-border/30">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">Overall Progress</span>
+                      <span className="text-sm font-semibold text-primary">{Math.round(getProgressPercent(selectedProject.stage))}%</span>
+                    </div>
+                    <div className="h-3 bg-muted rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-emerald-500 via-blue-500 via-purple-500 to-green-500 rounded-full transition-all duration-700 ease-out"
+                        style={{ width: `${getProgressPercent(selectedProject.stage)}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+                      <span>Kick off</span>
+                      <span>Production</span>
+                    </div>
+                  </div>
+
                   {/* Visual Timeline */}
                   <div className="relative">
-                    <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-gradient-to-b from-emerald-500 via-purple-500 to-indigo-500 rounded-full" />
-                    <div className="space-y-2">
+                    {/* Gradient vertical line */}
+                    <div className="absolute left-5 top-2 bottom-2 w-1 bg-gradient-to-b from-emerald-500 via-blue-500 via-purple-500 to-green-500 rounded-full opacity-30" />
+                    
+                    <div className="space-y-1">
                       {timelineStages.map((stage, index) => {
                         const Icon = stage.icon;
                         const currentIndex = getStageIndex(selectedProject.stage);
@@ -473,20 +531,53 @@ export default function CurrentProjects() {
                         return (
                           <div
                             key={stage.id}
-                            className={`relative pl-12 py-2 ${isCurrent ? 'bg-muted/30 rounded-lg' : ''}`}
+                            className={`relative pl-14 py-3 rounded-lg transition-all duration-300 ${
+                              isCurrent 
+                                ? 'bg-primary/10 border border-primary/30 shadow-sm' 
+                                : isComplete 
+                                  ? 'opacity-80' 
+                                  : 'opacity-50'
+                            }`}
                           >
-                            <div className={`absolute left-0 flex h-10 w-10 items-center justify-center rounded-xl ${
-                              isComplete ? 'bg-primary' : isCurrent ? stage.color : 'bg-muted'
-                            } ${isComplete || isCurrent ? 'text-white' : 'text-muted-foreground'} transition-all`}>
+                            {/* Icon marker */}
+                            <div className={`absolute left-0 flex h-10 w-10 items-center justify-center rounded-xl shadow-lg transition-all duration-300 ${
+                              isComplete 
+                                ? 'bg-primary text-white' 
+                                : isCurrent 
+                                  ? `${stage.color} text-white ring-4 ring-primary/20` 
+                                  : 'bg-muted text-muted-foreground'
+                            }`}>
                               {isComplete ? <CheckCircle2 className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
                             </div>
+                            
                             <div className="flex items-center justify-between">
-                              <span className={`font-medium ${isCurrent ? 'text-foreground' : isComplete ? 'text-muted-foreground' : 'text-muted-foreground/60'}`}>
-                                {stage.title}
-                              </span>
-                              {isCurrent && (
-                                <Badge variant="secondary" className="text-xs">Current</Badge>
-                              )}
+                              <div>
+                                <span className={`font-medium block ${
+                                  isCurrent 
+                                    ? 'text-foreground' 
+                                    : isComplete 
+                                      ? 'text-foreground/70' 
+                                      : 'text-muted-foreground'
+                                }`}>
+                                  {stage.title}
+                                </span>
+                                {isCurrent && (
+                                  <span className="text-xs text-primary">In Progress</span>
+                                )}
+                                {isComplete && (
+                                  <span className="text-xs text-muted-foreground">Completed</span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {isCurrent && (
+                                  <Badge className={`${stage.color} text-white border-0`}>
+                                    Current Stage
+                                  </Badge>
+                                )}
+                                {isComplete && (
+                                  <CheckCircle2 className="h-4 w-4 text-primary" />
+                                )}
+                              </div>
                             </div>
                           </div>
                         );
