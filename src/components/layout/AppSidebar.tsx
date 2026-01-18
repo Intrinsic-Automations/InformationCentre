@@ -15,6 +15,7 @@ import {
   Wrench,
   ArrowRightLeft,
   History,
+  FolderKanban,
   Building2,
   Database,
   ChevronDown,
@@ -116,6 +117,7 @@ const navigationConfig: NavGroup[] = [
   {
     label: "Project Centre",
     items: [
+      { title: "Current Projects", url: "/current-projects", icon: FolderKanban },
       { title: "Past Projects", url: "/past-projects", icon: History },
     ],
   },
