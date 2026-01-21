@@ -309,89 +309,114 @@ const Opportunities = () => {
         </div>
 
         {/* Timeline View */}
-        <div className="space-y-6">
-          {salesTimelineStages.map((stage) => {
-            const Icon = stage.icon;
-            const opportunities = opportunitiesByStage[stage.id] || [];
-            
-            if (stageFilter !== "all" && stageFilter !== stage.id) return null;
-            
-            return (
-              <Card key={stage.id} className="overflow-hidden">
-                <CardHeader className={`py-3 ${stage.bgLight} border-b`}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${stage.color} text-white shadow-md`}>
+        <Card className="bg-card">
+          <CardContent className="pt-6">
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-foreground mb-2">Sales Pipeline Timeline</h2>
+              <p className="text-muted-foreground text-sm">
+                Track opportunities through each stage of the sales process
+              </p>
+            </div>
+
+            <div className="relative">
+              {/* Gradient vertical line */}
+              <div className="absolute left-5 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 via-purple-500 via-orange-500 to-emerald-500 rounded-full" />
+
+              <div className="space-y-6">
+                {salesTimelineStages.map((stage, index) => {
+                  const Icon = stage.icon;
+                  const opportunities = opportunitiesByStage[stage.id] || [];
+                  
+                  if (stageFilter !== "all" && stageFilter !== stage.id) return null;
+                  
+                  return (
+                    <div 
+                      key={stage.id} 
+                      className="relative pl-14 group animate-fade-in"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
+                      {/* Icon marker */}
+                      <div className={`absolute left-0 flex h-10 w-10 items-center justify-center rounded-xl ${stage.color} text-white shadow-lg transition-transform duration-200 group-hover:scale-110`}>
                         <Icon className="h-5 w-5" />
                       </div>
-                      <div>
-                        <CardTitle className={`text-base ${stage.textColor}`}>{stage.title}</CardTitle>
-                        <p className="text-xs text-muted-foreground">
-                          {opportunities.length} {opportunities.length === 1 ? "opportunity" : "opportunities"} • {formatCurrency(stageTotals[stage.id]?.value || 0)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-0">
-                  {isLoading ? (
-                    <div className="p-4 space-y-3">
-                      {[1, 2].map((i) => (
-                        <Skeleton key={i} className="h-16 w-full" />
-                      ))}
-                    </div>
-                  ) : opportunities.length === 0 ? (
-                    <div className="p-6 text-center text-muted-foreground text-sm">
-                      No opportunities in this stage
-                    </div>
-                  ) : (
-                    <div className="divide-y divide-border">
-                      {opportunities.map((opp) => (
-                        <div
-                          key={opp.id}
-                          className="p-4 hover:bg-muted/50 cursor-pointer transition-colors group"
-                          onClick={() => handleOpportunityClick(opp.id, opp.customer_id)}
-                        >
+
+                      {/* Content card */}
+                      <div className="bg-muted/30 rounded-lg border border-border/30 transition-all duration-200 group-hover:bg-muted/50 group-hover:border-primary/30 group-hover:shadow-md overflow-hidden">
+                        <div className="p-4 border-b border-border/30">
                           <div className="flex items-center justify-between">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <h4 className="font-medium truncate">{opp.opportunity_name}</h4>
-                                {opp.probability && (
-                                  <Badge variant="outline" className="text-xs shrink-0">
-                                    {opp.probability}%
-                                  </Badge>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                <span className="flex items-center gap-1">
-                                  <Building2 className="h-3.5 w-3.5" />
-                                  {customerMap.get(opp.customer_id) || "Unknown"}
-                                </span>
-                                {opp.estimated_value && (
-                                  <span className="flex items-center gap-1">
-                                    <DollarSign className="h-3.5 w-3.5" />
-                                    {formatCurrency(opp.estimated_value)}
-                                  </span>
-                                )}
-                                {opp.expected_close_date && (
-                                  <span className="flex items-center gap-1">
-                                    <Calendar className="h-3.5 w-3.5" />
-                                    {format(new Date(opp.expected_close_date), "MMM d, yyyy")}
-                                  </span>
-                                )}
-                              </div>
+                            <div className="flex items-center gap-3">
+                              <h3 className="font-semibold text-foreground text-lg">{stage.title}</h3>
+                              <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                                {opportunities.length} {opportunities.length === 1 ? "opportunity" : "opportunities"}
+                              </span>
                             </div>
-                            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
+                            <span className="text-sm font-medium text-muted-foreground">
+                              {formatCurrency(stageTotals[stage.id]?.value || 0)}
+                            </span>
                           </div>
                         </div>
-                      ))}
+
+                        {isLoading ? (
+                          <div className="p-4 space-y-3">
+                            {[1, 2].map((i) => (
+                              <Skeleton key={i} className="h-16 w-full" />
+                            ))}
+                          </div>
+                        ) : opportunities.length === 0 ? (
+                          <div className="p-6 text-center text-muted-foreground text-sm">
+                            No opportunities in this stage
+                          </div>
+                        ) : (
+                          <div className="divide-y divide-border/30">
+                            {opportunities.map((opp) => (
+                              <div
+                                key={opp.id}
+                                className="p-4 hover:bg-background/50 cursor-pointer transition-colors"
+                                onClick={() => handleOpportunityClick(opp.id, opp.customer_id)}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <h4 className="font-medium truncate">{opp.opportunity_name}</h4>
+                                      {opp.probability !== null && opp.probability !== undefined && (
+                                        <Badge variant="outline" className="text-xs shrink-0">
+                                          {opp.probability}%
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+                                      <span className="flex items-center gap-1">
+                                        <Building2 className="h-3.5 w-3.5" />
+                                        {customerMap.get(opp.customer_id) || "Unknown"}
+                                      </span>
+                                      {opp.estimated_value && (
+                                        <span className="flex items-center gap-1 text-emerald-600">
+                                          <DollarSign className="h-3.5 w-3.5" />
+                                          {formatCurrency(opp.estimated_value)}
+                                        </span>
+                                      )}
+                                      {opp.expected_close_date && (
+                                        <span className="flex items-center gap-1">
+                                          <Calendar className="h-3.5 w-3.5" />
+                                          {format(new Date(opp.expected_close_date), "MMM d, yyyy")}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <ChevronRight className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors shrink-0 ml-2" />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                  );
+                })}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
