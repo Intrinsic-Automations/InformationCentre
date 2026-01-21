@@ -106,6 +106,8 @@ const navigationConfig: NavGroup[] = [
   {
     label: "Sales Centre",
     items: [
+      { title: "Customers", url: "/customers", icon: Building2 },
+      { title: "Opportunities", url: "/opportunities", icon: TrendingUp },
       { title: "Win Plan Management", url: "/win-plan-management", icon: Target },
       { title: "Sales Timeline", url: "/sales-timeline", icon: Clock },
     ],
