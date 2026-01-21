@@ -73,7 +73,7 @@ const Opportunities = () => {
     return map;
   }, [customers]);
 
-  // Update opportunity stage mutation
+  // Update opportunity stage mutation with optimistic updates
   const updateStageMutation = useMutation({
     mutationFn: async ({ opportunityId, newStage }: { opportunityId: string; newStage: string }) => {
       const { error } = await supabase
@@ -82,14 +82,33 @@ const Opportunities = () => {
         .eq("id", opportunityId);
       if (error) throw error;
     },
-    onMutate: ({ opportunityId }) => {
+    onMutate: async ({ opportunityId, newStage }) => {
       setUpdatingId(opportunityId);
+      
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["all-opportunities"] });
+      
+      // Snapshot the previous value
+      const previousOpportunities = queryClient.getQueryData<Opportunity[]>(["all-opportunities"]);
+      
+      // Optimistically update the cache in place (same order)
+      queryClient.setQueryData<Opportunity[]>(["all-opportunities"], (old) => {
+        if (!old) return old;
+        return old.map((opp) =>
+          opp.id === opportunityId ? { ...opp, stage: newStage } : opp
+        );
+      });
+      
+      return { previousOpportunities };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["all-opportunities"] });
       toast.success("Stage updated successfully");
     },
-    onError: (error) => {
+    onError: (error, _, context) => {
+      // Rollback on error
+      if (context?.previousOpportunities) {
+        queryClient.setQueryData(["all-opportunities"], context.previousOpportunities);
+      }
       console.error("Error updating stage:", error);
       toast.error("Failed to update stage");
     },
