@@ -27,10 +27,10 @@ import { cn } from "@/lib/utils";
 
 // Sales timeline stages - matching the Sales Timeline page
 const timelineStages = [
-  { id: "lead", dbStages: ["prospecting", "qualification"], title: "Lead/Plow", shortTitle: "Lead", icon: Target, color: "bg-blue-500" },
+  { id: "lead", dbStages: ["prospecting", "qualification"], title: "Lead/Plow", shortTitle: "Plow", icon: Target, color: "bg-blue-500" },
   { id: "solution_proposed", dbStages: ["proposal"], title: "Solution Proposed/SOW", shortTitle: "SOW", icon: Presentation, color: "bg-violet-500" },
-  { id: "formal_approval", dbStages: ["negotiation"], title: "Formal Approval/Grow", shortTitle: "Approval", icon: Handshake, color: "bg-purple-500" },
-  { id: "quotation", dbStages: ["closing"], title: "Quotation/Harvest", shortTitle: "Quote", icon: Quote, color: "bg-orange-500" },
+  { id: "formal_approval", dbStages: ["negotiation"], title: "Formal Approval/Grow", shortTitle: "Grow", icon: Handshake, color: "bg-purple-500" },
+  { id: "quotation", dbStages: ["closing"], title: "Quotation/Harvest", shortTitle: "Harvest", icon: Quote, color: "bg-orange-500" },
   { id: "won", dbStages: ["won"], title: "Won", shortTitle: "Won", icon: Trophy, color: "bg-emerald-500" },
   { id: "lost", dbStages: ["lost"], title: "Lost", shortTitle: "Lost", icon: XCircle, color: "bg-red-500" },
 ];
