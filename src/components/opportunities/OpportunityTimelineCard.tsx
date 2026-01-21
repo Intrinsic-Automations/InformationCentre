@@ -110,6 +110,7 @@ export function OpportunityTimelineCard({
 }: OpportunityTimelineCardProps) {
   const navigate = useNavigate();
   const [showWonDialog, setShowWonDialog] = useState(false);
+  const [showLostDialog, setShowLostDialog] = useState(false);
   const currentStageIndex = getTimelineStageIndex(opportunity.stage);
   const isLost = opportunity.stage === "lost";
   const isWon = opportunity.stage === "won";
@@ -120,6 +121,12 @@ export function OpportunityTimelineCard({
     // Show confirmation dialog for "won" stage
     if (stageId === "won") {
       setShowWonDialog(true);
+      return;
+    }
+    
+    // Show confirmation dialog for "lost" stage
+    if (stageId === "lost") {
+      setShowLostDialog(true);
       return;
     }
     
@@ -138,6 +145,11 @@ export function OpportunityTimelineCard({
     onStageChange(opportunity.id, "won");
     setShowWonDialog(false);
     navigate("/wins");
+  };
+
+  const handleConfirmLost = () => {
+    onStageChange(opportunity.id, "lost");
+    setShowLostDialog(false);
   };
 
   const handleCardClick = () => {
@@ -340,6 +352,38 @@ export function OpportunityTimelineCard({
               className="w-full"
             >
               Just Confirm Win
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Lost Confirmation Dialog */}
+      <Dialog open={showLostDialog} onOpenChange={setShowLostDialog}>
+        <DialogContent className="sm:max-w-md" onClick={(e) => e.stopPropagation()}>
+          <DialogHeader className="text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+              <XCircle className="h-8 w-8 text-red-600 dark:text-red-400" />
+            </div>
+            <DialogTitle className="text-xl">Are you sure this deal is lost?</DialogTitle>
+            <DialogDescription className="text-center pt-2">
+              This will mark the opportunity as lost. You can always change the stage later if the deal comes back.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col gap-2 sm:flex-col">
+            <Button 
+              variant="outline"
+              onClick={() => setShowLostDialog(false)}
+              className="w-full gap-2"
+            >
+              Deal Still Alive
+            </Button>
+            <Button 
+              variant="destructive"
+              onClick={handleConfirmLost}
+              className="w-full gap-2"
+            >
+              <XCircle className="h-4 w-4" />
+              Confirm Lost
             </Button>
           </DialogFooter>
         </DialogContent>
