@@ -39,12 +39,11 @@ interface OpportunityFormProps {
 }
 
 const stageOptions = [
-  { value: "prospecting", label: "Prospecting" },
-  { value: "qualification", label: "Qualification" },
-  { value: "proposal", label: "Proposal" },
-  { value: "negotiation", label: "Negotiation" },
-  { value: "closed_won", label: "Closed Won" },
-  { value: "closed_lost", label: "Closed Lost" },
+  { value: "prospecting", label: "Plow" },
+  { value: "proposal", label: "SOW" },
+  { value: "negotiation", label: "Grow" },
+  { value: "closing", label: "Harvest" },
+  { value: "won", label: "Won" },
 ];
 
 const quarterOptions = [
