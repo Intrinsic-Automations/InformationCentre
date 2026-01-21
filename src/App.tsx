@@ -40,6 +40,7 @@ import WinPlanManagement from "./pages/WinPlanManagement";
 import SalesTimeline from "./pages/SalesTimeline";
 import Customers from "./pages/Customers";
 import Opportunities from "./pages/Opportunities";
+import OpportunityDetail from "./pages/OpportunityDetail";
 import InfoResources from "./pages/InfoResources";
 import HRTopicDetail from "./pages/HRTopicDetail";
 import NotFound from "./pages/NotFound";
@@ -112,6 +113,7 @@ const App = () => (
                       <Route path="/integration" element={<Integration />} />
                       <Route path="/customers" element={<Customers />} />
                       <Route path="/opportunities" element={<Opportunities />} />
+                      <Route path="/opportunities/:id" element={<OpportunityDetail />} />
                       <Route path="/win-plan-management" element={<WinPlanManagement />} />
                       <Route path="/sales-timeline" element={<SalesTimeline />} />
                       <Route path="/current-projects" element={<CurrentProjects />} />
