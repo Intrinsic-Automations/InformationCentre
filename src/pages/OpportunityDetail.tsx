@@ -122,6 +122,7 @@ const OpportunityDetail = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editForm, setEditForm] = useState<Partial<OpportunityFull>>({});
   const [newEmployee, setNewEmployee] = useState("");
+  const [localConfidence, setLocalConfidence] = useState<number>(0);
 
   // Fetch opportunity
   const { data: opportunity, isLoading: isLoadingOpp } = useQuery({
@@ -190,6 +191,7 @@ const OpportunityDetail = () => {
         end_date: opportunity.end_date,
         priority: opportunity.priority || "medium",
       });
+      setLocalConfidence(opportunity.probability ?? 0);
     }
   }, [opportunity]);
 
@@ -200,6 +202,10 @@ const OpportunityDetail = () => {
   };
 
   const handleConfidenceChange = (value: number[]) => {
+    setLocalConfidence(value[0]);
+  };
+
+  const handleConfidenceCommit = (value: number[]) => {
     updateMutation.mutate({ probability: value[0] });
   };
 
@@ -412,12 +418,13 @@ const OpportunityDetail = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">0%</span>
-                <span className="text-2xl font-bold text-primary">{opportunity.probability ?? 0}%</span>
+                <span className="text-2xl font-bold text-primary">{localConfidence}%</span>
                 <span className="text-sm text-muted-foreground">100%</span>
               </div>
               <Slider
-                value={[opportunity.probability ?? 0]}
-                onValueCommit={handleConfidenceChange}
+                value={[localConfidence]}
+                onValueChange={handleConfidenceChange}
+                onValueCommit={handleConfidenceCommit}
                 max={100}
                 step={5}
                 className="w-full"
