@@ -419,6 +419,9 @@ export type Database = {
           created_at: string
           customer_id: string
           deal_summary: string | null
+          end_date: string | null
+          eq_employees: string[] | null
+          eq_products: string[] | null
           estimated_value: number | null
           exec_owner: string | null
           expected_close_date: string | null
@@ -427,11 +430,14 @@ export type Database = {
           key_issues: string | null
           opportunity_name: string
           opportunity_owner: string | null
+          partner_prime_quotations: string | null
+          priority: string | null
           probability: number | null
           quarter_to_close: string | null
           services_value: number | null
           software_sales: number | null
           stage: string | null
+          start_date: string | null
           status: string | null
           updated_at: string
           value_proposition: string | null
@@ -442,6 +448,9 @@ export type Database = {
           created_at?: string
           customer_id: string
           deal_summary?: string | null
+          end_date?: string | null
+          eq_employees?: string[] | null
+          eq_products?: string[] | null
           estimated_value?: number | null
           exec_owner?: string | null
           expected_close_date?: string | null
@@ -450,11 +459,14 @@ export type Database = {
           key_issues?: string | null
           opportunity_name: string
           opportunity_owner?: string | null
+          partner_prime_quotations?: string | null
+          priority?: string | null
           probability?: number | null
           quarter_to_close?: string | null
           services_value?: number | null
           software_sales?: number | null
           stage?: string | null
+          start_date?: string | null
           status?: string | null
           updated_at?: string
           value_proposition?: string | null
@@ -465,6 +477,9 @@ export type Database = {
           created_at?: string
           customer_id?: string
           deal_summary?: string | null
+          end_date?: string | null
+          eq_employees?: string[] | null
+          eq_products?: string[] | null
           estimated_value?: number | null
           exec_owner?: string | null
           expected_close_date?: string | null
@@ -473,11 +488,14 @@ export type Database = {
           key_issues?: string | null
           opportunity_name?: string
           opportunity_owner?: string | null
+          partner_prime_quotations?: string | null
+          priority?: string | null
           probability?: number | null
           quarter_to_close?: string | null
           services_value?: number | null
           software_sales?: number | null
           stage?: string | null
+          start_date?: string | null
           status?: string | null
           updated_at?: string
           value_proposition?: string | null

@@ -101,7 +101,7 @@ export function OpportunityTimelineCard({
   };
 
   const handleCardClick = () => {
-    navigate(`/win-plan-management?customer=${opportunity.customer_id}&opportunity=${opportunity.id}`);
+    navigate(`/opportunities/${opportunity.id}`);
   };
 
   return (
