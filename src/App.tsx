@@ -37,6 +37,7 @@ import CompanySites from "./pages/CompanySites";
 import SolutionsDatabase from "./pages/SolutionsDatabase";
 import TrainingDetail from "./pages/TrainingDetail";
 import WinPlanManagement from "./pages/WinPlanManagement";
+import SalesTimeline from "./pages/SalesTimeline";
 import InfoResources from "./pages/InfoResources";
 import HRTopicDetail from "./pages/HRTopicDetail";
 import NotFound from "./pages/NotFound";
@@ -108,6 +109,7 @@ const App = () => (
                       <Route path="/migration" element={<Migration />} />
                       <Route path="/integration" element={<Integration />} />
                       <Route path="/win-plan-management" element={<WinPlanManagement />} />
+                      <Route path="/sales-timeline" element={<SalesTimeline />} />
                       <Route path="/current-projects" element={<CurrentProjects />} />
                       <Route path="/past-projects" element={<PastProjects />} />
                       <Route path="/company-sites" element={<CompanySites />} />

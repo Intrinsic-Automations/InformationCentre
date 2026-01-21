@@ -23,6 +23,7 @@ import {
   Plug,
   Target,
   FileText,
+  Clock,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { SearchBar } from "@/components/layout/SearchBar";
@@ -106,6 +107,7 @@ const navigationConfig: NavGroup[] = [
     label: "Sales Centre",
     items: [
       { title: "Win Plan Management", url: "/win-plan-management", icon: Target },
+      { title: "Sales Timeline", url: "/sales-timeline", icon: Clock },
     ],
   },
   {
