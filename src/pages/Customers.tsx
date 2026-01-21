@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Target, Building2, ChevronLeft, Plus, Pencil, Info } from "lucide-react";
+import { useState } from "react";
+import { Building2, Plus, ChevronLeft, Pencil, Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,6 @@ import { CustomerDetails } from "@/components/winplan/CustomerDetails";
 import { CustomerForm, CustomerFormData } from "@/components/winplan/CustomerForm";
 import { OpportunityList } from "@/components/winplan/OpportunityList";
 import { OpportunityForm, OpportunityFormData } from "@/components/winplan/OpportunityForm";
-import { OpportunityDetails } from "@/components/winplan/OpportunityDetails";
 import {
   useCustomers,
   useCreateCustomer,
@@ -27,9 +25,6 @@ import {
   useCustomerDocuments,
   useOpportunities,
   useCreateOpportunity,
-  useOpportunityInteractions,
-  useOpportunityStakeholders,
-  useOpportunityActionSteps,
 } from "@/hooks/useWinPlanData";
 
 const getInitialFormData = (): CustomerFormData => ({
@@ -63,54 +58,30 @@ const getInitialOpportunityFormData = (): OpportunityFormData => ({
   software_sales: "",
 });
 
-const WinPlanManagement = () => {
-  const [searchParams] = useSearchParams();
+const Customers = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
-  const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
   const [isEditCustomerOpen, setIsEditCustomerOpen] = useState(false);
   const [isAddOpportunityOpen, setIsAddOpportunityOpen] = useState(false);
   const [formData, setFormData] = useState<CustomerFormData>(getInitialFormData());
   const [opportunityFormData, setOpportunityFormData] = useState<OpportunityFormData>(getInitialOpportunityFormData());
 
-  // Handle URL params for deep linking from Opportunities page
-  useEffect(() => {
-    const customerId = searchParams.get("customer");
-    const opportunityId = searchParams.get("opportunity");
-    
-    if (customerId) {
-      setSelectedCustomerId(customerId);
-    }
-    if (opportunityId) {
-      setSelectedOpportunityId(opportunityId);
-    }
-  }, [searchParams]);
-
   const { profile } = useAuth();
   const { data: customers, isLoading: isLoadingCustomers } = useCustomers();
   const { data: documents, isLoading: isLoadingDocuments } = useCustomerDocuments(selectedCustomerId);
   const { data: opportunities, isLoading: isLoadingOpportunities } = useOpportunities(selectedCustomerId);
-  const { data: interactions, isLoading: isLoadingInteractions } = useOpportunityInteractions(selectedOpportunityId);
-  const { data: stakeholders, isLoading: isLoadingStakeholders } = useOpportunityStakeholders(selectedOpportunityId);
-  const { data: actionSteps, isLoading: isLoadingActionSteps } = useOpportunityActionSteps(selectedOpportunityId);
   const createCustomer = useCreateCustomer();
   const updateCustomer = useUpdateCustomer();
   const createOpportunity = useCreateOpportunity();
 
   const selectedCustomer = customers?.find((c) => c.id === selectedCustomerId);
-  const selectedOpportunity = opportunities?.find((o) => o.id === selectedOpportunityId);
 
   const handleSelectCustomer = (customerId: string) => {
     setSelectedCustomerId(customerId);
-    setSelectedOpportunityId(null);
   };
 
   const handleBack = () => {
-    if (selectedOpportunityId) {
-      setSelectedOpportunityId(null);
-    } else if (selectedCustomerId) {
-      setSelectedCustomerId(null);
-    }
+    setSelectedCustomerId(null);
   };
 
   const handleAddCustomer = () => {
@@ -126,7 +97,6 @@ const WinPlanManagement = () => {
         address: formData.address || null,
         notes: formData.notes || null,
         status: formData.status || null,
-        // author_id is set automatically server-side
       },
       {
         onSuccess: () => {
@@ -216,17 +186,17 @@ const WinPlanManagement = () => {
       <div className="sticky top-0 z-30 shrink-0 relative h-16 md:h-20 overflow-hidden">
         <img
           src={winPlanHero}
-          alt="Win Plan Management banner"
+          alt="Customers banner"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-secondary/80 to-secondary/40" />
         <div className="absolute inset-0 flex items-center px-6 md:px-12">
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 text-primary-foreground backdrop-blur-sm">
-              <Target className="h-4 w-4" />
+              <Building2 className="h-4 w-4" />
             </div>
             <div>
-              <h1 className="text-lg md:text-xl font-bold text-secondary-foreground">Win Plan Management</h1>
+              <h1 className="text-lg md:text-xl font-bold text-secondary-foreground">Customers</h1>
             </div>
           </div>
         </div>
@@ -240,8 +210,9 @@ const WinPlanManagement = () => {
             When you add a customer, you become the owner. For other users to view or manage a customer, you must assign them access via the Customer Details page.
           </AlertDescription>
         </Alert>
+        
         {/* Breadcrumb / Back Navigation */}
-        {(selectedCustomerId || selectedOpportunityId) && (
+        {selectedCustomerId && (
           <div className="mb-4 flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={handleBack}>
               <ChevronLeft className="h-4 w-4 mr-1" />
@@ -253,12 +224,6 @@ const WinPlanManagement = () => {
                 <>
                   <span>/</span>
                   <span className="text-foreground font-medium">{selectedCustomer.company_name}</span>
-                </>
-              )}
-              {selectedOpportunity && (
-                <>
-                  <span>/</span>
-                  <span className="text-foreground font-medium">{selectedOpportunity.opportunity_name}</span>
                 </>
               )}
             </div>
@@ -314,7 +279,7 @@ const WinPlanManagement = () => {
                 onSelectCustomer={handleSelectCustomer}
               />
             </div>
-          ) : !selectedOpportunityId ? (
+          ) : (
             /* Customer Details & Opportunities View */
             <div className="h-full overflow-hidden">
               <Tabs defaultValue="details" className="h-full flex flex-col">
@@ -392,24 +357,11 @@ const WinPlanManagement = () => {
                   <OpportunityList
                     opportunities={opportunities}
                     isLoading={isLoadingOpportunities}
-                    selectedOpportunityId={selectedOpportunityId}
-                    onSelectOpportunity={setSelectedOpportunityId}
+                    selectedOpportunityId={null}
+                    onSelectOpportunity={() => {}}
                   />
                 </TabsContent>
               </Tabs>
-            </div>
-          ) : (
-            /* Opportunity Details View */
-            <div className="h-full overflow-auto">
-              <OpportunityDetails
-                opportunity={selectedOpportunity}
-                interactions={interactions}
-                stakeholders={stakeholders}
-                actionSteps={actionSteps}
-                isLoadingInteractions={isLoadingInteractions}
-                isLoadingStakeholders={isLoadingStakeholders}
-                isLoadingActionSteps={isLoadingActionSteps}
-              />
             </div>
           )}
         </div>
@@ -418,4 +370,4 @@ const WinPlanManagement = () => {
   );
 };
 
-export default WinPlanManagement;
+export default Customers;
