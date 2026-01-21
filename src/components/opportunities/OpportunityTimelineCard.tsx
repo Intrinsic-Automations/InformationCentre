@@ -116,16 +116,18 @@ export function OpportunityTimelineCard({
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-semibold text-foreground truncate">{opportunity.opportunity_name}</h3>
               {opportunity.probability !== null && opportunity.probability !== undefined && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Badge variant="outline" className="text-xs shrink-0 cursor-help">
-                      {opportunity.probability}%
-                    </Badge>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Confidence Level</p>
-                  </TooltipContent>
-                </Tooltip>
+                <TooltipProvider delayDuration={0}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge variant="outline" className="text-xs shrink-0 cursor-help">
+                        {opportunity.probability}%
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Confidence Level</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )}
             </div>
             <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
