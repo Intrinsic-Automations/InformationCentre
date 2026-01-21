@@ -2,10 +2,13 @@ import { useState, useMemo } from "react";
 import { 
   TrendingUp,
   Search,
-  Filter
+  Filter,
+  Plus
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -13,12 +16,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import winPlanHero from "@/assets/win-plan-hero.jpg";
-import { useCustomers } from "@/hooks/useWinPlanData";
+import { useCustomers, useCreateOpportunity } from "@/hooks/useWinPlanData";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { OpportunityTimelineCard } from "@/components/opportunities/OpportunityTimelineCard";
+import { OpportunityForm, OpportunityFormData } from "@/components/winplan/OpportunityForm";
 
 interface Opportunity {
   id: string;
@@ -42,11 +54,35 @@ const stageOptions = [
   { value: "lost", label: "Lost" },
 ];
 
+const getInitialOpportunityFormData = (): OpportunityFormData => ({
+  opportunity_name: "",
+  deal_summary: "",
+  value_proposition: "",
+  compelling_reasons: "",
+  key_issues: "",
+  blockers: "",
+  estimated_value: "",
+  stage: "prospecting",
+  probability: "",
+  expected_close_date: "",
+  industry: "",
+  exec_owner: "",
+  opportunity_owner: "",
+  quarter_to_close: "",
+  services_value: "",
+  software_sales: "",
+});
+
 const Opportunities = () => {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [stageFilter, setStageFilter] = useState<string>("all");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [isAddOpportunityOpen, setIsAddOpportunityOpen] = useState(false);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
+  const [opportunityFormData, setOpportunityFormData] = useState<OpportunityFormData>(getInitialOpportunityFormData());
+  
+  const createOpportunity = useCreateOpportunity();
 
   // Fetch all opportunities
   const { data: allOpportunities, isLoading: isLoadingOpportunities } = useQuery({
@@ -121,6 +157,43 @@ const Opportunities = () => {
     updateStageMutation.mutate({ opportunityId, newStage });
   };
 
+  const handleAddOpportunity = () => {
+    if (!selectedCustomerId) {
+      toast.error("Please select a customer");
+      return;
+    }
+    createOpportunity.mutate(
+      {
+        customer_id: selectedCustomerId,
+        opportunity_name: opportunityFormData.opportunity_name,
+        deal_summary: opportunityFormData.deal_summary || null,
+        value_proposition: opportunityFormData.value_proposition || null,
+        compelling_reasons: opportunityFormData.compelling_reasons || null,
+        key_issues: opportunityFormData.key_issues || null,
+        blockers: opportunityFormData.blockers || null,
+        estimated_value: opportunityFormData.estimated_value ? parseFloat(opportunityFormData.estimated_value) : null,
+        stage: opportunityFormData.stage || null,
+        probability: opportunityFormData.probability ? parseInt(opportunityFormData.probability) : null,
+        expected_close_date: opportunityFormData.expected_close_date || null,
+        status: "active",
+        industry: opportunityFormData.industry || null,
+        exec_owner: opportunityFormData.exec_owner || null,
+        opportunity_owner: opportunityFormData.opportunity_owner || null,
+        quarter_to_close: opportunityFormData.quarter_to_close || null,
+        services_value: opportunityFormData.services_value ? parseFloat(opportunityFormData.services_value) : null,
+        software_sales: opportunityFormData.software_sales ? parseFloat(opportunityFormData.software_sales) : null,
+      },
+      {
+        onSuccess: () => {
+          setIsAddOpportunityOpen(false);
+          setOpportunityFormData(getInitialOpportunityFormData());
+          setSelectedCustomerId("");
+          queryClient.invalidateQueries({ queryKey: ["all-opportunities"] });
+        },
+      }
+    );
+  };
+
   // Filter opportunities
   const filteredOpportunities = useMemo(() => {
     if (!allOpportunities) return [];
@@ -176,7 +249,7 @@ const Opportunities = () => {
                 Track each opportunity through the sales timeline
               </p>
             </div>
-            <div className="flex gap-3 w-full sm:w-auto">
+            <div className="flex gap-3 w-full sm:w-auto flex-wrap">
               <div className="relative flex-1 sm:w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -199,6 +272,50 @@ const Opportunities = () => {
                   ))}
                 </SelectContent>
               </Select>
+              <Dialog open={isAddOpportunityOpen} onOpenChange={setIsAddOpportunityOpen}>
+                <DialogTrigger asChild>
+                  <Button className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Add Opportunity
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Add New Opportunity</DialogTitle>
+                    <DialogDescription>
+                      Select a customer and fill in the opportunity details.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="customer">Customer *</Label>
+                      <Select value={selectedCustomerId} onValueChange={setSelectedCustomerId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a customer" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {customers?.map((customer) => (
+                            <SelectItem key={customer.id} value={customer.id}>
+                              {customer.company_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <OpportunityForm
+                      formData={opportunityFormData}
+                      onFormDataChange={setOpportunityFormData}
+                      onSubmit={handleAddOpportunity}
+                      onCancel={() => {
+                        setIsAddOpportunityOpen(false);
+                        setOpportunityFormData(getInitialOpportunityFormData());
+                        setSelectedCustomerId("");
+                      }}
+                      isSubmitting={createOpportunity.isPending}
+                    />
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </div>
