@@ -38,6 +38,8 @@ interface Opportunity {
   customer_id: string;
   stage: string | null;
   estimated_value: number | null;
+  services_value: number | null;
+  software_sales: number | null;
   probability: number | null;
   expected_close_date: string | null;
   status: string | null;

@@ -58,11 +58,23 @@ interface Opportunity {
   customer_id: string;
   stage: string | null;
   estimated_value: number | null;
+  services_value?: number | null;
+  software_sales?: number | null;
   probability: number | null;
   expected_close_date: string | null;
   status: string | null;
   opportunity_owner: string | null;
 }
+
+// Calculate total value from all value fields
+const calculateTotalValue = (opportunity: Opportunity): number | null => {
+  const estimated = opportunity.estimated_value || 0;
+  const services = opportunity.services_value || 0;
+  const software = opportunity.software_sales || 0;
+  
+  const total = estimated + services + software;
+  return total > 0 ? total : null;
+};
 
 interface OpportunityTimelineCardProps {
   opportunity: Opportunity;
@@ -135,10 +147,10 @@ export function OpportunityTimelineCard({
                 <Building2 className="h-3.5 w-3.5" />
                 {customerName}
               </span>
-              {formatCurrency(opportunity.estimated_value) && (
+              {formatCurrency(calculateTotalValue(opportunity)) && (
                 <span className="flex items-center gap-1 text-emerald-600 font-medium">
                   <DollarSign className="h-3.5 w-3.5" />
-                  {formatCurrency(opportunity.estimated_value)}
+                  {formatCurrency(calculateTotalValue(opportunity))}
                 </span>
               )}
               {opportunity.expected_close_date && (
