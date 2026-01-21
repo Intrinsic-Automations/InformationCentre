@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { Target, Building2, ChevronLeft, Plus, Pencil, Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/hooks/useAuth";
@@ -65,8 +65,10 @@ const getInitialOpportunityFormData = (): OpportunityFormData => ({
 
 const WinPlanManagement = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
+  const [cameFromOpportunities, setCameFromOpportunities] = useState(false);
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
   const [isEditCustomerOpen, setIsEditCustomerOpen] = useState(false);
   const [isAddOpportunityOpen, setIsAddOpportunityOpen] = useState(false);
@@ -78,11 +80,13 @@ const WinPlanManagement = () => {
     const customerId = searchParams.get("customer");
     const opportunityId = searchParams.get("opportunity");
     
-    if (customerId) {
+    if (customerId && opportunityId) {
+      // User came from Opportunities page with both params
       setSelectedCustomerId(customerId);
-    }
-    if (opportunityId) {
       setSelectedOpportunityId(opportunityId);
+      setCameFromOpportunities(true);
+    } else if (customerId) {
+      setSelectedCustomerId(customerId);
     }
   }, [searchParams]);
 
@@ -106,8 +110,15 @@ const WinPlanManagement = () => {
   };
 
   const handleBack = () => {
+    // If user came from Opportunities page and is viewing an opportunity, go back to Opportunities
+    if (cameFromOpportunities && selectedOpportunityId) {
+      navigate("/opportunities");
+      return;
+    }
+    
     if (selectedOpportunityId) {
       setSelectedOpportunityId(null);
+      setCameFromOpportunities(false);
     } else if (selectedCustomerId) {
       setSelectedCustomerId(null);
     }
@@ -245,10 +256,10 @@ const WinPlanManagement = () => {
           <div className="mb-4 flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={handleBack}>
               <ChevronLeft className="h-4 w-4 mr-1" />
-              Back
+              {cameFromOpportunities ? "Back to Opportunities" : "Back"}
             </Button>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Customers</span>
+              <span>{cameFromOpportunities ? "Opportunities" : "Customers"}</span>
               {selectedCustomer && (
                 <>
                   <span>/</span>
