@@ -222,6 +222,15 @@ export default function TrainingDetail() {
 
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
+      // Get current user's profile id for uploaded_by
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("user_id", (await supabase.auth.getUser()).data.user?.id)
+        .single();
+
+      if (profileError) throw profileError;
+
       const timestamp = Date.now();
       const filePath = `training-${slug}/${timestamp}-${file.name}`;
 
@@ -237,6 +246,7 @@ export default function TrainingDetail() {
         file_path: filePath,
         file_type: file.type,
         file_size: `${(file.size / 1024).toFixed(1)} KB`,
+        uploaded_by: profileData.id,
       });
 
       if (dbError) throw dbError;
