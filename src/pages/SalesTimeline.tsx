@@ -73,6 +73,8 @@ const timelineSteps: TimelineStep[] = [
       { text: "Gradient to compelling event", indent: true },
       { text: "Has there been formal approval from the customer to give a quotation?" },
       { text: "Identification of an actual project and budget" },
+      { text: "Signed Statement of work" },
+      { text: "The MLA needs to be signed" },
     ], 
     icon: Handshake, 
     color: "bg-purple-500" 
