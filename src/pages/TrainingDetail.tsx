@@ -197,6 +197,7 @@ export default function TrainingDetail() {
   const { category, slug } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const documentsQueryKey = ["training-documents", slug];
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -205,7 +206,7 @@ export default function TrainingDetail() {
   const course = allCourses.find((c) => c.slug === slug && c.category === category);
 
   const { data: documents = [], isLoading: documentsLoading } = useQuery({
-    queryKey: ["training-documents", slug],
+    queryKey: documentsQueryKey,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("hr_topic_documents")
@@ -265,17 +266,34 @@ export default function TrainingDetail() {
 
       if (dbError) throw dbError;
     },
-    onSuccess: () => {
+    onMutate: async ({ id }: { id: string; filePath: string }) => {
       setDeleteDialogOpen(false);
       setDocToDelete(null);
-      queryClient.invalidateQueries({ queryKey: ["training-documents", slug] });
+
+      await queryClient.cancelQueries({ queryKey: documentsQueryKey });
+      const previous = queryClient.getQueryData<any[]>(documentsQueryKey);
+
+      // Optimistically remove the document from UI
+      queryClient.setQueryData<any[]>(documentsQueryKey, (old) => {
+        const current = old ?? [];
+        return current.filter((d) => d?.id !== id);
+      });
+
+      return { previous };
+    },
+    onSuccess: () => {
+      // Broad invalidate avoids any edge cases with slug capture / routing
+      queryClient.invalidateQueries({ queryKey: ["training-documents"] });
       toast.success("Document deleted successfully");
     },
-    onError: (error) => {
+    onError: (error, _vars, ctx) => {
       console.error("Delete error:", error);
       toast.error("Failed to delete document");
-      setDeleteDialogOpen(false);
-      setDocToDelete(null);
+
+      // Rollback optimistic update
+      if (ctx?.previous) {
+        queryClient.setQueryData(documentsQueryKey, ctx.previous);
+      }
     },
   });
 
