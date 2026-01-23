@@ -55,7 +55,7 @@ const timelineSteps: TimelineStep[] = [
       { text: "What are the sign off levels", indent: true },
       { text: "What is the customer's compelling event, if there is one" },
       { text: "Gradient to compelling event", indent: true },
-      { text: "Share eQ MLA and start eQ sign off process" },
+      { text: "Share MLA and start legal sign off process" },
     ], 
     icon: Presentation, 
     color: "bg-violet-500" 
