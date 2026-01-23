@@ -266,12 +266,16 @@ export default function TrainingDetail() {
       if (dbError) throw dbError;
     },
     onSuccess: () => {
+      setDeleteDialogOpen(false);
+      setDocToDelete(null);
       queryClient.invalidateQueries({ queryKey: ["training-documents", slug] });
       toast.success("Document deleted successfully");
     },
     onError: (error) => {
       console.error("Delete error:", error);
       toast.error("Failed to delete document");
+      setDeleteDialogOpen(false);
+      setDocToDelete(null);
     },
   });
 
@@ -584,15 +588,14 @@ export default function TrainingDetail() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleteMutation.isPending}
               onClick={() => {
                 if (docToDelete) {
                   deleteMutation.mutate(docToDelete);
                 }
-                setDeleteDialogOpen(false);
-                setDocToDelete(null);
               }}
             >
-              Delete
+              {deleteMutation.isPending ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
