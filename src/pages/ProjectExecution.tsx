@@ -37,89 +37,91 @@ export default function ProjectExecution() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-4xl mx-auto space-y-6">
-          {/* Stats Cards */}
-          <div className="grid grid-cols-3 gap-4">
-            <Card className="bg-card">
-              <CardContent className="pt-4 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                    <FolderKanban className="h-5 w-5 text-primary" />
+      <div className="flex-1 overflow-auto p-4 md:p-6">
+        <div className="max-w-6xl mx-auto space-y-4">
+          {/* Stats and Legend Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-3 gap-3">
+              <Card className="bg-card">
+                <CardContent className="py-3 px-4">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                      <FolderKanban className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xl font-bold text-foreground">{totalItems}</p>
+                      <p className="text-xs text-muted-foreground">Items</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">{totalItems}</p>
-                    <p className="text-xs text-muted-foreground">Total Items</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            <Card className="bg-card">
-              <CardContent className="pt-4 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
-                    <Package className="h-5 w-5 text-emerald-500" />
+              <Card className="bg-card">
+                <CardContent className="py-3 px-4">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10">
+                      <Package className="h-4 w-4 text-emerald-500" />
+                    </div>
+                    <div>
+                      <p className="text-xl font-bold text-foreground">{totalDeliverables}</p>
+                      <p className="text-xs text-muted-foreground">Deliverables</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">{totalDeliverables}</p>
-                    <p className="text-xs text-muted-foreground">Deliverables</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            <Card className="bg-card">
-              <CardContent className="pt-4 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10">
-                    <Flag className="h-5 w-5 text-amber-500" />
+              <Card className="bg-card">
+                <CardContent className="py-3 px-4">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10">
+                      <Flag className="h-4 w-4 text-amber-500" />
+                    </div>
+                    <div>
+                      <p className="text-xl font-bold text-foreground">{totalMilestones}</p>
+                      <p className="text-xs text-muted-foreground">Gates</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">{totalMilestones}</p>
-                    <p className="text-xs text-muted-foreground">Gate Reviews</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Legend */}
+            <Card className="bg-card">
+              <CardContent className="py-3 px-4 h-full flex items-center">
+                <div className="flex flex-wrap items-center gap-4 text-sm">
+                  <span className="text-muted-foreground font-medium">Legend:</span>
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full bg-emerald-500" />
+                    <span className="text-muted-foreground">Deliverable</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full bg-muted-foreground/40" />
+                    <span className="text-muted-foreground">Internal</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-amber-500 text-white text-xs px-2 py-0.5">
+                      <Flag className="h-3 w-3 mr-1" />
+                      Gate
+                    </Badge>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Legend */}
-          <Card className="bg-card">
-            <CardContent className="py-3">
-              <div className="flex flex-wrap items-center gap-4 text-sm">
-                <span className="text-muted-foreground font-medium">Legend:</span>
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-emerald-500" />
-                  <span className="text-muted-foreground">Customer Deliverable</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-muted-foreground/40" />
-                  <span className="text-muted-foreground">Internal Document</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-amber-500 text-white text-xs">
-                    <Flag className="h-3 w-3 mr-1" />
-                    Milestone
-                  </Badge>
-                  <span className="text-muted-foreground">Gate Review</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Timeline */}
-          <Card className="bg-card">
-            <CardHeader>
-              <CardTitle className="text-xl">Execution Timeline</CardTitle>
+          {/* Timeline Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">Project Lifecycle</h2>
               <p className="text-sm text-muted-foreground">
-                Click on any item to view template details, responsible roles, and document downloads.
+                Click any item to view details, templates, and documents
               </p>
-            </CardHeader>
-            <CardContent>
-              <ExecutionTimeline />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
+
+          {/* Timeline - Full Width */}
+          <ExecutionTimeline />
         </div>
       </div>
     </div>
