@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   FileText, 
   Package, 
   Flag,
-  ChevronRight,
-  CheckCircle2,
+  ChevronDown,
   Layers,
   Target,
   Settings,
@@ -15,6 +13,12 @@ import {
 } from "lucide-react";
 import { executionTimelineData, type TimelineItem } from "./ExecutionTimelineData";
 import { ExecutionItemDetailDialog } from "./ExecutionItemDetailDialog";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const phaseIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "discovery-plan": Target,
@@ -35,83 +39,93 @@ export function ExecutionTimeline() {
 
   return (
     <>
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-        {executionTimelineData.map((phase, phaseIndex) => {
+      <Accordion type="multiple" defaultValue={executionTimelineData.map(p => p.id)} className="space-y-3">
+        {executionTimelineData.map((phase) => {
           const PhaseIcon = phaseIcons[phase.id] || Target;
+          const deliverableCount = phase.items.filter(i => i.isDeliverable).length;
           
           return (
-            <div key={phase.id} className="flex flex-col">
-              {/* Phase Header Card */}
-              <div className={`${phase.color} rounded-t-xl p-4 text-white`}>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
+            <AccordionItem 
+              key={phase.id} 
+              value={phase.id}
+              className="border rounded-xl overflow-hidden bg-card"
+            >
+              <AccordionTrigger className={`${phase.color} px-4 py-3 hover:no-underline [&[data-state=open]>svg]:rotate-180`}>
+                <div className="flex items-center gap-4 flex-1 text-white">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm shrink-0">
                     <PhaseIcon className="h-5 w-5" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-base truncate">{phase.title}</h3>
+                  <div className="flex-1 text-left">
+                    <h3 className="font-bold text-base">{phase.title}</h3>
+                    <p className="text-sm text-white/80">
+                      {phase.items.length} items • {deliverableCount} deliverables
+                    </p>
                   </div>
+                  {phase.gateReview && (
+                    <Badge className="bg-amber-500 text-white border-0 shrink-0">
+                      <Flag className="h-3 w-3 mr-1" />
+                      {phase.gateReview.title}
+                    </Badge>
+                  )}
                 </div>
-                <div className="flex gap-3 text-xs text-white/80">
-                  <span>{phase.items.length} items</span>
-                  <span>•</span>
-                  <span>{phase.items.filter(i => i.isDeliverable).length} deliverables</span>
-                </div>
-              </div>
-
-              {/* Phase Items */}
-              <div className="flex-1 bg-card rounded-b-xl border border-t-0 border-border overflow-hidden">
-                <div className="divide-y divide-border/50">
+                <ChevronDown className="h-5 w-5 text-white shrink-0 transition-transform duration-200 ml-2" />
+              </AccordionTrigger>
+              
+              <AccordionContent className="p-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 p-4">
                   {phase.items.map((item) => (
                     <button
                       key={item.id}
                       onClick={() => handleItemClick(item)}
-                      className="w-full text-left group"
+                      className="flex items-start gap-3 p-3 rounded-lg border border-border/50 bg-muted/20 hover:bg-muted/40 hover:border-primary/30 transition-all duration-200 text-left group"
                     >
-                      <div className="flex items-center gap-3 p-3 transition-all duration-200 hover:bg-muted/30">
-                        {/* Deliverable indicator */}
-                        <div className={`h-2.5 w-2.5 rounded-full shrink-0 ${
-                          item.isDeliverable ? 'bg-emerald-500' : 'bg-muted-foreground/30'
-                        }`} />
-                        
-                        <div className="flex-1 min-w-0">
-                          <span className="text-sm text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                      {/* Deliverable indicator */}
+                      <div className={`h-3 w-3 rounded-full shrink-0 mt-0.5 ${
+                        item.isDeliverable ? 'bg-emerald-500' : 'bg-muted-foreground/30'
+                      }`} />
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
                             {item.title}
                           </span>
+                          <FileText className="h-4 w-4 text-muted-foreground shrink-0 opacity-50" />
                         </div>
-                        
                         {item.isDeliverable && (
-                          <Package className="h-3.5 w-3.5 text-emerald-500 shrink-0 opacity-60" />
+                          <div className="flex items-center gap-1 mt-1">
+                            <Package className="h-3 w-3 text-emerald-500" />
+                            <span className="text-xs text-emerald-600 dark:text-emerald-400">Customer Deliverable</span>
+                          </div>
                         )}
-                        
-                        <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary shrink-0 transition-colors" />
                       </div>
                     </button>
                   ))}
                 </div>
 
-                {/* Gate Review Milestone */}
+                {/* Gate Review Footer */}
                 {phase.gateReview && (
-                  <div className="p-3 bg-amber-500/10 border-t border-amber-500/20">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500 text-white shrink-0">
+                  <div className="px-4 pb-4">
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-500 text-white shrink-0">
                         <Flag className="h-4 w-4" />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-sm text-amber-700 dark:text-amber-400 truncate">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-sm text-amber-700 dark:text-amber-400">
                           {phase.gateReview.title}
                         </h4>
-                        <p className="text-xs text-muted-foreground truncate">
+                        <p className="text-xs text-muted-foreground">
                           {phase.gateReview.description}
                         </p>
                       </div>
+                      <Badge className="bg-amber-500 text-white border-0">Milestone</Badge>
                     </div>
                   </div>
                 )}
-              </div>
-            </div>
+              </AccordionContent>
+            </AccordionItem>
           );
         })}
-      </div>
+      </Accordion>
 
       <ExecutionItemDetailDialog
         item={selectedItem}
