@@ -285,6 +285,50 @@ export type Database = {
           },
         ]
       }
+      execution_documents: {
+        Row: {
+          created_at: string
+          document_name: string
+          document_type: string
+          file_path: string
+          file_size: string | null
+          file_type: string | null
+          id: string
+          item_id: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          document_name: string
+          document_type: string
+          file_path: string
+          file_size?: string | null
+          file_type?: string | null
+          id?: string
+          item_id: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          document_name?: string
+          document_type?: string
+          file_path?: string
+          file_size?: string | null
+          file_type?: string | null
+          id?: string
+          item_id?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "execution_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hr_topic_documents: {
         Row: {
           created_at: string
