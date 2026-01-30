@@ -35,98 +35,79 @@ export function ExecutionTimeline() {
 
   return (
     <>
-      <div className="space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         {executionTimelineData.map((phase, phaseIndex) => {
           const PhaseIcon = phaseIcons[phase.id] || Target;
           
           return (
-            <div key={phase.id} className="relative">
-              {/* Phase Header */}
-              <div className="flex items-center gap-3 mb-4">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${phase.color} text-white shadow-lg`}>
-                  <PhaseIcon className="h-5 w-5" />
+            <div key={phase.id} className="flex flex-col">
+              {/* Phase Header Card */}
+              <div className={`${phase.color} rounded-t-xl p-4 text-white`}>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
+                    <PhaseIcon className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-base truncate">{phase.title}</h3>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-lg text-foreground">{phase.title}</h3>
-                  <p className="text-xs text-muted-foreground">
-                    {phase.items.length} items • {phase.items.filter(i => i.isDeliverable).length} deliverables
-                  </p>
+                <div className="flex gap-3 text-xs text-white/80">
+                  <span>{phase.items.length} items</span>
+                  <span>•</span>
+                  <span>{phase.items.filter(i => i.isDeliverable).length} deliverables</span>
                 </div>
               </div>
 
               {/* Phase Items */}
-              <div className="ml-5 border-l-2 border-border pl-8 space-y-2">
-                {phase.items.map((item, itemIndex) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleItemClick(item)}
-                    className="w-full text-left group"
-                  >
-                    <div className="relative">
-                      {/* Connector dot */}
-                      <div className={`absolute -left-[2.35rem] top-3 h-3 w-3 rounded-full border-2 border-background ${
-                        item.isDeliverable ? 'bg-emerald-500' : 'bg-muted-foreground/40'
-                      }`} />
-                      
-                      {/* Item Card */}
-                      <Card className="bg-muted/20 border-border/30 transition-all duration-200 group-hover:bg-muted/40 group-hover:border-primary/30 group-hover:shadow-md">
-                        <CardContent className="py-3 px-4">
-                          <div className="flex items-center justify-between gap-3">
-                            <div className="flex items-center gap-3 min-w-0">
-                              <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
-                              <span className="font-medium text-sm text-foreground truncate">
-                                {item.title}
-                              </span>
-                              {item.isDeliverable && (
-                                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30 shrink-0">
-                                  <Package className="h-3 w-3 mr-1" />
-                                  Deliverable
-                                </Badge>
-                              )}
-                            </div>
-                            <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </button>
-                ))}
+              <div className="flex-1 bg-card rounded-b-xl border border-t-0 border-border overflow-hidden">
+                <div className="divide-y divide-border/50">
+                  {phase.items.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => handleItemClick(item)}
+                      className="w-full text-left group"
+                    >
+                      <div className="flex items-center gap-3 p-3 transition-all duration-200 hover:bg-muted/30">
+                        {/* Deliverable indicator */}
+                        <div className={`h-2.5 w-2.5 rounded-full shrink-0 ${
+                          item.isDeliverable ? 'bg-emerald-500' : 'bg-muted-foreground/30'
+                        }`} />
+                        
+                        <div className="flex-1 min-w-0">
+                          <span className="text-sm text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                            {item.title}
+                          </span>
+                        </div>
+                        
+                        {item.isDeliverable && (
+                          <Package className="h-3.5 w-3.5 text-emerald-500 shrink-0 opacity-60" />
+                        )}
+                        
+                        <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary shrink-0 transition-colors" />
+                      </div>
+                    </button>
+                  ))}
+                </div>
 
                 {/* Gate Review Milestone */}
                 {phase.gateReview && (
-                  <div className="relative pt-4">
-                    {/* Milestone connector */}
-                    <div className="absolute -left-[2.35rem] top-7 h-4 w-4 rounded-full bg-amber-500 border-2 border-background shadow-lg" />
-                    
-                    <Card className="bg-amber-500/10 border-amber-500/30 shadow-md">
-                      <CardContent className="py-4 px-4">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500 text-white">
-                            <Flag className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-amber-700 dark:text-amber-400">
-                              {phase.gateReview.title}
-                            </h4>
-                            <p className="text-xs text-muted-foreground">
-                              {phase.gateReview.description}
-                            </p>
-                          </div>
-                          <Badge className="bg-amber-500 text-white ml-auto shrink-0">
-                            <CheckCircle2 className="h-3 w-3 mr-1" />
-                            Milestone
-                          </Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
+                  <div className="p-3 bg-amber-500/10 border-t border-amber-500/20">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500 text-white shrink-0">
+                        <Flag className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-sm text-amber-700 dark:text-amber-400 truncate">
+                          {phase.gateReview.title}
+                        </h4>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {phase.gateReview.description}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
-
-              {/* Connector to next phase */}
-              {phaseIndex < executionTimelineData.length - 1 && (
-                <div className="ml-5 h-6 border-l-2 border-dashed border-border/50" />
-              )}
             </div>
           );
         })}
