@@ -33,6 +33,7 @@ import Migration from "./pages/Migration";
 import Integration from "./pages/Integration";
 import PastProjects from "./pages/PastProjects";
 import CurrentProjects from "./pages/CurrentProjects";
+import ProjectExecution from "./pages/ProjectExecution";
 import CompanySites from "./pages/CompanySites";
 import SolutionsDatabase from "./pages/SolutionsDatabase";
 import TrainingDetail from "./pages/TrainingDetail";
@@ -117,6 +118,7 @@ const App = () => (
                       <Route path="/win-plan-management" element={<WinPlanManagement />} />
                       <Route path="/sales-timeline" element={<SalesTimeline />} />
                       <Route path="/current-projects" element={<CurrentProjects />} />
+                      <Route path="/project-execution" element={<ProjectExecution />} />
                       <Route path="/past-projects" element={<PastProjects />} />
                       <Route path="/company-sites" element={<CompanySites />} />
                       <Route path="/solutions-database" element={<SolutionsDatabase />} />
