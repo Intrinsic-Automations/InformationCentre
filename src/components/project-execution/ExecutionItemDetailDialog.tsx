@@ -1,10 +1,11 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Download, FileText, User, ArrowDownToLine, ArrowUpFromLine, Package } from "lucide-react";
+import { FileText, User, ArrowDownToLine, ArrowUpFromLine, Package } from "lucide-react";
 import type { TimelineItem } from "./ExecutionTimelineData";
+import { useExecutionDocuments } from "@/hooks/useExecutionDocuments";
+import { DocumentUploadSection } from "./DocumentUploadSection";
 
 interface ExecutionItemDetailDialogProps {
   item: TimelineItem | null;
@@ -13,6 +14,10 @@ interface ExecutionItemDetailDialogProps {
 }
 
 export function ExecutionItemDetailDialog({ item, open, onOpenChange }: ExecutionItemDetailDialogProps) {
+  const { documents, uploadDocument, downloadDocument, deleteDocument } = useExecutionDocuments(
+    open ? item?.id || null : null
+  );
+
   if (!item) return null;
 
   return (
@@ -108,37 +113,27 @@ export function ExecutionItemDetailDialog({ item, open, onOpenChange }: Executio
 
           <Separator />
 
-          {/* Document Downloads */}
+          {/* Document Upload/Download Sections */}
           <div>
             <h4 className="text-sm font-semibold text-foreground mb-3">Documents</h4>
-            <div className="grid sm:grid-cols-2 gap-3">
-              <Button
-                variant="outline"
-                className="justify-start gap-2 h-auto py-3"
-                disabled
-              >
-                <Download className="h-4 w-4 text-primary" />
-                <div className="text-left">
-                  <div className="font-medium text-sm">Template Document</div>
-                  <div className="text-xs text-muted-foreground">Download blank template</div>
-                </div>
-              </Button>
-
-              <Button
-                variant="outline"
-                className="justify-start gap-2 h-auto py-3"
-                disabled
-              >
-                <Download className="h-4 w-4 text-amber-500" />
-                <div className="text-left">
-                  <div className="font-medium text-sm">Example Document</div>
-                  <div className="text-xs text-muted-foreground">View filled-in example</div>
-                </div>
-              </Button>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <DocumentUploadSection
+                title="Template Documents"
+                documentType="template"
+                documents={documents}
+                onUpload={uploadDocument}
+                onDownload={downloadDocument}
+                onDelete={deleteDocument}
+              />
+              <DocumentUploadSection
+                title="Example Documents"
+                documentType="example"
+                documents={documents}
+                onUpload={uploadDocument}
+                onDownload={downloadDocument}
+                onDelete={deleteDocument}
+              />
             </div>
-            <p className="text-xs text-muted-foreground mt-2 italic">
-              Document uploads coming soon. Templates will be available for download.
-            </p>
           </div>
         </div>
       </DialogContent>
