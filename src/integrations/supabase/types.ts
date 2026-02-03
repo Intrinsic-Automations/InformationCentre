@@ -1392,6 +1392,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin_or_moderator: { Args: never; Returns: boolean }
       user_can_access_customer: {
         Args: { customer_id: string }
         Returns: boolean
