@@ -9,11 +9,17 @@ export interface TimelineItem {
   outputs?: string[];
 }
 
+export interface KeyMeetingTask {
+  title: string;
+  type: 'meeting' | 'task';
+}
+
 export interface TimelinePhase {
   id: string;
   title: string;
   color: string;
   items: TimelineItem[];
+  keyMeetingsAndTasks?: KeyMeetingTask[];
   gateReview?: {
     title: string;
     description: string;
@@ -136,6 +142,13 @@ export const executionTimelineData: TimelinePhase[] = [
         inputs: ["WBS", "Resource allocation", "Dependencies"],
         outputs: ["Detailed project schedule", "Resource assignments", "Critical path"],
       },
+    ],
+    keyMeetingsAndTasks: [
+      { title: "Project Kick-off Call", type: "meeting" },
+      { title: "Requirements Gathering Workshop", type: "meeting" },
+      { title: "Stakeholder Alignment Session", type: "meeting" },
+      { title: "Complete Discovery Questionnaire", type: "task" },
+      { title: "Define Project Scope Document", type: "task" },
     ],
     gateReview: {
       title: "Gate 1 Review",
@@ -268,6 +281,13 @@ export const executionTimelineData: TimelinePhase[] = [
         outputs: ["Cleansing rules", "Validation criteria", "Process workflow"],
       },
     ],
+    keyMeetingsAndTasks: [
+      { title: "Environment Setup Review", type: "meeting" },
+      { title: "Data Migration Planning Session", type: "meeting" },
+      { title: "Test Strategy Workshop", type: "meeting" },
+      { title: "Prepare Access Requests", type: "task" },
+      { title: "Define Support Model", type: "task" },
+    ],
     gateReview: {
       title: "Gate 2 Review",
       description: "Review and approval checkpoint before proceeding to Explore/Design phase.",
@@ -328,6 +348,13 @@ export const executionTimelineData: TimelinePhase[] = [
         inputs: ["Source data model", "Target data model", "Business rules"],
         outputs: ["Data mapping document", "Transformation rules", "Validation rules"],
       },
+    ],
+    keyMeetingsAndTasks: [
+      { title: "Design Review Workshop", type: "meeting" },
+      { title: "Architecture Sign-off Meeting", type: "meeting" },
+      { title: "Training Needs Analysis Session", type: "meeting" },
+      { title: "Complete Data Mapping", type: "task" },
+      { title: "Finalize Test Scripts", type: "task" },
     ],
     gateReview: {
       title: "Gate 3 Review",
@@ -420,6 +447,13 @@ export const executionTimelineData: TimelinePhase[] = [
         outputs: ["Change notice", "Release notes", "Approval sign-off"],
       },
     ],
+    keyMeetingsAndTasks: [
+      { title: "Sprint Planning Sessions", type: "meeting" },
+      { title: "Weekly Build Review", type: "meeting" },
+      { title: "UAT Readiness Meeting", type: "meeting" },
+      { title: "Complete Unit Testing", type: "task" },
+      { title: "Prepare Release Documentation", type: "task" },
+    ],
     gateReview: {
       title: "Gate 4 Review",
       description: "Review and approval checkpoint before proceeding to Deploy/Exit phase.",
@@ -490,6 +524,13 @@ export const executionTimelineData: TimelinePhase[] = [
         inputs: ["Deliverables checklist", "Lessons learned", "Handover requirements"],
         outputs: ["Exit plan", "Closure report", "Handover documentation"],
       },
+    ],
+    keyMeetingsAndTasks: [
+      { title: "Go-Live Readiness Review", type: "meeting" },
+      { title: "Hypercare Daily Stand-ups", type: "meeting" },
+      { title: "Project Closure Meeting", type: "meeting" },
+      { title: "Complete Knowledge Transfer", type: "task" },
+      { title: "Finalize Project Documentation", type: "task" },
     ],
     gateReview: {
       title: "Gate 5 Review",

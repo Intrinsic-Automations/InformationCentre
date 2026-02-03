@@ -9,7 +9,9 @@ import {
   Target,
   Settings,
   Rocket,
-  LogOut
+  LogOut,
+  Users,
+  ClipboardCheck
 } from "lucide-react";
 import { executionTimelineData, type TimelineItem } from "./ExecutionTimelineData";
 import { ExecutionItemDetailDialog } from "./ExecutionItemDetailDialog";
@@ -72,6 +74,39 @@ export function ExecutionTimeline() {
               </AccordionTrigger>
               
               <AccordionContent className="p-0">
+                {/* Key Meetings and Tasks Section */}
+                {phase.keyMeetingsAndTasks && phase.keyMeetingsAndTasks.length > 0 && (
+                  <div className="px-4 pt-4">
+                    <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        <h4 className="font-semibold text-sm text-blue-700 dark:text-blue-400">
+                          Key Meetings & Tasks
+                        </h4>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {phase.keyMeetingsAndTasks.map((item, index) => (
+                          <div
+                            key={index}
+                            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium ${
+                              item.type === 'meeting'
+                                ? 'bg-blue-500/20 text-blue-700 dark:text-blue-300'
+                                : 'bg-violet-500/20 text-violet-700 dark:text-violet-300'
+                            }`}
+                          >
+                            {item.type === 'meeting' ? (
+                              <Users className="h-3 w-3" />
+                            ) : (
+                              <ClipboardCheck className="h-3 w-3" />
+                            )}
+                            {item.title}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 p-4">
                   {phase.items.map((item) => (
                     <button
