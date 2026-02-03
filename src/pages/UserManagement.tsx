@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PageLayout } from "@/components/layout/PageLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
@@ -14,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useRoles, AppRole } from "@/hooks/useRoles";
 import { Navigate } from "react-router-dom";
 import { Users, Shield, Search, UserCog } from "lucide-react";
+import userManagementHero from "@/assets/user-management-hero.jpg";
 
 interface Profile {
   id: string;
@@ -125,21 +124,53 @@ export default function UserManagement() {
 
   if (rolesLoading || profilesLoading) {
     return (
-      <PageLayout title="User Management" icon={<UserCog className="h-5 w-5" />}>
-        <div className="flex items-center justify-center h-64">
+      <div className="flex flex-col h-full overflow-hidden">
+        {/* Hero Banner with Title - Sticky */}
+        <div className="sticky top-0 z-30 shrink-0 relative h-16 md:h-20 overflow-hidden">
+          <img
+            src={userManagementHero}
+            alt="User Management banner"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-secondary/80 to-secondary/40" />
+          <div className="absolute inset-0 flex items-center px-6 md:px-12">
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 text-primary-foreground backdrop-blur-sm">
+                <UserCog className="h-4 w-4" />
+              </div>
+              <h1 className="text-lg md:text-xl font-bold text-secondary-foreground">User Management</h1>
+            </div>
+          </div>
+        </div>
+        <div className="flex-1 flex items-center justify-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
         </div>
-      </PageLayout>
+      </div>
     );
   }
 
   return (
-    <PageLayout 
-      title="User Management" 
-      description="Manage user accounts, roles, and permissions"
-      icon={<UserCog className="h-5 w-5" />}
-    >
-      <div className="space-y-6">
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* Hero Banner with Title - Sticky */}
+      <div className="sticky top-0 z-30 shrink-0 relative h-16 md:h-20 overflow-hidden">
+        <img
+          src={userManagementHero}
+          alt="User Management banner"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-secondary/80 to-secondary/40" />
+        <div className="absolute inset-0 flex items-center px-6 md:px-12">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 text-primary-foreground backdrop-blur-sm">
+              <UserCog className="h-4 w-4" />
+            </div>
+            <h1 className="text-lg md:text-xl font-bold text-secondary-foreground">User Management</h1>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-auto p-6">
+        <div className="space-y-6">
         {/* Role Explanations */}
         <Card>
           <CardHeader>
@@ -307,7 +338,8 @@ export default function UserManagement() {
             </Table>
           </CardContent>
         </Card>
+        </div>
       </div>
-    </PageLayout>
+    </div>
   );
 }
