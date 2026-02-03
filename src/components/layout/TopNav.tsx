@@ -1,5 +1,6 @@
 import { NavLink } from "@/components/NavLink";
 import { ProfileMenu } from "@/components/profile/ProfileMenu";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { GraduationCap, Building2, FileText } from "lucide-react";
 
 const topNavItems = [
@@ -25,7 +26,8 @@ export function TopNav() {
           </NavLink>
         ))}
       </div>
-      <div className="flex-1 flex justify-end">
+      <div className="flex-1 flex justify-end items-center gap-2">
+        <NotificationBell />
         <ProfileMenu />
       </div>
     </nav>
