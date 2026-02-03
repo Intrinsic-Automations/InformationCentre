@@ -1393,6 +1393,10 @@ export type Database = {
         Returns: boolean
       }
       is_admin_or_moderator: { Args: never; Returns: boolean }
+      remove_user_and_reassign_content: {
+        Args: { p_admin_profile_id: string; p_user_profile_id: string }
+        Returns: boolean
+      }
       user_can_access_customer: {
         Args: { customer_id: string }
         Returns: boolean

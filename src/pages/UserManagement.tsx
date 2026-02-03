@@ -6,12 +6,24 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useRoles, AppRole } from "@/hooks/useRoles";
 import { Navigate } from "react-router-dom";
-import { Users, Shield, Search, UserCog } from "lucide-react";
+import { Users, Shield, Search, UserCog, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useAuth } from "@/hooks/useAuth";
 import userManagementHero from "@/assets/user-management-hero.jpg";
 
 interface Profile {
@@ -33,6 +45,7 @@ interface UserRole {
 
 export default function UserManagement() {
   const { isAdmin, isLoading: rolesLoading } = useRoles();
+  const { profile: currentProfile } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
@@ -63,22 +76,28 @@ export default function UserManagement() {
     enabled: isAdmin,
   });
 
-  // Update user active status
-  const updateStatusMutation = useMutation({
-    mutationFn: async ({ userId, isActive }: { userId: string; isActive: boolean }) => {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ is_active: isActive })
-        .eq("id", userId);
+  // Remove user mutation - calls the database function
+  const removeUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      // Get the current admin's profile ID for content reassignment
+      const adminProfileId = currentProfile?.id;
+      if (!adminProfileId) throw new Error("Admin profile not found");
+
+      const { data, error } = await supabase.rpc("remove_user_and_reassign_content", {
+        p_user_profile_id: userId,
+        p_admin_profile_id: adminProfileId,
+      });
 
       if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["all-profiles"] });
-      toast({ title: "User status updated" });
+      queryClient.invalidateQueries({ queryKey: ["all-user-roles"] });
+      toast({ title: "User removed", description: "Their content has been reassigned to you." });
     },
     onError: (error) => {
-      toast({ title: "Error updating status", description: error.message, variant: "destructive" });
+      toast({ title: "Error removing user", description: error.message, variant: "destructive" });
     },
   });
 
@@ -265,7 +284,6 @@ export default function UserManagement() {
                   <TableHead>Role</TableHead>
                   <TableHead>Department</TableHead>
                   <TableHead>System Role</TableHead>
-                  <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -311,25 +329,41 @@ export default function UserManagement() {
                         </Select>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={profile.is_active ? "default" : "secondary"}>
-                          {profile.is_active ? "Active" : "Inactive"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Switch
-                            checked={profile.is_active}
-                            onCheckedChange={(checked) =>
-                              updateStatusMutation.mutate({
-                                userId: profile.id,
-                                isActive: checked,
-                              })
-                            }
-                          />
-                          <span className="text-sm text-muted-foreground">
-                            {profile.is_active ? "Deactivate" : "Activate"}
-                          </span>
-                        </div>
+                        {profile.id !== currentProfile?.id ? (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                disabled={removeUserMutation.isPending}
+                              >
+                                <Trash2 className="h-4 w-4 mr-1" />
+                                Remove
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Remove User</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to remove <strong>{profile.full_name}</strong>? 
+                                  Their content will be reassigned to you and they will no longer have access to the platform.
+                                  This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => removeUserMutation.mutate(profile.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Remove User
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">Current user</span>
+                        )}
                       </TableCell>
                     </TableRow>
                   );
