@@ -25,9 +25,11 @@ import {
   Target,
   FileText,
   Clock,
+  UserCog,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { SearchBar } from "@/components/layout/SearchBar";
+import { useRoles } from "@/hooks/useRoles";
 import {
   Sidebar,
   SidebarContent,
@@ -135,13 +137,26 @@ const navigationConfig: NavGroup[] = [
   },
 ];
 
+const adminNavigation: NavGroup = {
+  label: "Admin",
+  items: [
+    { title: "User Management", url: "/user-management", icon: UserCog },
+  ],
+};
+
 export function AppSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
+  const { isAdmin } = useRoles();
+
+  // Build navigation with admin section if applicable
+  const fullNavigation = isAdmin 
+    ? [...navigationConfig, adminNavigation] 
+    : navigationConfig;
 
   // All groups expanded by default
   const getDefaultOpenGroups = () => {
-    return navigationConfig.map((group) => group.label);
+    return fullNavigation.map((group) => group.label);
   };
 
   const [openGroups, setOpenGroups] = useState<string[]>(getDefaultOpenGroups);
@@ -170,7 +185,7 @@ export function AppSidebar() {
       </SidebarHeader>
       
       <SidebarContent className="px-2 py-4">
-        {navigationConfig.map((group) => (
+        {fullNavigation.map((group) => (
           <Collapsible
             key={group.label}
             open={openGroups.includes(group.label)}
