@@ -106,24 +106,9 @@ export default function UserManagement() {
     },
   });
 
-  // Remove role mutation
-  const removeRoleMutation = useMutation({
-    mutationFn: async (userId: string) => {
-      const { error } = await supabase.from("user_roles").delete().eq("user_id", userId);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["all-user-roles"] });
-      toast({ title: "User role removed" });
-    },
-    onError: (error) => {
-      toast({ title: "Error removing role", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const getUserRole = (userId: string): AppRole | null => {
+  const getUserRole = (userId: string): AppRole => {
     const userRole = allRoles?.find((r) => r.user_id === userId);
-    return userRole?.role ?? null;
+    return userRole?.role ?? "user";
   };
 
   const filteredProfiles = profiles?.filter(
@@ -240,23 +225,18 @@ export default function UserManagement() {
                       <TableCell>{profile.department || "-"}</TableCell>
                       <TableCell>
                         <Select
-                          value={systemRole || "none"}
+                          value={systemRole}
                           onValueChange={(value) => {
-                            if (value === "none") {
-                              removeRoleMutation.mutate(profile.id);
-                            } else {
-                              assignRoleMutation.mutate({
-                                userId: profile.id,
-                                role: value as AppRole,
-                              });
-                            }
+                            assignRoleMutation.mutate({
+                              userId: profile.id,
+                              role: value as AppRole,
+                            });
                           }}
                         >
                           <SelectTrigger className="w-[130px]">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="none">No Role</SelectItem>
                             <SelectItem value="user">User</SelectItem>
                             <SelectItem value="moderator">Moderator</SelectItem>
                             <SelectItem value="admin">Admin</SelectItem>
