@@ -140,6 +140,42 @@ export default function UserManagement() {
       icon={<UserCog className="h-5 w-5" />}
     >
       <div className="space-y-6">
+        {/* Role Explanations */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Role Permissions</CardTitle>
+            <CardDescription>Understanding the different access levels in the system</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Badge variant="default">Admin</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Full system access including user management, role assignment, and all content moderation capabilities.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">Moderator</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Can edit and delete any user's content, manage announcements, and moderate community posts. No access to user management.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline">User</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Standard access to the platform. Can create and manage their own content only.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
