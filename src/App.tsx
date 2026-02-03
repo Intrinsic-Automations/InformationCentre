@@ -44,6 +44,7 @@ import Opportunities from "./pages/Opportunities";
 import OpportunityDetail from "./pages/OpportunityDetail";
 import InfoResources from "./pages/InfoResources";
 import HRTopicDetail from "./pages/HRTopicDetail";
+import UserManagement from "./pages/UserManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -125,6 +126,7 @@ const App = () => (
                       
                       <Route path="/info-resources" element={<InfoResources />} />
                       <Route path="/info-resources/:topicSlug" element={<HRTopicDetail />} />
+                      <Route path="/user-management" element={<UserManagement />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </AppLayout>
