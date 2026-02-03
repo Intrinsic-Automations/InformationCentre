@@ -1,13 +1,15 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, BookOpen, TrendingUp, Upload, FileText, Download, Trash2, Target, CheckCircle2, Pencil, Check, X } from "lucide-react";
+import { ArrowLeft, BookOpen, TrendingUp, FileText, Trash2, Target, CheckCircle2, Pencil, Check, X, Link2, Plus, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,6 +20,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 // Sales Training Courses
 import consultativeImage from "@/assets/selling-consultative.jpg";
@@ -42,6 +52,16 @@ interface TrainingCourse {
   objectives: string[];
   duration: string;
   level: string;
+}
+
+interface TrainingResourceLink {
+  id: string;
+  topic_slug: string;
+  title: string;
+  url: string;
+  description: string | null;
+  created_at: string;
+  created_by: string | null;
 }
 
 const allCourses: TrainingCourse[] = [
@@ -197,32 +217,36 @@ export default function TrainingDetail() {
   const { category, slug } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const documentsQueryKey = ["training-documents", slug];
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const linksQueryKey = ["training-resource-links", slug];
+
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [docToDelete, setDocToDelete] = useState<{ id: string; filePath: string } | null>(null);
+  const [linkToDelete, setLinkToDelete] = useState<TrainingResourceLink | null>(null);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [newLinkTitle, setNewLinkTitle] = useState("");
+  const [newLinkUrl, setNewLinkUrl] = useState("");
+  const [newLinkDescription, setNewLinkDescription] = useState("");
+  const [editingLinkId, setEditingLinkId] = useState<string | null>(null);
+  const [editingDescription, setEditingDescription] = useState("");
 
   const course = allCourses.find((c) => c.slug === slug && c.category === category);
 
-  const { data: documents = [], isLoading: documentsLoading } = useQuery({
-    queryKey: documentsQueryKey,
+  const { data: resourceLinks = [], isLoading: linksLoading } = useQuery({
+    queryKey: linksQueryKey,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("hr_topic_documents")
+        .from("training_resource_links")
         .select("*")
         .eq("topic_slug", `training-${slug}`)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as TrainingResourceLink[];
     },
     enabled: !!slug,
   });
 
-  const uploadMutation = useMutation({
-    mutationFn: async (file: File) => {
-      // Get current user's profile id for uploaded_by
+  const addLinkMutation = useMutation({
+    mutationFn: async ({ title, url, description }: { title: string; url: string; description: string }) => {
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("id")
@@ -231,78 +255,61 @@ export default function TrainingDetail() {
 
       if (profileError) throw profileError;
 
-      const timestamp = Date.now();
-      const filePath = `training-${slug}/${timestamp}-${file.name}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("hr-documents")
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { error: dbError } = await supabase.from("hr_topic_documents").insert({
+      const { error } = await supabase.from("training_resource_links").insert({
         topic_slug: `training-${slug}`,
-        document_name: file.name,
-        file_path: filePath,
-        file_type: file.type,
-        file_size: `${(file.size / 1024).toFixed(1)} KB`,
-        uploaded_by: profileData.id,
+        title,
+        url,
+        description: description || null,
+        created_by: profileData.id,
       });
 
-      if (dbError) throw dbError;
+      if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["training-documents", slug] });
-      toast.success("Document uploaded successfully");
+      queryClient.invalidateQueries({ queryKey: linksQueryKey });
+      toast.success("Resource link added successfully");
+      setAddDialogOpen(false);
+      setNewLinkTitle("");
+      setNewLinkUrl("");
+      setNewLinkDescription("");
     },
     onError: (error) => {
-      console.error("Upload error:", error);
-      toast.error("Failed to upload document");
+      console.error("Add link error:", error);
+      toast.error("Failed to add resource link");
     },
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: async ({ id, filePath }: { id: string; filePath: string }) => {
-      const { error: storageError } = await supabase.storage
-        .from("hr-documents")
-        .remove([filePath]);
-
-      if (storageError) throw storageError;
-
-      const { error: dbError } = await supabase
-        .from("hr_topic_documents")
+  const deleteLinkMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("training_resource_links")
         .delete()
         .eq("id", id);
 
-      if (dbError) throw dbError;
+      if (error) throw error;
     },
-    onMutate: async ({ id }: { id: string; filePath: string }) => {
+    onMutate: async (id: string) => {
       setDeleteDialogOpen(false);
-      setDocToDelete(null);
+      setLinkToDelete(null);
 
-      await queryClient.cancelQueries({ queryKey: documentsQueryKey });
-      const previous = queryClient.getQueryData<any[]>(documentsQueryKey);
+      await queryClient.cancelQueries({ queryKey: linksQueryKey });
+      const previous = queryClient.getQueryData<TrainingResourceLink[]>(linksQueryKey);
 
-      // Optimistically remove the document from UI
-      queryClient.setQueryData<any[]>(documentsQueryKey, (old) => {
-        const current = old ?? [];
-        return current.filter((d) => d?.id !== id);
-      });
+      queryClient.setQueryData<TrainingResourceLink[]>(linksQueryKey, (old) => 
+        (old ?? []).filter((link) => link.id !== id)
+      );
 
       return { previous };
     },
     onSuccess: () => {
-      // Broad invalidate avoids any edge cases with slug capture / routing
-      queryClient.invalidateQueries({ queryKey: ["training-documents"] });
-      toast.success("Document deleted successfully");
+      queryClient.invalidateQueries({ queryKey: linksQueryKey });
+      toast.success("Resource link deleted successfully");
     },
-    onError: (error, _vars, ctx) => {
+    onError: (error, _id, ctx) => {
       console.error("Delete error:", error);
-      toast.error("Failed to delete document");
-
-      // Rollback optimistic update
+      toast.error("Failed to delete resource link");
       if (ctx?.previous) {
-        queryClient.setQueryData(documentsQueryKey, ctx.previous);
+        queryClient.setQueryData(linksQueryKey, ctx.previous);
       }
     },
   });
@@ -310,14 +317,14 @@ export default function TrainingDetail() {
   const updateDescriptionMutation = useMutation({
     mutationFn: async ({ id, description }: { id: string; description: string }) => {
       const { error } = await supabase
-        .from("hr_topic_documents")
+        .from("training_resource_links")
         .update({ description })
         .eq("id", id);
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["training-documents", slug] });
+      queryClient.invalidateQueries({ queryKey: linksQueryKey });
       toast.success("Description updated");
     },
     onError: (error) => {
@@ -326,44 +333,29 @@ export default function TrainingDetail() {
     },
   });
 
-  const [editingDocId, setEditingDocId] = useState<string | null>(null);
-  const [editingDescription, setEditingDescription] = useState("");
-
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-
-    setIsUploading(true);
-    try {
-      for (const file of Array.from(files)) {
-        await uploadMutation.mutateAsync(file);
-      }
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    }
-  };
-
-  const handleDownload = async (filePath: string, fileName: string) => {
-    const { data, error } = await supabase.storage
-      .from("hr-documents")
-      .download(filePath);
-
-    if (error) {
-      toast.error("Failed to download file");
+  const handleAddLink = () => {
+    if (!newLinkTitle.trim() || !newLinkUrl.trim()) {
+      toast.error("Please enter both a title and URL");
       return;
     }
 
-    const url = URL.createObjectURL(data);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // Basic URL validation
+    try {
+      new URL(newLinkUrl);
+    } catch {
+      toast.error("Please enter a valid URL (e.g., https://example.com)");
+      return;
+    }
+
+    addLinkMutation.mutate({
+      title: newLinkTitle.trim(),
+      url: newLinkUrl.trim(),
+      description: newLinkDescription.trim(),
+    });
+  };
+
+  const openExternalLink = (url: string) => {
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   if (!course) {
@@ -454,69 +446,50 @@ export default function TrainingDetail() {
             </CardContent>
           </Card>
 
-          {/* Training Materials */}
+          {/* Training Resources */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" />
-                Training Materials
+                <Link2 className="h-5 w-5 text-primary" />
+                Training Resources
               </CardTitle>
               <Button
                 variant="outline"
                 size="sm"
                 className="gap-2"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
+                onClick={() => setAddDialogOpen(true)}
               >
-                <Upload className="h-4 w-4" />
-                {isUploading ? "Uploading..." : "Upload Material"}
+                <Plus className="h-4 w-4" />
+                Add Link
               </Button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                className="hidden"
-                onChange={handleFileSelect}
-              />
             </CardHeader>
             <CardContent>
-              {documentsLoading ? (
-                <p className="text-sm text-muted-foreground text-center py-4">Loading documents...</p>
-              ) : documents.length === 0 ? (
+              {linksLoading ? (
+                <p className="text-sm text-muted-foreground text-center py-4">Loading resources...</p>
+              ) : resourceLinks.length === 0 ? (
                 <div className="text-center py-8 border border-dashed border-border rounded-lg">
-                  <FileText className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-muted-foreground">No training materials uploaded yet</p>
-                  <p className="text-sm text-muted-foreground mt-1">Upload PDFs, documents, presentations, or videos</p>
+                  <Link2 className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-muted-foreground">No training resources added yet</p>
+                  <p className="text-sm text-muted-foreground mt-1">Add links to useful training materials, videos, and articles</p>
                 </div>
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2">
-                  {documents.map((doc) => {
-                    const getDefaultDescription = (fileName: string) => {
-                      const ext = fileName.split('.').pop()?.toLowerCase();
-                      if (ext === 'pdf') return 'PDF document containing course materials and reference guides.';
-                      if (ext === 'pptx' || ext === 'ppt') return 'Presentation slides for training sessions and workshops.';
-                      if (ext === 'docx' || ext === 'doc') return 'Word document with detailed course content and exercises.';
-                      if (ext === 'xlsx' || ext === 'xls') return 'Spreadsheet with templates, data, or exercises.';
-                      if (ext === 'mp4' || ext === 'webm' || ext === 'mov') return 'Video training content for visual learning.';
-                      if (ext === 'mp3' || ext === 'wav') return 'Audio recording for on-the-go learning.';
-                      return 'Training resource to support your learning journey.';
-                    };
-
-                    const isEditing = editingDocId === doc.id;
-                    const displayDescription = doc.description || getDefaultDescription(doc.document_name);
+                  {resourceLinks.map((link) => {
+                    const isEditing = editingLinkId === link.id;
+                    const displayDescription = link.description || "Click to open this training resource.";
 
                     return (
                       <div
-                        key={doc.id}
+                        key={link.id}
                         className="p-4 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors"
                       >
                         <div className="flex items-start gap-3">
                           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
-                            <FileText className="h-5 w-5 text-primary" />
+                            <ExternalLink className="h-5 w-5 text-primary" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-foreground truncate">{doc.document_name}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5">{doc.file_size}</p>
+                            <p className="font-medium text-foreground truncate">{link.title}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5 truncate">{link.url}</p>
                             {isEditing ? (
                               <div className="mt-2 space-y-2">
                                 <Textarea
@@ -531,8 +504,8 @@ export default function TrainingDetail() {
                                     variant="outline"
                                     className="gap-1"
                                     onClick={() => {
-                                      updateDescriptionMutation.mutate({ id: doc.id, description: editingDescription });
-                                      setEditingDocId(null);
+                                      updateDescriptionMutation.mutate({ id: link.id, description: editingDescription });
+                                      setEditingLinkId(null);
                                     }}
                                   >
                                     <Check className="h-3 w-3" />
@@ -542,7 +515,7 @@ export default function TrainingDetail() {
                                     size="sm"
                                     variant="ghost"
                                     className="gap-1"
-                                    onClick={() => setEditingDocId(null)}
+                                    onClick={() => setEditingLinkId(null)}
                                   >
                                     <X className="h-3 w-3" />
                                     Cancel
@@ -560,8 +533,8 @@ export default function TrainingDetail() {
                                     variant="ghost"
                                     className="h-6 w-6 opacity-0 group-hover/desc:opacity-100 transition-opacity shrink-0"
                                     onClick={() => {
-                                      setEditingDocId(doc.id);
-                                      setEditingDescription(doc.description || '');
+                                      setEditingLinkId(link.id);
+                                      setEditingDescription(link.description || '');
                                     }}
                                   >
                                     <Pencil className="h-3 w-3" />
@@ -576,17 +549,17 @@ export default function TrainingDetail() {
                             variant="outline"
                             size="sm"
                             className="flex-1 gap-2"
-                            onClick={() => handleDownload(doc.file_path, doc.document_name)}
+                            onClick={() => openExternalLink(link.url)}
                           >
-                            <Download className="h-4 w-4" />
-                            Download
+                            <ExternalLink className="h-4 w-4" />
+                            Open Link
                           </Button>
                           <Button
                             size="sm"
                             variant="ghost"
                             className="text-destructive hover:text-destructive hover:bg-destructive/10"
                             onClick={() => {
-                              setDocToDelete({ id: doc.id, filePath: doc.file_path });
+                              setLinkToDelete(link);
                               setDeleteDialogOpen(true);
                             }}
                           >
@@ -603,27 +576,78 @@ export default function TrainingDetail() {
         </div>
       </div>
 
+      {/* Add Link Dialog */}
+      <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Training Resource Link</DialogTitle>
+            <DialogDescription>
+              Add a link to a useful training resource, video, article, or external material.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="link-title">Title *</Label>
+              <Input
+                id="link-title"
+                placeholder="e.g., Sales Training Video"
+                value={newLinkTitle}
+                onChange={(e) => setNewLinkTitle(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="link-url">URL *</Label>
+              <Input
+                id="link-url"
+                type="url"
+                placeholder="https://example.com/resource"
+                value={newLinkUrl}
+                onChange={(e) => setNewLinkUrl(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="link-description">Description</Label>
+              <Textarea
+                id="link-description"
+                placeholder="Brief description of what this resource covers..."
+                value={newLinkDescription}
+                onChange={(e) => setNewLinkDescription(e.target.value)}
+                className="min-h-[80px]"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddLink} disabled={addLinkMutation.isPending}>
+              {addLinkMutation.isPending ? "Adding..." : "Add Link"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure you want to DELETE this document?</AlertDialogTitle>
+            <AlertDialogTitle>Are you sure you want to DELETE this link?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. The document will be permanently removed.
+              This action cannot be undone. The resource link will be permanently removed.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              disabled={deleteMutation.isPending}
+              disabled={deleteLinkMutation.isPending}
               onClick={() => {
-                if (docToDelete) {
-                  deleteMutation.mutate(docToDelete);
+                if (linkToDelete) {
+                  deleteLinkMutation.mutate(linkToDelete.id);
                 }
               }}
             >
-              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+              {deleteLinkMutation.isPending ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
