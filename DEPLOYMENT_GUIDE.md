@@ -60,7 +60,7 @@ You will deploy a complete self-contained application stack including:
 
 Before starting, ensure you have:
 
-- [ ] A Linux VM (Ubuntu 20.04/22.04 recommended) with at least:
+- [ ] A Rocky Linux VM (8.x or 9.x recommended) with at least:
   - 4 CPU cores
   - 8GB RAM
   - 50GB disk space
@@ -88,18 +88,15 @@ Replace `username` with your VM username and `your-vm-ip-address` with the actua
 Run these commands to ensure your system is up to date:
 
 ```bash
-# Update package lists
-sudo apt-get update
-
-# Upgrade installed packages
-sudo apt-get upgrade -y
+# Update package lists and upgrade installed packages
+sudo dnf update -y
 ```
 
 ### 1.3 Install Required Tools
 
 ```bash
 # Install essential tools
-sudo apt-get install -y curl git nano
+sudo dnf install -y curl git nano
 ```
 
 **What these tools do:**
@@ -117,21 +114,22 @@ Copy and paste these commands one at a time:
 
 ```bash
 # Remove any old Docker versions
-sudo apt-get remove -y docker docker-engine docker.io containerd runc 2>/dev/null || true
+sudo dnf remove -y docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine podman runc 2>/dev/null || true
 
-# Install prerequisites
-sudo apt-get install -y ca-certificates curl gnupg lsb-release
+# Install required packages
+sudo dnf install -y dnf-plugins-core
 
-# Add Docker's official GPG key
-sudo mkdir -p /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-
-# Set up the Docker repository
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+# Add Docker's official repository
+sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
 
 # Install Docker
-sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+# Start Docker service
+sudo systemctl start docker
+
+# Enable Docker to start on boot
+sudo systemctl enable docker
 ```
 
 ### 2.2 Configure Docker Permissions
@@ -579,12 +577,19 @@ docker compose -f docker-compose.prod.yml logs supabase-db
 docker compose -f docker-compose.prod.yml ps
 ```
 
-**Check your VM's firewall:**
+**Check your VM's firewall (firewalld on Rocky Linux):**
 ```bash
+# Check if firewalld is running
+sudo systemctl status firewalld
+
 # Allow required ports
-sudo ufw allow 80
-sudo ufw allow 3000
-sudo ufw allow 8000
+sudo firewall-cmd --permanent --add-port=80/tcp
+sudo firewall-cmd --permanent --add-port=3000/tcp
+sudo firewall-cmd --permanent --add-port=8000/tcp
+sudo firewall-cmd --reload
+
+# Verify ports are open
+sudo firewall-cmd --list-ports
 ```
 
 ### Problem: Database connection errors
@@ -674,4 +679,4 @@ docker compose -f docker-compose.prod.yml up -d --build
 
 ---
 
-*Last updated: February 2026*
+*Optimized for Rocky Linux 8.x/9.x - Last updated: February 2026*
