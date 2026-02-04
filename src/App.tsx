@@ -8,6 +8,7 @@ import { AppSidebar } from "@/components/layout/AppSidebar";
 import { TopNav } from "@/components/layout/TopNav";
 import { BrandingBanner } from "@/components/layout/BrandingBanner";
 import { AuthProvider } from "@/hooks/useAuth";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Menu } from "lucide-react";
 
@@ -94,42 +95,44 @@ const App = () => (
               path="/*"
               element={
                 <ProtectedRoute>
-                  <AppLayout>
-                    <Routes>
-                      <Route path="/" element={<Navigate to="/onboarding" replace />} />
-                      <Route path="/onboarding" element={<Onboarding />} />
-                      <Route path="/announcements" element={<Announcements />} />
-                      <Route path="/projects-insights" element={<ProjectsInsights />} />
-                      <Route path="/news" element={<News />} />
-                      <Route path="/europe-chat" element={<EuropeChat />} />
-                      <Route path="/introductions" element={<Introductions />} />
-                      <Route path="/wins" element={<Wins />} />
-                      <Route path="/partnerships" element={<Partnerships />} />
-                      <Route path="/eq-training" element={<EQTraining />} />
-                      <Route path="/eq-training/analytics-suite" element={<AnalyticsSuite />} />
-                      <Route path="/eq-training/integration-suite" element={<IntegrationSuite />} />
-                      <Route path="/selling-training" element={<SellingTraining />} />
-                      <Route path="/generic-training" element={<GenericTraining />} />
-                      <Route path="/training/:category/:slug" element={<TrainingDetail />} />
-                      <Route path="/migration" element={<Migration />} />
-                      <Route path="/integration" element={<Integration />} />
-                      <Route path="/customers" element={<Customers />} />
-                      <Route path="/opportunities" element={<Opportunities />} />
-                      <Route path="/opportunities/:id" element={<OpportunityDetail />} />
-                      <Route path="/win-plan-management" element={<WinPlanManagement />} />
-                      <Route path="/sales-timeline" element={<SalesTimeline />} />
-                      <Route path="/current-projects" element={<CurrentProjects />} />
-                      <Route path="/project-execution" element={<ProjectExecution />} />
-                      <Route path="/past-projects" element={<PastProjects />} />
-                      <Route path="/company-sites" element={<CompanySites />} />
-                      <Route path="/solutions-database" element={<SolutionsDatabase />} />
-                      
-                      <Route path="/info-resources" element={<InfoResources />} />
-                      <Route path="/info-resources/:topicSlug" element={<HRTopicDetail />} />
-                      <Route path="/user-management" element={<UserManagement />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </AppLayout>
+                  <NotificationProvider>
+                    <AppLayout>
+                      <Routes>
+                        <Route path="/" element={<Navigate to="/onboarding" replace />} />
+                        <Route path="/onboarding" element={<Onboarding />} />
+                        <Route path="/announcements" element={<Announcements />} />
+                        <Route path="/projects-insights" element={<ProjectsInsights />} />
+                        <Route path="/news" element={<News />} />
+                        <Route path="/europe-chat" element={<EuropeChat />} />
+                        <Route path="/introductions" element={<Introductions />} />
+                        <Route path="/wins" element={<Wins />} />
+                        <Route path="/partnerships" element={<Partnerships />} />
+                        <Route path="/eq-training" element={<EQTraining />} />
+                        <Route path="/eq-training/analytics-suite" element={<AnalyticsSuite />} />
+                        <Route path="/eq-training/integration-suite" element={<IntegrationSuite />} />
+                        <Route path="/selling-training" element={<SellingTraining />} />
+                        <Route path="/generic-training" element={<GenericTraining />} />
+                        <Route path="/training/:category/:slug" element={<TrainingDetail />} />
+                        <Route path="/migration" element={<Migration />} />
+                        <Route path="/integration" element={<Integration />} />
+                        <Route path="/customers" element={<Customers />} />
+                        <Route path="/opportunities" element={<Opportunities />} />
+                        <Route path="/opportunities/:id" element={<OpportunityDetail />} />
+                        <Route path="/win-plan-management" element={<WinPlanManagement />} />
+                        <Route path="/sales-timeline" element={<SalesTimeline />} />
+                        <Route path="/current-projects" element={<CurrentProjects />} />
+                        <Route path="/project-execution" element={<ProjectExecution />} />
+                        <Route path="/past-projects" element={<PastProjects />} />
+                        <Route path="/company-sites" element={<CompanySites />} />
+                        <Route path="/solutions-database" element={<SolutionsDatabase />} />
+                        
+                        <Route path="/info-resources" element={<InfoResources />} />
+                        <Route path="/info-resources/:topicSlug" element={<HRTopicDetail />} />
+                        <Route path="/user-management" element={<UserManagement />} />
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </AppLayout>
+                  </NotificationProvider>
                 </ProtectedRoute>
               }
             />
