@@ -1,11 +1,39 @@
-import { FolderKanban, Package, Flag } from "lucide-react";
+import { useState } from "react";
+import { FolderKanban, Package, Flag, AlertCircle, ClipboardCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ExecutionTimeline } from "@/components/project-execution/ExecutionTimeline";
 import { executionTimelineData } from "@/components/project-execution/ExecutionTimelineData";
+import { ExecutionItemDetailDialog } from "@/components/project-execution/ExecutionItemDetailDialog";
+import type { TimelineItem } from "@/components/project-execution/ExecutionTimelineData";
 import projectExecutionHero from "@/assets/projects-insights-hero.jpg";
 
+// IRGT Review item definition
+const irgtItem: TimelineItem = {
+  id: "irgt-review-process",
+  title: "IRGT Review Process",
+  description: "The Internal Review and Governance Team (IRGT) review process is a mandatory governance checkpoint that ensures all projects meet quality standards, compliance requirements, and organizational guidelines before proceeding. This review validates project documentation, risk assessments, resource allocations, and alignment with strategic objectives.",
+  isDeliverable: false,
+  hasTemplate: true,
+  responsibleRole: "IRGT Committee / Project Governance Board",
+  inputs: [
+    "Project One-Pager / Business Case",
+    "Resource and Cost Estimates",
+    "Risk Assessment Documentation",
+    "Stakeholder Sign-off Forms",
+    "High-Level Project Plan",
+  ],
+  outputs: [
+    "IRGT Approval Documentation",
+    "Governance Sign-off Certificate",
+    "Conditional Approval Notes (if applicable)",
+    "Risk Mitigation Action Items",
+  ],
+};
+
 export default function ProjectExecution() {
+  const [irgtDialogOpen, setIrgtDialogOpen] = useState(false);
+
   // Calculate stats
   const totalItems = executionTimelineData.reduce((acc, phase) => acc + phase.items.length, 0);
   const totalDeliverables = executionTimelineData.reduce(
@@ -39,6 +67,34 @@ export default function ProjectExecution() {
       {/* Content */}
       <div className="flex-1 overflow-auto p-4 md:p-6">
         <div className="max-w-6xl mx-auto space-y-4">
+          {/* Mandatory IRGT Notice */}
+          <Card className="bg-amber-500/10 border-amber-500/30">
+            <CardContent className="py-4 px-5">
+              <div className="flex items-start gap-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/20 shrink-0">
+                  <AlertCircle className="h-5 w-5 text-amber-600" />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-foreground">
+                    It is mandatory that all projects follow the IRGT review process. Please download the required documentation before proceeding.
+                  </p>
+                  <button
+                    onClick={() => setIrgtDialogOpen(true)}
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors group"
+                  >
+                    <ClipboardCheck className="h-4 w-4" />
+                    <span className="underline underline-offset-2 group-hover:no-underline">
+                      IRGT Review Process
+                    </span>
+                    <Badge variant="outline" className="text-xs border-primary/30 text-primary">
+                      Required
+                    </Badge>
+                  </button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Stats and Legend Row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Stats Cards */}
@@ -124,6 +180,13 @@ export default function ProjectExecution() {
           <ExecutionTimeline />
         </div>
       </div>
+
+      {/* IRGT Detail Dialog */}
+      <ExecutionItemDetailDialog
+        item={irgtDialogOpen ? irgtItem : null}
+        open={irgtDialogOpen}
+        onOpenChange={setIrgtDialogOpen}
+      />
     </div>
   );
 }
