@@ -191,14 +191,11 @@ Since your VM has internet access, you can run everything directly on the VM.
 **Option A: Using npm (recommended)**
 
 ```bash
-# Install Node.js 18+ (Rocky Linux default repos have an outdated version)
+# Install Node.js 20+ (required by Supabase CLI)
 sudo dnf module reset nodejs -y
-sudo dnf module enable nodejs:18 -y
-sudo dnf install -y nodejs npm
-
-# If the above doesn't work, use NodeSource instead:
-# curl --http1.1 -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
-# sudo dnf install -y nodejs
+sudo dnf remove -y nodejs npm 2>/dev/null || true
+curl --http1.1 -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
+sudo dnf install -y nodejs
 
 # Install Supabase CLI globally
 npm install -g supabase
