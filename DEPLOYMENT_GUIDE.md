@@ -188,29 +188,24 @@ Since your VM has internet access, you can run everything directly on the VM.
 
 ### 4.1 Install Supabase CLI
 
-**Option A: Using npm (recommended)**
+**Option A: Download the binary (recommended for Rocky Linux)**
 
 ```bash
-# Install Node.js 20+ (required by Supabase CLI)
-sudo dnf module reset nodejs -y
-sudo dnf remove -y nodejs npm 2>/dev/null || true
-curl --http1.1 -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
-sudo dnf install -y nodejs
-
-# Install Supabase CLI globally
-npm install -g supabase
-```
-
-**Option B: Download the binary directly**
-
-```bash
-# Download the latest release binary
-curl --http1.1 -sSL -o supabase.deb https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.deb
-
-# If .deb doesn't work on Rocky Linux, use the tarball instead:
 curl --http1.1 -sSL -o supabase.tar.gz https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz
 tar -xzf supabase.tar.gz
 sudo mv supabase /usr/local/bin/
+```
+
+**Option B: Using npm**
+
+```bash
+# Install Node.js 20+ first
+curl --http1.1 -fsSL https://rpm.nodesource.com/setup_20.x -o setup_node.sh
+sudo bash setup_node.sh
+sudo dnf install -y nodejs
+
+# Install Supabase CLI via npx (global install is not supported)
+npx supabase --version
 ```
 
 Verify the installation:
