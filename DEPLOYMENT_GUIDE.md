@@ -1,12 +1,8 @@
 # Complete Docker Deployment Guide for Beginners
 
-This step-by-step guide will help you deploy the EQommunity Hub application on a Rocky Linux VM using Docker. No prior Docker experience required!
+This step-by-step guide will help you deploy the EQommunity Hub application on a Rocky Linux VM using Docker. All steps are performed directly on the VM.
 
-> **🔑 Key:** Throughout this guide, every command block is clearly marked with where it should be run:
-> - 📍 **YOUR LOCAL MACHINE** — your laptop/desktop (Windows, Mac, or Linux)
-> - 📍 **THE VM** — the Rocky Linux server where the app will be hosted
-> - 📍 **YOUR BROWSER** — open a web browser on your local machine
-> - 📍 **EITHER** — can be run on either machine
+> **🔑 Key:** All commands in this guide are run **on the VM** unless explicitly stated otherwise (e.g. opening a browser).
 
 ---
 
@@ -15,15 +11,15 @@ This step-by-step guide will help you deploy the EQommunity Hub application on a
 1. [What You're Building](#what-youre-building)
 2. [Prerequisites](#prerequisites)
 3. [Step 1: Prepare Your VM](#step-1-prepare-your-vm)
-4. [Step 2: Install Docker on the VM](#step-2-install-docker-on-the-vm)
-5. [Step 3: Get the Code on the VM](#step-3-get-the-code-on-the-vm)
-6. [Step 4: Export Your Cloud Database (Local Machine)](#step-4-export-your-cloud-database-local-machine)
-7. [Step 5: Configure Environment Variables (VM)](#step-5-configure-environment-variables-vm)
-8. [Step 6: Build and Start the Application (VM)](#step-6-build-and-start-the-application-vm)
-9. [Step 7: Import Your Data (Local → VM)](#step-7-import-your-data-local--vm)
+4. [Step 2: Install Docker](#step-2-install-docker)
+5. [Step 3: Get the Code](#step-3-get-the-code)
+6. [Step 4: Export Your Cloud Database](#step-4-export-your-cloud-database)
+7. [Step 5: Configure Environment Variables](#step-5-configure-environment-variables)
+8. [Step 6: Build and Start the Application](#step-6-build-and-start-the-application)
+9. [Step 7: Import Your Data](#step-7-import-your-data)
 10. [Step 8: Verify Everything Works](#step-8-verify-everything-works)
-11. [Daily Operations (VM)](#daily-operations-vm)
-12. [Troubleshooting (VM)](#troubleshooting-vm)
+11. [Daily Operations](#daily-operations)
+12. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -71,10 +67,10 @@ Before starting, ensure you have:
   - 8GB RAM
   - 50GB disk space
 - [ ] Root or sudo access to the VM
-- [ ] Network access to the VM (know its IP address)
+- [ ] **Internet access on the VM** (for downloading packages, Docker images, and cloning code)
+- [ ] Network access to the VM from your browser (know its IP address)
 - [ ] Your project's GitHub repository URL
 - [ ] Access to your Supabase cloud project (for data migration)
-- [ ] A local computer with a terminal (for SSH access and data export)
 
 ---
 
@@ -82,9 +78,7 @@ Before starting, ensure you have:
 
 ### 1.1 Connect to Your VM
 
-> 📍 **Run on: YOUR LOCAL MACHINE**
-
-Open a terminal on your computer and connect via SSH:
+Open a terminal and SSH into your VM:
 
 ```bash
 ssh username@your-vm-ip-address
@@ -92,36 +86,29 @@ ssh username@your-vm-ip-address
 
 Replace `username` with your VM username and `your-vm-ip-address` with the actual IP.
 
-> ✅ **From this point on, you are now inside the VM.** All commands in Steps 1–3 are run on the VM via this SSH session.
+> ✅ **From this point on, ALL commands are run on the VM via this SSH session.**
 
 ### 1.2 Update the System
 
-> 📍 **Run on: THE VM** (via SSH)
-
 ```bash
-# Update package lists and upgrade installed packages
 sudo dnf update -y
 ```
 
 ### 1.3 Install Required Tools
 
-> 📍 **Run on: THE VM** (via SSH)
-
 ```bash
-# Install essential tools
-sudo dnf install -y curl git nano
+sudo dnf install -y curl git nano postgresql
 ```
 
 **What these tools do:**
 - `curl` - Downloads files from the internet
 - `git` - Gets your code from GitHub
 - `nano` - Simple text editor for editing files
+- `postgresql` - Provides `pg_dump` for database export (used in Step 4)
 
 ---
 
-## Step 2: Install Docker on the VM
-
-> 📍 **All commands in this step: Run on THE VM** (via SSH)
+## Step 2: Install Docker
 
 ### 2.1 Install Docker Engine
 
@@ -149,12 +136,9 @@ sudo systemctl enable docker
 
 ### 2.2 Configure Docker Permissions
 
-> 📍 **Run on: THE VM** (via SSH)
-
 Allow your user to run Docker without `sudo`:
 
 ```bash
-# Add your user to the docker group
 sudo usermod -aG docker $USER
 
 # Apply the changes (log out and back in, or run):
@@ -163,16 +147,9 @@ newgrp docker
 
 ### 2.3 Verify Docker Installation
 
-> 📍 **Run on: THE VM** (via SSH)
-
 ```bash
-# Check Docker version
 docker --version
-
-# Check Docker Compose version  
 docker compose version
-
-# Test Docker works
 docker run hello-world
 ```
 
@@ -180,27 +157,22 @@ docker run hello-world
 
 ---
 
-## Step 3: Get the Code on the VM
-
-> 📍 **All commands in this step: Run on THE VM** (via SSH)
+## Step 3: Get the Code
 
 ### 3.1 Clone Your Repository
 
 ```bash
-# Go to your home directory
 cd ~
 
 # Clone the repository (replace with your actual repo URL)
 git clone https://github.com/YOUR-USERNAME/YOUR-REPO-NAME.git
 
-# Enter the project folder
 cd YOUR-REPO-NAME
 ```
 
 ### 3.2 Verify the Files Exist
 
 ```bash
-# List the Docker files
 ls -la docker/
 ls -la Dockerfile.prod
 ls -la docker-compose.prod.yml
@@ -210,51 +182,29 @@ You should see files like `docker-compose.prod.yml`, `Dockerfile.prod`, and a `d
 
 ---
 
-## Step 4: Export Your Cloud Database (Local Machine)
+## Step 4: Export Your Cloud Database
 
-> 📍 **All commands in this step: Run on YOUR LOCAL MACHINE** (open a NEW terminal window — do NOT run these on the VM)
-
-This step migrates your data from Supabase Cloud to your VM. You do this from your local machine because it has browser access for Supabase login.
+Since your VM has internet access, you can run everything directly on the VM.
 
 ### 4.1 Install Supabase CLI
 
-> 📍 **Run on: YOUR LOCAL MACHINE**
-
-**macOS:**
-```bash
-brew install supabase/tap/supabase
-```
-
-**Windows (PowerShell as Administrator):**
-```powershell
-scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
-scoop install supabase
-```
-
-**Linux:**
 ```bash
 curl -sSL https://raw.githubusercontent.com/supabase/cli/main/install.sh | bash
 ```
 
 ### 4.2 Login to Supabase
 
-> 📍 **Run on: YOUR LOCAL MACHINE**
-
 ```bash
 supabase login
 ```
 
-This opens a browser window. Log in with your Supabase account.
+> ⚠️ This will print a URL in the terminal. **Copy that URL and paste it into a browser** (on any machine with a browser) to log in and authorise the CLI. Then return to the VM terminal.
 
 ### 4.3 Link to Your Project
 
-> 📍 **Run on: YOUR LOCAL MACHINE**
-
 ```bash
-# Navigate to your project folder on your local machine
-cd path/to/your/project
+cd ~/YOUR-REPO-NAME
 
-# Link to your Supabase project
 supabase link --project-ref janwnxaotmkqqdjmsbjf
 ```
 
@@ -262,10 +212,7 @@ Enter your database password when prompted.
 
 ### 4.4 Pull the Latest Schema
 
-> 📍 **Run on: YOUR LOCAL MACHINE**
-
 ```bash
-# Pull the current schema into migrations folder
 supabase db pull
 ```
 
@@ -273,15 +220,11 @@ This creates SQL files in `supabase/migrations/` with your database structure.
 
 ### 4.5 Export Your Data (Optional but Recommended)
 
-> 📍 **Run on: YOUR LOCAL MACHINE**
-
-To export your actual data:
-
 ```bash
-# Get your database connection string from Supabase Dashboard
-# Go to: Settings → Database → Connection string → URI
+# Get your database connection string from Supabase Dashboard:
+#   Go to: Settings → Database → Connection string → URI
+# Then run (replace YOUR_CONNECTION_STRING):
 
-# Export data (replace YOUR_CONNECTION_STRING)
 pg_dump "YOUR_CONNECTION_STRING" \
   --data-only \
   --no-owner \
@@ -289,66 +232,33 @@ pg_dump "YOUR_CONNECTION_STRING" \
   -f data_backup.sql
 ```
 
-### 4.6 Copy Files to Your VM
-
-> 📍 **Run on: YOUR LOCAL MACHINE** (this sends files TO the VM)
-
-**Option A — Direct copy via SCP:**
-```bash
-scp -r . username@your-vm-ip:~/YOUR-REPO-NAME/
-```
-
-**Option B — Push to GitHub and pull on the VM:**
-```bash
-# On your LOCAL MACHINE:
-git add .
-git commit -m "Add latest migrations"
-git push
-```
-
-Then switch to your VM SSH session:
-
-> 📍 **Run on: THE VM** (via SSH)
-```bash
-cd ~/YOUR-REPO-NAME
-git pull
-```
+> 💡 The `pg_dump` command connects to your **cloud** database over the internet and saves the data locally on the VM. This is why you installed the `postgresql` package in Step 1.
 
 ---
 
-## Step 5: Configure Environment Variables (VM)
-
-> 📍 **All commands in this step: Run on THE VM** (via SSH)
+## Step 5: Configure Environment Variables
 
 ### 5.1 Create Your Environment File
 
 ```bash
-# Copy the template
 cp docker/.env.production .env
 
-# Open it for editing
 nano .env
 ```
 
 ### 5.2 Generate Secure Secrets
 
-> 📍 **Run on: THE VM** (via SSH)
-
 **IMPORTANT:** Never use the default demo values in production!
 
-Generate secure values:
-
 ```bash
-# Generate a secure database password
+# Generate a secure database password (copy the output)
 openssl rand -base64 32
 
-# Generate a JWT secret (copy this, you'll need it twice)
+# Generate a JWT secret (copy this, you'll need it multiple times)
 openssl rand -base64 48
 ```
 
 ### 5.3 Edit the Environment File
-
-> 📍 **Run on: THE VM** (editing the .env file you opened in step 5.1)
 
 Update these values in your `.env` file:
 
@@ -380,15 +290,11 @@ VITE_SUPABASE_PUBLISHABLE_KEY=your_anon_key_here
 
 ### 5.4 Generate API Keys
 
-> 📍 **Run on: YOUR BROWSER** (on your local machine)
+> 📍 **Open in a browser** (on any machine): https://supabase.com/docs/guides/self-hosting#api-keys
 
-You need to generate matching API keys using your JWT secret.
-
-1. Go to: https://supabase.com/docs/guides/self-hosting#api-keys
-2. Enter your JWT secret (the one you generated on the VM in step 5.2)
-3. Copy the generated `anon` key and `service_role` key
-
-> 📍 **Then back on: THE VM** (update the .env file)
+1. Enter your JWT secret (the one you generated in step 5.2)
+2. Copy the generated `anon` key and `service_role` key
+3. Back in the `.env` file on the VM, update:
 
 ```bash
 ANON_KEY=your_generated_anon_key
@@ -405,19 +311,15 @@ In nano:
 
 ---
 
-## Step 6: Build and Start the Application (VM)
-
-> 📍 **All commands in this step: Run on THE VM** (via SSH)
+## Step 6: Build and Start the Application
 
 ### 6.1 Build the Docker Images
 
-This step compiles your application. It may take 5-10 minutes the first time:
+This may take 5-10 minutes the first time:
 
 ```bash
-# Make sure you're in the project directory
 cd ~/YOUR-REPO-NAME
 
-# Build and start all services
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
@@ -429,18 +331,13 @@ docker compose -f docker-compose.prod.yml up -d --build
 
 ### 6.2 Watch the Progress
 
-> 📍 **Run on: THE VM** (via SSH)
-
 ```bash
-# View live logs
 docker compose -f docker-compose.prod.yml logs -f
 ```
 
 Press `Ctrl + C` to stop watching logs (containers keep running).
 
 ### 6.3 Check All Services Are Running
-
-> 📍 **Run on: THE VM** (via SSH)
 
 ```bash
 docker compose -f docker-compose.prod.yml ps
@@ -462,26 +359,17 @@ supabase-meta           Up
 
 ---
 
-## Step 7: Import Your Data (Local → VM)
+## Step 7: Import Your Data
 
 If you exported data in Step 4.5:
 
-### 7.1 Copy Data File to VM
+### 7.1 Import Into Database
 
-> 📍 **Run on: YOUR LOCAL MACHINE** (this sends the file TO the VM)
-
-```bash
-scp data_backup.sql username@your-vm-ip:~/YOUR-REPO-NAME/
-```
-
-### 7.2 Import Into Database
-
-> 📍 **Run on: THE VM** (via SSH)
+The `data_backup.sql` file is already on the VM (from Step 4.5), so just run:
 
 ```bash
 cd ~/YOUR-REPO-NAME
 
-# Import the data
 docker compose -f docker-compose.prod.yml exec -T supabase-db \
   psql -U postgres postgres < data_backup.sql
 ```
@@ -490,31 +378,7 @@ docker compose -f docker-compose.prod.yml exec -T supabase-db \
 
 ## Step 8: Verify Everything Works
 
-### 8.1 Test the Frontend
-
-> 📍 **Run on: YOUR BROWSER** (on your local machine)
-
-Open a web browser and go to:
-```
-http://YOUR_VM_IP
-```
-
-You should see the EQommunity Hub login page.
-
-### 8.2 Test Supabase Studio
-
-> 📍 **Run on: YOUR BROWSER** (on your local machine)
-
-Open a web browser and go to:
-```
-http://YOUR_VM_IP:3000
-```
-
-You should see the Supabase Studio interface where you can manage your database.
-
-### 8.3 Test the API
-
-> 📍 **Run on: THE VM** (via SSH)
+### 8.1 Test the API (on the VM)
 
 ```bash
 curl http://localhost:8000/rest/v1/
@@ -522,20 +386,38 @@ curl http://localhost:8000/rest/v1/
 
 You should see a JSON response (might be empty `[]` if no public tables).
 
+### 8.2 Test the Frontend
+
+> 📍 **Open in a browser** (on any machine that can reach the VM):
+
+```
+http://YOUR_VM_IP
+```
+
+You should see the EQommunity Hub login page.
+
+### 8.3 Test Supabase Studio
+
+> 📍 **Open in a browser:**
+
+```
+http://YOUR_VM_IP:3000
+```
+
+You should see the Supabase Studio interface where you can manage your database.
+
 ### 8.4 Create a Test User
 
-> 📍 **Run on: YOUR BROWSER** (on your local machine)
-
-1. Go to `http://YOUR_VM_IP`
+1. Go to `http://YOUR_VM_IP` in your browser
 2. Click "Sign Up"
 3. Create an account
 4. Check Supabase Studio → Authentication → Users to see the new user
 
 ---
 
-## Daily Operations (VM)
+## Daily Operations
 
-> 📍 **All commands in this section: Run on THE VM** (via SSH)
+> All commands below are run **on the VM**.
 
 ### Starting the Application
 
@@ -569,7 +451,7 @@ docker compose -f docker-compose.prod.yml restart frontend
 
 ### Updating the Application
 
-After pulling new code from GitHub:
+After new code is pushed to GitHub:
 
 ```bash
 cd ~/YOUR-REPO-NAME
@@ -580,11 +462,9 @@ docker compose -f docker-compose.prod.yml up -d --build
 ### Backing Up the Database
 
 ```bash
-# Create a backup
 docker compose -f docker-compose.prod.yml exec supabase-db \
   pg_dump -U postgres postgres > backup_$(date +%Y%m%d_%H%M%S).sql
 
-# List your backups
 ls -la backup_*.sql
 ```
 
@@ -610,13 +490,12 @@ docker compose -f docker-compose.prod.yml up -d
 
 ---
 
-## Troubleshooting (VM)
+## Troubleshooting
 
-> 📍 **All commands in this section: Run on THE VM** (via SSH, unless stated otherwise)
+> All commands below are run **on the VM**.
 
 ### Problem: "Permission denied" when running Docker
 
-**Solution:**
 ```bash
 sudo usermod -aG docker $USER
 newgrp docker
@@ -636,8 +515,6 @@ docker compose -f docker-compose.prod.yml logs supabase-db
 
 ### Problem: Can't connect to the application from your browser
 
-> 📍 **Run on: THE VM** (via SSH)
-
 **Check if containers are running:**
 ```bash
 docker compose -f docker-compose.prod.yml ps
@@ -645,7 +522,6 @@ docker compose -f docker-compose.prod.yml ps
 
 **Check your VM's firewall (firewalld on Rocky Linux):**
 ```bash
-# Check if firewalld is running
 sudo systemctl status firewalld
 
 # Allow required ports
@@ -654,34 +530,26 @@ sudo firewall-cmd --permanent --add-port=3000/tcp
 sudo firewall-cmd --permanent --add-port=8000/tcp
 sudo firewall-cmd --reload
 
-# Verify ports are open
 sudo firewall-cmd --list-ports
 ```
 
 ### Problem: Database connection errors
 
 ```bash
-# Check database health
 docker compose -f docker-compose.prod.yml exec supabase-db pg_isready
-
-# Check database logs
 docker compose -f docker-compose.prod.yml logs supabase-db
 ```
 
 ### Problem: Frontend shows blank page
 
 ```bash
-# Check frontend logs
 docker compose -f docker-compose.prod.yml logs frontend
-
-# Verify environment variables
 docker compose -f docker-compose.prod.yml exec frontend env | grep VITE
 ```
 
 ### Problem: Authentication not working
 
 ```bash
-# Check auth service logs
 docker compose -f docker-compose.prod.yml logs supabase-auth
 ```
 
@@ -694,13 +562,8 @@ docker compose -f docker-compose.prod.yml logs supabase-auth
 If nothing works, start fresh:
 
 ```bash
-# Stop and remove everything including data
 docker compose -f docker-compose.prod.yml down -v
-
-# Remove all Docker images
 docker compose -f docker-compose.prod.yml down --rmi all
-
-# Start fresh
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
@@ -709,8 +572,6 @@ docker compose -f docker-compose.prod.yml up -d --build
 ---
 
 ## Quick Reference Card
-
-> 📍 **All commands: Run on THE VM** (via SSH)
 
 | Task | Command |
 |------|---------|
@@ -726,7 +587,7 @@ docker compose -f docker-compose.prod.yml up -d --build
 
 ## Service URLs
 
-> 📍 **Open in: YOUR BROWSER** (on your local machine)
+> 📍 **Open in a browser** on any machine that can reach the VM.
 
 | Service | URL | Purpose |
 |---------|-----|---------|
