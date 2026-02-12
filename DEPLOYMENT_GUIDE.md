@@ -189,8 +189,10 @@ Since your VM has internet access, you can run everything directly on the VM.
 ### 4.1 Install Supabase CLI
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/supabase/cli/main/install.sh | bash
+curl --http1.1 -sSL https://raw.githubusercontent.com/supabase/cli/main/install.sh | bash
 ```
+
+> 💡 If you get a `HTTP/2 stream 0 was not closed cleanly` error, the `--http1.1` flag (included above) forces HTTP/1.1 and resolves it.
 
 ### 4.2 Login to Supabase
 
