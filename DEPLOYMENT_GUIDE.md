@@ -188,11 +188,33 @@ Since your VM has internet access, you can run everything directly on the VM.
 
 ### 4.1 Install Supabase CLI
 
+**Option A: Using npm (recommended)**
+
 ```bash
-curl --http1.1 -sSL https://raw.githubusercontent.com/supabase/cli/main/install.sh | bash
+# Install Node.js first if not already installed
+sudo dnf install -y nodejs npm
+
+# Install Supabase CLI globally
+npm install -g supabase
 ```
 
-> 💡 If you get a `HTTP/2 stream 0 was not closed cleanly` error, the `--http1.1` flag (included above) forces HTTP/1.1 and resolves it.
+**Option B: Download the binary directly**
+
+```bash
+# Download the latest release binary
+curl --http1.1 -sSL -o supabase.deb https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.deb
+
+# If .deb doesn't work on Rocky Linux, use the tarball instead:
+curl --http1.1 -sSL -o supabase.tar.gz https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz
+tar -xzf supabase.tar.gz
+sudo mv supabase /usr/local/bin/
+```
+
+Verify the installation:
+
+```bash
+supabase --version
+```
 
 ### 4.2 Login to Supabase
 
