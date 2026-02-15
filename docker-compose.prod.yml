@@ -22,6 +22,7 @@ services:
     image: supabase/postgres:15.1.1.61
     ports:
       - "5432:5432"
+    command: postgres -D /etc/postgresql -c listen_addresses='*'
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-your-super-secret-password}
       POSTGRES_DB: postgres
