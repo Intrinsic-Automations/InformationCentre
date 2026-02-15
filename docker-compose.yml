@@ -27,6 +27,9 @@ services:
       POSTGRES_DB: postgres
     volumes:
       - supabase-db-data:/var/lib/postgresql/data
+      - ./docker/full-schema.sql:/docker-entrypoint-initdb.d/full-schema.sql:ro
+      - ./supabase/migrations:/docker-entrypoint-initdb.d/migrations:ro
+      - ./docker/init-db.sh:/docker-entrypoint-initdb.d/99-init-db.sh:ro
       - ./docker/postgresql.conf:/etc/postgresql/extra.conf:ro
     networks:
       - app-network
