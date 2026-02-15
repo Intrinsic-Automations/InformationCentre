@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+# Ensure PostgreSQL listens on all network interfaces (required for Docker networking)
+echo "Setting listen_addresses to '*'..."
+echo "listen_addresses = '*'" >> /var/lib/postgresql/data/postgresql.conf
+
 echo "Waiting for PostgreSQL to be ready..."
 until pg_isready -h localhost -U postgres; do
   sleep 1
