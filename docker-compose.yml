@@ -21,12 +21,12 @@ services:
     image: supabase/postgres:15.1.1.61
     ports:
       - "5432:5432"
-    command: postgres -c listen_addresses='*'
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-your-super-secret-password}
       POSTGRES_DB: postgres
     volumes:
       - supabase-db-data:/var/lib/postgresql/data
+      - ./docker/postgresql.conf:/etc/postgresql/extra.conf:ro
     networks:
       - app-network
     healthcheck:
