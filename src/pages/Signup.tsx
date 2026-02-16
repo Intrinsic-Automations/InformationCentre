@@ -117,9 +117,9 @@ export default function Signup() {
 
       toast({
         title: "Account created!",
-        description: "Please check your email to verify your account.",
+        description: "Welcome to Community Hub!",
       });
-      navigate("/login");
+      navigate("/");
       setIsLoading(false);
     }, 1000);
   };
