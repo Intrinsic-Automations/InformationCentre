@@ -1,9 +1,7 @@
 #!/bin/bash
 set -e
 
-# Ensure PostgreSQL listens on all network interfaces (required for Docker networking)
-echo "Setting listen_addresses to '*'..."
-echo "listen_addresses = '*'" >> /var/lib/postgresql/data/postgresql.conf
+# listen_addresses is already handled by the entrypoint sed hack in docker-compose
 
 echo "Waiting for PostgreSQL to be ready..."
 until pg_isready -h localhost -U postgres; do
