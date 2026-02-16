@@ -30,8 +30,12 @@ BEGIN
 END
 $$;
 
--- Set password and search_path for supabase_auth_admin
-ALTER ROLE supabase_auth_admin WITH PASSWORD 'your-super-secret-password';
+EOSQL
+
+# Set password using env var (outside heredoc so bash can interpolate)
+psql -U postgres -d postgres -c "ALTER ROLE supabase_auth_admin WITH PASSWORD '${POSTGRES_PASSWORD:-your-super-secret-password}';"
+psql -U postgres -d postgres <<'EOSQL2'
+-- Set search_path for supabase_auth_admin
 ALTER ROLE supabase_auth_admin SET search_path TO auth;
 
 -- Grant auth schema permissions
@@ -95,7 +99,7 @@ BEGIN
 END;
 $func$;
 
-EOSQL
+EOSQL2
 
 echo "Auth schema and roles created successfully!"
 
