@@ -95,11 +95,43 @@ BEGIN
 END;
 $func$;
 
--- Create the auth trigger (GoTrue will create the auth.users table)
--- We'll create this trigger after GoTrue initializes via a retry mechanism
 EOSQL
 
 echo "Auth schema and roles created successfully!"
+
+# ============================================
+# Background: wait for GoTrue to create auth.users, then attach trigger
+# ============================================
+echo "Starting background process to create auth trigger once auth.users exists..."
+(
+  # Wait up to 5 minutes for auth.users table
+  for i in $(seq 1 60); do
+    sleep 5
+    TABLE_EXISTS=$(psql -U postgres -d postgres -tAc "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'auth' AND table_name = 'users');")
+    if [ "$TABLE_EXISTS" = "t" ]; then
+      echo "auth.users table found! Creating trigger..."
+      psql -U postgres -d postgres <<'TRIGGER_SQL'
+-- Create the trigger on auth.users -> public.handle_new_user()
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_new_user();
+
+-- Also create the role assignment trigger on profiles
+DROP TRIGGER IF EXISTS on_profile_created_assign_role ON public.profiles;
+CREATE TRIGGER on_profile_created_assign_role
+  AFTER INSERT ON public.profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION public.assign_default_user_role();
+TRIGGER_SQL
+      echo "Auth triggers created successfully!"
+      exit 0
+    fi
+    echo "Waiting for auth.users table... attempt $i/60"
+  done
+  echo "WARNING: auth.users table not found after 5 minutes. Auth trigger NOT created."
+) &
 
 # ============================================
 # Apply application schema
