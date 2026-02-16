@@ -13,10 +13,15 @@ done
 # ============================================
 # Create auth schema and role for GoTrue
 # ============================================
-echo "Setting up auth schema and supabase_auth_admin role..."
+echo "Setting up auth and storage schemas and roles..."
 psql -U postgres -d postgres <<'EOSQL'
--- Create auth schema if not exists
+-- Create schemas
 CREATE SCHEMA IF NOT EXISTS auth;
+CREATE SCHEMA IF NOT EXISTS storage;
+CREATE SCHEMA IF NOT EXISTS extensions;
+
+-- Create extensions in extensions schema
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" SCHEMA extensions;
 
 -- Create supabase_auth_admin role if not exists
 DO $$
@@ -27,17 +32,18 @@ BEGIN
 END
 $$;
 
--- Set password for supabase_auth_admin (same as postgres for simplicity)
+-- Set password and search_path for supabase_auth_admin
 ALTER ROLE supabase_auth_admin WITH PASSWORD 'your-super-secret-password';
+ALTER ROLE supabase_auth_admin SET search_path TO auth;
 
--- Grant permissions
+-- Grant auth schema permissions
 GRANT ALL PRIVILEGES ON SCHEMA auth TO supabase_auth_admin;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA auth TO supabase_auth_admin;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA auth TO supabase_auth_admin;
 ALTER DEFAULT PRIVILEGES IN SCHEMA auth GRANT ALL ON TABLES TO supabase_auth_admin;
 ALTER DEFAULT PRIVILEGES IN SCHEMA auth GRANT ALL ON SEQUENCES TO supabase_auth_admin;
 
--- Grant usage on public schema (needed for triggers like handle_new_user)
+-- Grant public schema permissions to supabase_auth_admin
 GRANT USAGE ON SCHEMA public TO supabase_auth_admin;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO supabase_auth_admin;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO supabase_auth_admin;
@@ -64,6 +70,13 @@ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO anon, authenticated, serv
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
+
+-- Grant storage schema permissions
+GRANT ALL PRIVILEGES ON SCHEMA storage TO postgres, anon, authenticated, service_role;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA storage TO postgres, anon, authenticated, service_role;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA storage TO postgres, anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA storage GRANT ALL ON TABLES TO postgres, anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA storage GRANT ALL ON SEQUENCES TO postgres, anon, authenticated, service_role;
 
 -- Create the trigger for new user signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()
