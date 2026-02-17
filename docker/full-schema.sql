@@ -860,40 +860,7 @@ CREATE POLICY "Users can delete their own execution documents" ON public.executi
 -- ===================
 -- 7. STORAGE BUCKETS
 -- ===================
-INSERT INTO storage.buckets (id, name, public) VALUES ('avatars', 'avatars', true) ON CONFLICT (id) DO NOTHING;
-INSERT INTO storage.buckets (id, name, public) VALUES ('insight-documents', 'insight-documents', true) ON CONFLICT (id) DO NOTHING;
-INSERT INTO storage.buckets (id, name, public) VALUES ('customer-documents', 'customer-documents', true) ON CONFLICT (id) DO NOTHING;
-INSERT INTO storage.buckets (id, name, public) VALUES ('hr-documents', 'hr-documents', true) ON CONFLICT (id) DO NOTHING;
-INSERT INTO storage.buckets (id, name, public) VALUES ('project-documents', 'project-documents', false) ON CONFLICT (id) DO NOTHING;
-INSERT INTO storage.buckets (id, name, public) VALUES ('solution-files', 'solution-files', true) ON CONFLICT (id) DO NOTHING;
-INSERT INTO storage.buckets (id, name, public) VALUES ('execution-documents', 'execution-documents', true) ON CONFLICT (id) DO NOTHING;
-
--- Public bucket storage policies
-CREATE POLICY "Public read access for avatars" ON storage.objects FOR SELECT USING (bucket_id = 'avatars');
-CREATE POLICY "Authenticated users can upload avatars" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'avatars' AND auth.uid() IS NOT NULL);
-CREATE POLICY "Users can update their own avatars" ON storage.objects FOR UPDATE USING (bucket_id = 'avatars' AND auth.uid() IS NOT NULL);
-CREATE POLICY "Users can delete their own avatars" ON storage.objects FOR DELETE USING (bucket_id = 'avatars' AND auth.uid() IS NOT NULL);
-
-CREATE POLICY "Public read for insight-documents" ON storage.objects FOR SELECT USING (bucket_id = 'insight-documents');
-CREATE POLICY "Auth upload for insight-documents" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'insight-documents' AND auth.uid() IS NOT NULL);
-CREATE POLICY "Auth delete for insight-documents" ON storage.objects FOR DELETE USING (bucket_id = 'insight-documents' AND auth.uid() IS NOT NULL);
-
-CREATE POLICY "Public read for customer-documents" ON storage.objects FOR SELECT USING (bucket_id = 'customer-documents');
-CREATE POLICY "Auth upload for customer-documents" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'customer-documents' AND auth.uid() IS NOT NULL);
-CREATE POLICY "Auth delete for customer-documents" ON storage.objects FOR DELETE USING (bucket_id = 'customer-documents' AND auth.uid() IS NOT NULL);
-
-CREATE POLICY "Public read for hr-documents" ON storage.objects FOR SELECT USING (bucket_id = 'hr-documents');
-CREATE POLICY "Auth upload for hr-documents" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'hr-documents' AND auth.uid() IS NOT NULL);
-CREATE POLICY "Auth delete for hr-documents" ON storage.objects FOR DELETE USING (bucket_id = 'hr-documents' AND auth.uid() IS NOT NULL);
-
-CREATE POLICY "Auth read for project-documents" ON storage.objects FOR SELECT USING (bucket_id = 'project-documents' AND auth.uid() IS NOT NULL);
-CREATE POLICY "Auth upload for project-documents" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'project-documents' AND auth.uid() IS NOT NULL);
-CREATE POLICY "Auth delete for project-documents" ON storage.objects FOR DELETE USING (bucket_id = 'project-documents' AND auth.uid() IS NOT NULL);
-
-CREATE POLICY "Public read for solution-files" ON storage.objects FOR SELECT USING (bucket_id = 'solution-files');
-CREATE POLICY "Auth upload for solution-files" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'solution-files' AND auth.uid() IS NOT NULL);
-CREATE POLICY "Auth delete for solution-files" ON storage.objects FOR DELETE USING (bucket_id = 'solution-files' AND auth.uid() IS NOT NULL);
-
-CREATE POLICY "Public read for execution-documents" ON storage.objects FOR SELECT USING (bucket_id = 'execution-documents');
-CREATE POLICY "Auth upload for execution-documents" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'execution-documents' AND auth.uid() IS NOT NULL);
-CREATE POLICY "Auth delete for execution-documents" ON storage.objects FOR DELETE USING (bucket_id = 'execution-documents' AND auth.uid() IS NOT NULL);
+-- NOTE: Storage bucket and policy creation is handled by init-db.sh
+-- in a background process that waits for the storage service to
+-- create its tables first. Do NOT add storage.* statements here
+-- as they will fail before the storage service has initialized.

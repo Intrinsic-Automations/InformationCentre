@@ -138,6 +138,123 @@ TRIGGER_SQL
 ) &
 
 # ============================================
+# Background: wait for storage service to create tables, then add buckets/policies
+# ============================================
+echo "Starting background process to create storage buckets once storage.objects exists..."
+(
+  for i in $(seq 1 120); do
+    sleep 5
+    TABLE_EXISTS=$(psql -U postgres -d postgres -tAc "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'storage' AND table_name = 'objects' AND (SELECT count(*) FROM information_schema.columns WHERE table_schema = 'storage' AND table_name = 'objects') > 3);")
+    if [ "$TABLE_EXISTS" = "t" ]; then
+      echo "storage.objects table found! Creating buckets and policies..."
+      psql -U postgres -d postgres <<'STORAGE_SQL'
+INSERT INTO storage.buckets (id, name, public) VALUES ('avatars', 'avatars', true) ON CONFLICT (id) DO NOTHING;
+INSERT INTO storage.buckets (id, name, public) VALUES ('insight-documents', 'insight-documents', true) ON CONFLICT (id) DO NOTHING;
+INSERT INTO storage.buckets (id, name, public) VALUES ('customer-documents', 'customer-documents', true) ON CONFLICT (id) DO NOTHING;
+INSERT INTO storage.buckets (id, name, public) VALUES ('hr-documents', 'hr-documents', true) ON CONFLICT (id) DO NOTHING;
+INSERT INTO storage.buckets (id, name, public) VALUES ('project-documents', 'project-documents', false) ON CONFLICT (id) DO NOTHING;
+INSERT INTO storage.buckets (id, name, public) VALUES ('solution-files', 'solution-files', true) ON CONFLICT (id) DO NOTHING;
+INSERT INTO storage.buckets (id, name, public) VALUES ('execution-documents', 'execution-documents', true) ON CONFLICT (id) DO NOTHING;
+
+DO $$ BEGIN
+CREATE POLICY "Public read access for avatars" ON storage.objects FOR SELECT USING (bucket_id = 'avatars');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Authenticated users can upload avatars" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'avatars' AND auth.uid() IS NOT NULL);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Users can update their own avatars" ON storage.objects FOR UPDATE USING (bucket_id = 'avatars' AND auth.uid() IS NOT NULL);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Users can delete their own avatars" ON storage.objects FOR DELETE USING (bucket_id = 'avatars' AND auth.uid() IS NOT NULL);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Public read for insight-documents" ON storage.objects FOR SELECT USING (bucket_id = 'insight-documents');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Auth upload for insight-documents" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'insight-documents' AND auth.uid() IS NOT NULL);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Auth delete for insight-documents" ON storage.objects FOR DELETE USING (bucket_id = 'insight-documents' AND auth.uid() IS NOT NULL);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Public read for customer-documents" ON storage.objects FOR SELECT USING (bucket_id = 'customer-documents');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Auth upload for customer-documents" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'customer-documents' AND auth.uid() IS NOT NULL);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Auth delete for customer-documents" ON storage.objects FOR DELETE USING (bucket_id = 'customer-documents' AND auth.uid() IS NOT NULL);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Public read for hr-documents" ON storage.objects FOR SELECT USING (bucket_id = 'hr-documents');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Auth upload for hr-documents" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'hr-documents' AND auth.uid() IS NOT NULL);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Auth delete for hr-documents" ON storage.objects FOR DELETE USING (bucket_id = 'hr-documents' AND auth.uid() IS NOT NULL);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Auth read for project-documents" ON storage.objects FOR SELECT USING (bucket_id = 'project-documents' AND auth.uid() IS NOT NULL);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Auth upload for project-documents" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'project-documents' AND auth.uid() IS NOT NULL);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Auth delete for project-documents" ON storage.objects FOR DELETE USING (bucket_id = 'project-documents' AND auth.uid() IS NOT NULL);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Public read for solution-files" ON storage.objects FOR SELECT USING (bucket_id = 'solution-files');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Auth upload for solution-files" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'solution-files' AND auth.uid() IS NOT NULL);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Auth delete for solution-files" ON storage.objects FOR DELETE USING (bucket_id = 'solution-files' AND auth.uid() IS NOT NULL);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Public read for execution-documents" ON storage.objects FOR SELECT USING (bucket_id = 'execution-documents');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Auth upload for execution-documents" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'execution-documents' AND auth.uid() IS NOT NULL);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+CREATE POLICY "Auth delete for execution-documents" ON storage.objects FOR DELETE USING (bucket_id = 'execution-documents' AND auth.uid() IS NOT NULL);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+STORAGE_SQL
+      echo "Storage buckets and policies created successfully!"
+      exit 0
+    fi
+    echo "Waiting for storage.objects table... attempt $i/120"
+  done
+  echo "WARNING: storage.objects table not found after 10 minutes. Storage policies NOT created."
+) &
+
+# ============================================
 # Apply application schema
 # ============================================
 echo "Applying full schema from docker/full-schema.sql..."
