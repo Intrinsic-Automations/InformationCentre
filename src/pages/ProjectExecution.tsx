@@ -6,7 +6,7 @@ import { ExecutionTimeline } from "@/components/project-execution/ExecutionTimel
 import { executionTimelineData } from "@/components/project-execution/ExecutionTimelineData";
 import { ExecutionItemDetailDialog } from "@/components/project-execution/ExecutionItemDetailDialog";
 import type { TimelineItem } from "@/components/project-execution/ExecutionTimelineData";
-import projectExecutionHero from "@/assets/projects-insights-hero.jpg";
+import migrationMethodHero from "@/assets/migration-method-hero.jpg";
 
 // IRGT Review item definition
 const irgtItem: TimelineItem = {
@@ -47,7 +47,7 @@ export default function ProjectExecution() {
       {/* Hero Banner with Title - Sticky */}
       <div className="sticky top-0 z-30 shrink-0 relative h-16 md:h-20 overflow-hidden">
         <img
-          src={projectExecutionHero}
+          src={migrationMethodHero}
           alt="Migration Method banner"
           className="w-full h-full object-cover"
         />
