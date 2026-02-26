@@ -30,8 +30,6 @@ import AnalyticsSuite from "./pages/AnalyticsSuite";
 import IntegrationSuite from "./pages/IntegrationSuite";
 import SellingTraining from "./pages/SellingTraining";
 import GenericTraining from "./pages/GenericTraining";
-import Migration from "./pages/Migration";
-import Integration from "./pages/Integration";
 import PastProjects from "./pages/PastProjects";
 import CurrentProjects from "./pages/CurrentProjects";
 import ProjectExecution from "./pages/ProjectExecution";
@@ -113,8 +111,6 @@ const App = () => (
                         <Route path="/selling-training" element={<SellingTraining />} />
                         <Route path="/generic-training" element={<GenericTraining />} />
                         <Route path="/training/:category/:slug" element={<TrainingDetail />} />
-                        <Route path="/migration" element={<Migration />} />
-                        <Route path="/integration" element={<Integration />} />
                         <Route path="/customers" element={<Customers />} />
                         <Route path="/opportunities" element={<Opportunities />} />
                         <Route path="/opportunities/:id" element={<OpportunityDetail />} />
