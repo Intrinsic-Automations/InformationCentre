@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-export type AppRole = "admin" | "moderator" | "user";
+export type AppRole = "admin" | "moderator" | "content_admin" | "user";
 
 interface UserRole {
   id: string;
@@ -35,7 +35,8 @@ export function useRoles() {
 
   const isAdmin = userRoles?.some((r) => r.role === "admin") ?? false;
   const isModerator = userRoles?.some((r) => r.role === "moderator") ?? false;
-  const isAdminOrModerator = isAdmin || isModerator;
+  const isContentAdmin = userRoles?.some((r) => r.role === "content_admin") ?? false;
+  const isAdminOrModerator = isAdmin || isModerator || isContentAdmin;
 
   const hasRole = (role: AppRole) => userRoles?.some((r) => r.role === role) ?? false;
 
@@ -43,6 +44,7 @@ export function useRoles() {
     userRoles,
     isAdmin,
     isModerator,
+    isContentAdmin,
     isAdminOrModerator,
     hasRole,
     isLoading,

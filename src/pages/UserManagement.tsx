@@ -197,7 +197,7 @@ export default function UserManagement() {
             <CardDescription>Understanding the different access levels in the system</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Badge variant="default">Admin</Badge>
@@ -212,6 +212,14 @@ export default function UserManagement() {
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Can edit and delete any user's content, manage announcements, and moderate community posts. No access to user management.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">Content Admin</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Full content management access. Can edit Solution Centre lifecycles, Learning content, upload documents, and manage resources across the platform.
                 </p>
               </div>
               <div className="space-y-2">
@@ -323,6 +331,7 @@ export default function UserManagement() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="user">User</SelectItem>
+                            <SelectItem value="content_admin">Content Admin</SelectItem>
                             <SelectItem value="moderator">Moderator</SelectItem>
                             <SelectItem value="admin">Admin</SelectItem>
                           </SelectContent>
