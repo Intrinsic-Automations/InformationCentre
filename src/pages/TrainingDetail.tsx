@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, BookOpen, TrendingUp, FileText, Trash2, Target, CheckCircle2, Pencil, Check, X, Link2, Plus, ExternalLink } from "lucide-react";
+import { ArrowLeft, BookOpen, TrendingUp, FileText, Trash2, Target, CheckCircle2, Pencil, Check, X, Link2, Plus, ExternalLink, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useTrainingContent } from "@/hooks/useTrainingContent";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -220,6 +221,7 @@ export default function TrainingDetail() {
   const { isAdminOrModerator } = useRoles();
   const queryClient = useQueryClient();
   const linksQueryKey = ["training-resource-links", slug];
+  const { content: dbContent, upsertContent } = useTrainingContent(slug);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [linkToDelete, setLinkToDelete] = useState<TrainingResourceLink | null>(null);
@@ -229,6 +231,11 @@ export default function TrainingDetail() {
   const [newLinkDescription, setNewLinkDescription] = useState("");
   const [editingLinkId, setEditingLinkId] = useState<string | null>(null);
   const [editingDescription, setEditingDescription] = useState("");
+  const [editingAbout, setEditingAbout] = useState(false);
+  const [aboutDraft, setAboutDraft] = useState("");
+  const [editingObjectives, setEditingObjectives] = useState(false);
+  const [objectivesDraft, setObjectivesDraft] = useState<string[]>([]);
+  const [newObjective, setNewObjective] = useState("");
 
   const course = allCourses.find((c) => c.slug === slug && c.category === category);
 
@@ -416,35 +423,172 @@ export default function TrainingDetail() {
         <div className="w-full px-6 py-6 space-y-6">
           {/* About This Course */}
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <BookOpen className="h-5 w-5 text-primary" />
                 About This Course
               </CardTitle>
+              {isAdminOrModerator && !editingAbout && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setAboutDraft(dbContent?.about_content || course.content);
+                    setEditingAbout(true);
+                  }}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              )}
             </CardHeader>
             <CardContent>
-              <p className="text-foreground leading-relaxed">{course.content}</p>
+              {editingAbout ? (
+                <div className="space-y-3">
+                  <Textarea
+                    value={aboutDraft}
+                    onChange={(e) => setAboutDraft(e.target.value)}
+                    rows={5}
+                    className="text-foreground"
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        upsertContent.mutate(
+                          { about_content: aboutDraft },
+                          {
+                            onSuccess: () => {
+                              toast.success("About content updated");
+                              setEditingAbout(false);
+                            },
+                            onError: () => toast.error("Failed to update"),
+                          }
+                        );
+                      }}
+                      disabled={upsertContent.isPending}
+                    >
+                      <Save className="h-4 w-4 mr-1" />Save
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setEditingAbout(false)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-foreground leading-relaxed">
+                  {dbContent?.about_content || course.content}
+                </p>
+              )}
             </CardContent>
           </Card>
 
           {/* Learning Objectives */}
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-primary" />
                 Learning Objectives
               </CardTitle>
+              {isAdminOrModerator && !editingObjectives && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setObjectivesDraft(dbContent?.objectives?.length ? dbContent.objectives : [...course.objectives]);
+                    setEditingObjectives(true);
+                  }}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              )}
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground mb-4">By the end of this course, you will be able to:</p>
-              <ul className="space-y-3">
-                {course.objectives.map((objective, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-foreground">{objective}</span>
-                  </li>
-                ))}
-              </ul>
+              {editingObjectives ? (
+                <div className="space-y-3">
+                  {objectivesDraft.map((obj, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <Input
+                        value={obj}
+                        onChange={(e) => {
+                          const updated = [...objectivesDraft];
+                          updated[index] = e.target.value;
+                          setObjectivesDraft(updated);
+                        }}
+                        className="flex-1"
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 text-destructive"
+                        onClick={() => setObjectivesDraft(objectivesDraft.filter((_, i) => i !== index))}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <div className="flex gap-2">
+                    <Input
+                      value={newObjective}
+                      onChange={(e) => setNewObjective(e.target.value)}
+                      placeholder="Add new objective"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && newObjective.trim()) {
+                          e.preventDefault();
+                          setObjectivesDraft([...objectivesDraft, newObjective.trim()]);
+                          setNewObjective("");
+                        }
+                      }}
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (newObjective.trim()) {
+                          setObjectivesDraft([...objectivesDraft, newObjective.trim()]);
+                          setNewObjective("");
+                        }
+                      }}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        upsertContent.mutate(
+                          { objectives: objectivesDraft.filter((o) => o.trim()) },
+                          {
+                            onSuccess: () => {
+                              toast.success("Objectives updated");
+                              setEditingObjectives(false);
+                            },
+                            onError: () => toast.error("Failed to update"),
+                          }
+                        );
+                      }}
+                      disabled={upsertContent.isPending}
+                    >
+                      <Save className="h-4 w-4 mr-1" />Save
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setEditingObjectives(false)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <p className="text-muted-foreground mb-4">By the end of this course, you will be able to:</p>
+                  <ul className="space-y-3">
+                    {(dbContent?.objectives?.length ? dbContent.objectives : course.objectives).map((objective, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                        <span className="text-foreground">{objective}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
             </CardContent>
           </Card>
 
