@@ -92,6 +92,7 @@ const navigationConfig: NavGroup[] = [
     label: "Solution Centre",
     items: [
       { title: "Migration Method", url: "/project-execution", icon: Workflow },
+      { title: "Integration Method", url: "/integration-method", icon: Wrench },
     ],
   },
   {
