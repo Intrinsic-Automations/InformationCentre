@@ -20,8 +20,6 @@ import {
   Building2,
   Database,
   ChevronDown,
-  BarChart3,
-  Plug,
   Target,
   FileText,
   Clock,
@@ -86,15 +84,7 @@ const navigationConfig: NavGroup[] = [
   {
     label: "Learning",
     items: [
-      { 
-        title: "eQ Training", 
-        url: "/eq-training", 
-        icon: GraduationCap,
-        children: [
-          { title: "Analytics Suite", url: "/eq-training/analytics-suite", icon: BarChart3 },
-          { title: "Integration Suite", url: "/eq-training/integration-suite", icon: Plug },
-        ],
-      },
+      { title: "eQ Training", url: "/eq-training", icon: GraduationCap },
       { title: "Sales Training", url: "/selling-training", icon: TrendingUp },
       { title: "Generic Training", url: "/generic-training", icon: BookOpen },
     ],
