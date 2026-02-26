@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useRoles } from "@/hooks/useRoles";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import solutionsDatabaseHero from "@/assets/solutions-database-hero.jpg";
@@ -34,6 +35,7 @@ interface Solution {
 
 export default function SolutionsDatabase() {
   const { profile } = useAuth();
+  const { isAdminOrModerator } = useRoles();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -235,6 +237,7 @@ export default function SolutionsDatabase() {
               />
             </div>
 
+            {isAdminOrModerator && (
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="gap-2">
@@ -342,6 +345,7 @@ export default function SolutionsDatabase() {
                 </form>
               </DialogContent>
             </Dialog>
+            )}
           </div>
 
           {isLoading ? (
@@ -360,7 +364,7 @@ export default function SolutionsDatabase() {
                         <CardTitle className="text-lg truncate">{solution.title}</CardTitle>
                         <CardDescription>{solution.category}</CardDescription>
                       </div>
-                      {isAuthor(solution) && (
+                      {isAdminOrModerator && isAuthor(solution) && (
                         <Button
                           variant="ghost"
                           size="icon"

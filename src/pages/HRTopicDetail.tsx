@@ -6,6 +6,7 @@ import { FileText, Download, ArrowLeft, File, FileSpreadsheet, Trash2, Upload, L
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useRoles } from "@/hooks/useRoles";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -77,6 +78,7 @@ export default function HRTopicDetail() {
   const { topicSlug } = useParams<{ topicSlug: string }>();
   const navigate = useNavigate();
   const { profile } = useAuth();
+  const { isAdminOrModerator } = useRoles();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -260,7 +262,7 @@ export default function HRTopicDetail() {
                 <h2 className="text-lg font-semibold text-foreground">
                   Available Documents
                 </h2>
-                {profile && (
+                {isAdminOrModerator && (
                   <>
                     <input
                       ref={fileInputRef}
@@ -352,17 +354,19 @@ export default function HRTopicDetail() {
                                       <p className="text-sm text-muted-foreground leading-relaxed flex-1">
                                         {displayDescription}
                                       </p>
-                                      <Button
-                                        size="icon"
-                                        variant="ghost"
-                                        className="h-6 w-6 opacity-0 group-hover/desc:opacity-100 transition-opacity shrink-0"
-                                        onClick={() => {
-                                          setEditingDocId(doc.id);
-                                          setEditingDescription(doc.description || '');
-                                        }}
-                                      >
-                                        <Pencil className="h-3 w-3" />
-                                      </Button>
+                                      {isAdminOrModerator && (
+                                        <Button
+                                          size="icon"
+                                          variant="ghost"
+                                          className="h-6 w-6 opacity-0 group-hover/desc:opacity-100 transition-opacity shrink-0"
+                                          onClick={() => {
+                                            setEditingDocId(doc.id);
+                                            setEditingDescription(doc.description || '');
+                                          }}
+                                        >
+                                          <Pencil className="h-3 w-3" />
+                                        </Button>
+                                      )}
                                     </div>
                                   </div>
                                 )}
@@ -377,7 +381,7 @@ export default function HRTopicDetail() {
                               >
                                 <Download className="h-4 w-4" />
                               </Button>
-                              {profile && doc.uploaded_by === profile.id && (
+                              {isAdminOrModerator && (
                                 <Button
                                   variant="ghost"
                                   size="icon"

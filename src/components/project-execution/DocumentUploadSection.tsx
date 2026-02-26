@@ -13,6 +13,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import type { ExecutionDocument } from "@/hooks/useExecutionDocuments";
+import { useRoles } from "@/hooks/useRoles";
 
 interface DocumentUploadSectionProps {
   title: string;
@@ -31,6 +32,7 @@ export function DocumentUploadSection({
   onDownload,
   onDelete,
 }: DocumentUploadSectionProps) {
+  const { isAdminOrModerator } = useRoles();
   const [uploading, setUploading] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [documentToDelete, setDocumentToDelete] = useState<ExecutionDocument | null>(null);
@@ -77,27 +79,31 @@ export function DocumentUploadSection({
               <FileText className={`h-4 w-4 ${documentType === "template" ? "text-primary" : "text-amber-500"}`} />
               {title}
             </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              className="h-7 text-xs"
-            >
-              {uploading ? (
-                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-              ) : (
-                <Upload className="h-3 w-3 mr-1" />
-              )}
-              Upload
-            </Button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              onChange={handleFileSelect}
-              className="hidden"
-              accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
-            />
+            {isAdminOrModerator && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="h-7 text-xs"
+                >
+                  {uploading ? (
+                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                  ) : (
+                    <Upload className="h-3 w-3 mr-1" />
+                  )}
+                  Upload
+                </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
+                />
+              </>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -124,14 +130,16 @@ export function DocumentUploadSection({
                     >
                       <Download className="h-3.5 w-3.5 text-primary" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7"
-                      onClick={() => handleDeleteClick(doc)}
-                    >
-                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                    </Button>
+                    {isAdminOrModerator && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => handleDeleteClick(doc)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}
