@@ -33,6 +33,7 @@ import GenericTraining from "./pages/GenericTraining";
 import PastProjects from "./pages/PastProjects";
 import CurrentProjects from "./pages/CurrentProjects";
 import ProjectExecution from "./pages/ProjectExecution";
+import IntegrationMethod from "./pages/IntegrationMethod";
 import CompanySites from "./pages/CompanySites";
 import SolutionsDatabase from "./pages/SolutionsDatabase";
 import TrainingDetail from "./pages/TrainingDetail";
@@ -118,6 +119,7 @@ const App = () => (
                         <Route path="/sales-timeline" element={<SalesTimeline />} />
                         <Route path="/current-projects" element={<CurrentProjects />} />
                         <Route path="/project-execution" element={<ProjectExecution />} />
+                        <Route path="/integration-method" element={<IntegrationMethod />} />
                         <Route path="/past-projects" element={<PastProjects />} />
                         <Route path="/company-sites" element={<CompanySites />} />
                         <Route path="/solutions-database" element={<SolutionsDatabase />} />
