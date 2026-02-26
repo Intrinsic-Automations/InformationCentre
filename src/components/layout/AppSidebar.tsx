@@ -19,6 +19,8 @@ import {
   Building2,
   Database,
   ChevronDown,
+  BarChart3,
+  Package,
   Target,
   FileText,
   Clock,
@@ -93,6 +95,8 @@ const navigationConfig: NavGroup[] = [
     items: [
       { title: "Migration Method", url: "/project-execution", icon: Workflow },
       { title: "Integration Method", url: "/integration-method", icon: Wrench },
+      { title: "R&A Method", url: "/reporting-analytics-method", icon: BarChart3 },
+      { title: "Installation Method", url: "/product-installation-method", icon: Package },
     ],
   },
   {
