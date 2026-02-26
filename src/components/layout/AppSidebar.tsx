@@ -13,7 +13,6 @@ import {
   TrendingUp,
   BookOpen,
   Wrench,
-  ArrowRightLeft,
   History,
   FolderKanban,
   Workflow,
@@ -92,8 +91,6 @@ const navigationConfig: NavGroup[] = [
   {
     label: "Solution Centre",
     items: [
-      { title: "Migration", url: "/migration", icon: ArrowRightLeft },
-      { title: "Integration", url: "/integration", icon: Wrench },
       { title: "Migration Method", url: "/project-execution", icon: Workflow },
     ],
   },
