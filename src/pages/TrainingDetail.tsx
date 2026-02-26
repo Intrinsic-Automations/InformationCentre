@@ -44,12 +44,18 @@ import leadershipImage from "@/assets/generic-leadership.jpg";
 import vmodelImage from "@/assets/generic-vmodel.jpg";
 import assertionImage from "@/assets/generic-assertion.jpg";
 
+// Analytics Suite Courses
+import adaImage from "@/assets/analytics-ada.jpg";
+import analyticsAdminImage from "@/assets/analytics-admin.jpg";
+import analyticsFoundationImage from "@/assets/analytics-foundation.jpg";
+import analyticsAdvancedImage from "@/assets/analytics-advanced.jpg";
+
 interface TrainingCourse {
   slug: string;
   title: string;
   description: string;
   image: string;
-  category: "sales" | "generic";
+  category: "sales" | "generic" | "analytics";
   content: string;
   objectives: string[];
   duration: string;
@@ -212,6 +218,71 @@ const allCourses: TrainingCourse[] = [
     ],
     duration: "1.5 hours",
     level: "Beginner",
+  },
+  // Analytics Suite
+  {
+    slug: "ada",
+    title: "ADA",
+    description: "Learn about ADA compliance and accessibility in analytics.",
+    image: adaImage,
+    category: "analytics",
+    content: "ADA (Accessible Data Analytics) training covers the principles and practices of making analytics accessible to all users. This includes understanding accessibility standards, designing inclusive dashboards, and ensuring compliance with organizational accessibility policies.",
+    objectives: [
+      "Understand ADA accessibility standards in analytics",
+      "Design inclusive and accessible dashboards",
+      "Implement accessibility best practices in reporting",
+      "Ensure compliance with organizational accessibility policies",
+    ],
+    duration: "2 hours",
+    level: "Intermediate",
+  },
+  {
+    slug: "admin",
+    title: "Admin",
+    description: "Administrative tools and user management training.",
+    image: analyticsAdminImage,
+    category: "analytics",
+    content: "The Admin training module covers the administrative tools and capabilities within the analytics platform. Learn how to manage users, configure permissions, set up data sources, and maintain the analytics environment effectively.",
+    objectives: [
+      "Configure and manage user accounts and permissions",
+      "Set up and maintain data source connections",
+      "Manage platform settings and configurations",
+      "Monitor system health and performance",
+    ],
+    duration: "2.5 hours",
+    level: "Advanced",
+  },
+  {
+    slug: "foundation",
+    title: "Foundation",
+    description: "Core fundamentals and essential analytics concepts.",
+    image: analyticsFoundationImage,
+    category: "analytics",
+    content: "The Foundation course provides a comprehensive introduction to analytics fundamentals. It covers core concepts, basic reporting techniques, data interpretation, and essential tools needed to get started with the analytics platform.",
+    objectives: [
+      "Understand core analytics concepts and terminology",
+      "Navigate the analytics platform confidently",
+      "Create basic reports and visualizations",
+      "Interpret data and draw meaningful insights",
+    ],
+    duration: "3 hours",
+    level: "Beginner",
+  },
+  {
+    slug: "advanced",
+    title: "Advanced",
+    description: "Advanced analytics techniques and data visualization.",
+    image: analyticsAdvancedImage,
+    category: "analytics",
+    content: "The Advanced analytics course builds on foundation knowledge to cover complex data analysis techniques, advanced visualization methods, predictive analytics, and custom reporting capabilities within the platform.",
+    objectives: [
+      "Master advanced data analysis techniques",
+      "Create complex and interactive visualizations",
+      "Apply predictive analytics methodologies",
+      "Build custom reports and automated dashboards",
+    ],
+    duration: "3.5 hours",
+    level: "Advanced",
   },
 ];
 
@@ -376,9 +447,9 @@ export default function TrainingDetail() {
     );
   }
 
-  const backUrl = category === "sales" ? "/selling-training" : "/generic-training";
+  const backUrl = category === "sales" ? "/selling-training" : category === "analytics" ? "/eq-training/analytics-suite" : "/generic-training";
   const Icon = category === "sales" ? TrendingUp : BookOpen;
-  const categoryLabel = category === "sales" ? "Sales Training" : "Generic Training";
+  const categoryLabel = category === "sales" ? "Sales Training" : category === "analytics" ? "Analytics Suite" : "Generic Training";
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
