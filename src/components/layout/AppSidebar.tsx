@@ -83,20 +83,20 @@ const navigationConfig: NavGroup[] = [
     ],
   },
   {
-    label: "Learning",
-    items: [
-      { title: "eQ Training", url: "/eq-training", icon: GraduationCap },
-      { title: "Sales Training", url: "/selling-training", icon: TrendingUp },
-      { title: "Generic Training", url: "/generic-training", icon: BookOpen },
-    ],
-  },
-  {
     label: "Solution Centre",
     items: [
       { title: "Migration Method", url: "/project-execution", icon: Workflow },
       { title: "Integration Method", url: "/integration-method", icon: Wrench },
       { title: "R&A Method", url: "/reporting-analytics-method", icon: BarChart3 },
       { title: "Installation Method", url: "/product-installation-method", icon: Package },
+    ],
+  },
+  {
+    label: "Learning",
+    items: [
+      { title: "eQ Training", url: "/eq-training", icon: GraduationCap },
+      { title: "Sales Training", url: "/selling-training", icon: TrendingUp },
+      { title: "Generic Training", url: "/generic-training", icon: BookOpen },
     ],
   },
   {
