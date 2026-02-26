@@ -376,6 +376,106 @@ export type Database = {
           },
         ]
       }
+      lifecycle_items: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          has_template: boolean
+          id: string
+          inputs: string[] | null
+          is_deliverable: boolean
+          method_slug: string
+          order_index: number
+          outputs: string[] | null
+          phase_id: string
+          responsible_role: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          has_template?: boolean
+          id?: string
+          inputs?: string[] | null
+          is_deliverable?: boolean
+          method_slug: string
+          order_index?: number
+          outputs?: string[] | null
+          phase_id: string
+          responsible_role?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          has_template?: boolean
+          id?: string
+          inputs?: string[] | null
+          is_deliverable?: boolean
+          method_slug?: string
+          order_index?: number
+          outputs?: string[] | null
+          phase_id?: string
+          responsible_role?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lifecycle_items_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lifecycle_meetings_tasks: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          method_slug: string
+          order_index: number
+          phase_id: string
+          title: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          method_slug: string
+          order_index?: number
+          phase_id: string
+          title: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          method_slug?: string
+          order_index?: number
+          phase_id?: string
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lifecycle_meetings_tasks_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       likes: {
         Row: {
           created_at: string
@@ -1218,6 +1318,47 @@ export type Database = {
           {
             foreignKeyName: "solutions_author_id_fkey"
             columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      training_content: {
+        Row: {
+          about_content: string | null
+          course_slug: string
+          duration: string | null
+          id: string
+          level: string | null
+          objectives: string[] | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          about_content?: string | null
+          course_slug: string
+          duration?: string | null
+          id?: string
+          level?: string | null
+          objectives?: string[] | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          about_content?: string | null
+          course_slug?: string
+          duration?: string | null
+          id?: string
+          level?: string | null
+          objectives?: string[] | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_content_updated_by_fkey"
+            columns: ["updated_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
