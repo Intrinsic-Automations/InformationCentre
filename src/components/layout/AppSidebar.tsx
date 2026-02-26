@@ -94,6 +94,7 @@ const navigationConfig: NavGroup[] = [
     items: [
       { title: "Migration", url: "/migration", icon: ArrowRightLeft },
       { title: "Integration", url: "/integration", icon: Wrench },
+      { title: "Migration Method", url: "/project-execution", icon: Workflow },
     ],
   },
   {
@@ -114,7 +115,6 @@ const navigationConfig: NavGroup[] = [
     label: "Project Centre",
     items: [
       { title: "Current Projects", url: "/current-projects", icon: FolderKanban },
-      { title: "Project Execution", url: "/project-execution", icon: Workflow },
       { title: "Past Projects", url: "/past-projects", icon: History },
     ],
   },
