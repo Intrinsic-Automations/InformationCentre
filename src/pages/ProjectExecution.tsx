@@ -48,7 +48,7 @@ export default function ProjectExecution() {
       <div className="sticky top-0 z-30 shrink-0 relative h-16 md:h-20 overflow-hidden">
         <img
           src={projectExecutionHero}
-          alt="Project Execution banner"
+          alt="Migration Method banner"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-secondary/80 to-secondary/40" />
@@ -58,7 +58,7 @@ export default function ProjectExecution() {
               <FolderKanban className="h-4 w-4" />
             </div>
             <div>
-              <h1 className="text-lg md:text-xl font-bold text-secondary-foreground">Project Execution</h1>
+              <h1 className="text-lg md:text-xl font-bold text-secondary-foreground">Migration Method</h1>
             </div>
           </div>
         </div>
