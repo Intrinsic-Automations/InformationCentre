@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useRoles } from "@/hooks/useRoles";
 import { toast } from "sonner";
 import { PartnershipForm, PartnershipFormData } from "@/components/partnerships/PartnershipForm";
 import partnershipsHero from "@/assets/partnerships-hero.jpg";
@@ -57,6 +58,7 @@ const getInitialFormData = (): PartnershipFormData => ({
 
 export default function Partnerships() {
   const { profile } = useAuth();
+  const { isAdminOrModerator } = useRoles();
   const queryClient = useQueryClient();
   const [selectedPartnership, setSelectedPartnership] = useState<Partnership | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -183,7 +185,7 @@ export default function Partnerships() {
   };
 
   const canEdit = (partnership: Partnership) => {
-    return profile && partnership.author_id === profile.id;
+    return isAdminOrModerator && profile && (partnership.author_id === profile.id || isAdminOrModerator);
   };
 
   return (
@@ -205,14 +207,16 @@ export default function Partnerships() {
               <h1 className="text-lg md:text-xl font-bold text-secondary-foreground">Partnerships</h1>
             </div>
           </div>
-          <Button 
-            onClick={() => setIsAddDialogOpen(true)} 
-            size="sm" 
-            className="gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            Add Partnership
-          </Button>
+          {isAdminOrModerator && (
+            <Button 
+              onClick={() => setIsAddDialogOpen(true)} 
+              size="sm" 
+              className="gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Add Partnership
+            </Button>
+          )}
         </div>
       </div>
 

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useRoles } from "@/hooks/useRoles";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
@@ -216,6 +217,7 @@ const allCourses: TrainingCourse[] = [
 export default function TrainingDetail() {
   const { category, slug } = useParams();
   const navigate = useNavigate();
+  const { isAdminOrModerator } = useRoles();
   const queryClient = useQueryClient();
   const linksQueryKey = ["training-resource-links", slug];
 
@@ -453,15 +455,17 @@ export default function TrainingDetail() {
                 <Link2 className="h-5 w-5 text-primary" />
                 Training Resources
               </CardTitle>
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2"
-                onClick={() => setAddDialogOpen(true)}
-              >
-                <Plus className="h-4 w-4" />
-                Add Link
-              </Button>
+              {isAdminOrModerator && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => setAddDialogOpen(true)}
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Link
+                </Button>
+              )}
             </CardHeader>
             <CardContent>
               {linksLoading ? (
@@ -554,17 +558,19 @@ export default function TrainingDetail() {
                             <ExternalLink className="h-4 w-4" />
                             Open Link
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                            onClick={() => {
-                              setLinkToDelete(link);
-                              setDeleteDialogOpen(true);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          {isAdminOrModerator && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={() => {
+                                setLinkToDelete(link);
+                                setDeleteDialogOpen(true);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       </div>
                     );

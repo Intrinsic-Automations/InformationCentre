@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import projectsInsightsHero from "@/assets/projects-insights-hero.jpg";
 import { AuthorProfileCard } from "@/components/announcements/AuthorProfileCard";
 import { useAuth } from "@/hooks/useAuth";
+import { useRoles } from "@/hooks/useRoles";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -182,6 +183,7 @@ function InsightCard({
 
 export default function ProjectsInsights() {
   const { user, profile } = useAuth();
+  const { isAdminOrModerator } = useRoles();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -432,7 +434,7 @@ export default function ProjectsInsights() {
             </div>
           </div>
           
-          {user && (
+          {user && isAdminOrModerator && (
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button size="sm" className="gap-2">

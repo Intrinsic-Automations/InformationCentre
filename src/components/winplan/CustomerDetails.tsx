@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { Customer, CustomerDocument } from "@/hooks/useWinPlanData";
 import { useUploadCustomerDocument, useDeleteCustomerDocument } from "@/hooks/useWinPlanData";
+import { useRoles } from "@/hooks/useRoles";
 import { format } from "date-fns";
 import { CustomerAccessManager } from "./CustomerAccessManager";
 
@@ -81,6 +82,7 @@ export function CustomerDetails({
   const [documentNotes, setDocumentNotes] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const { isAdminOrModerator } = useRoles();
   const uploadDocument = useUploadCustomerDocument();
   const deleteDocument = useDeleteCustomerDocument();
 
@@ -224,6 +226,7 @@ export function CustomerDetails({
               <FileText className="h-5 w-5" />
               Shared Documents
             </CardTitle>
+            {isAdminOrModerator && (
             <Dialog open={isUploadOpen} onOpenChange={(open) => {
               setIsUploadOpen(open);
               if (!open) resetUploadForm();
@@ -313,6 +316,7 @@ export function CustomerDetails({
                 </div>
               </DialogContent>
             </Dialog>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -360,6 +364,7 @@ export function CustomerDetails({
                         <Download className="h-4 w-4" />
                       </Button>
                     )}
+                    {isAdminOrModerator && (
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button
@@ -389,6 +394,7 @@ export function CustomerDetails({
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
+                    )}
                   </div>
                 </div>
               ))}
