@@ -11,21 +11,25 @@ import analyticsSuiteHero from "@/assets/analytics-suite-hero.jpg";
 
 const modules = [
   {
+    slug: "ada",
     title: "ADA",
     description: "Learn about ADA compliance and accessibility in analytics.",
     image: adaImage,
   },
   {
+    slug: "admin",
     title: "Admin",
     description: "Administrative tools and user management training.",
     image: adminImage,
   },
   {
+    slug: "foundation",
     title: "Foundation",
     description: "Core fundamentals and essential analytics concepts.",
     image: foundationImage,
   },
   {
+    slug: "advanced",
     title: "Advanced",
     description: "Advanced analytics techniques and data visualization.",
     image: advancedImage,
@@ -70,7 +74,7 @@ export default function AnalyticsSuite() {
       <div className="flex-1 overflow-auto p-6">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {modules.map((module, index) => (
-            <Card key={index} className="bg-card overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
+            <Card key={module.slug} className="bg-card overflow-hidden cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate(`/training/analytics/${module.slug}`)}>
               <div className="aspect-video overflow-hidden">
                 <img 
                   src={module.image} 
