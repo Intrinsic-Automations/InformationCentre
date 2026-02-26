@@ -55,7 +55,7 @@ interface TrainingCourse {
   title: string;
   description: string;
   image: string;
-  category: "sales" | "generic" | "analytics";
+  category: "sales" | "generic" | "analytics" | "integration";
   content: string;
   objectives: string[];
   duration: string;
@@ -284,6 +284,55 @@ const allCourses: TrainingCourse[] = [
     duration: "3.5 hours",
     level: "Advanced",
   },
+  // Integration Suite
+  {
+    slug: "integration-admin",
+    title: "Admin",
+    description: "Administrative tools and system integration management.",
+    image: analyticsAdminImage,
+    category: "integration",
+    content: "The Integration Admin course covers administrative capabilities within the integration platform. Learn how to manage connectors, configure integration flows, monitor system health, and maintain the integration environment effectively.",
+    objectives: [
+      "Configure and manage integration connectors",
+      "Set up and maintain integration workflows",
+      "Monitor integration performance and error handling",
+      "Manage user access and security settings",
+    ],
+    duration: "2.5 hours",
+    level: "Advanced",
+  },
+  {
+    slug: "integration-foundation",
+    title: "Foundation",
+    description: "Core fundamentals and essential integration concepts.",
+    image: analyticsFoundationImage,
+    category: "integration",
+    content: "The Integration Foundation course provides a comprehensive introduction to integration concepts. It covers core principles, basic integration patterns, data mapping, and essential tools needed to get started with the integration platform.",
+    objectives: [
+      "Understand core integration concepts and terminology",
+      "Navigate the integration platform confidently",
+      "Create basic integration flows and mappings",
+      "Troubleshoot common integration issues",
+    ],
+    duration: "3 hours",
+    level: "Beginner",
+  },
+  {
+    slug: "integration-advanced",
+    title: "Advanced",
+    description: "Advanced integration techniques and API workflows.",
+    image: analyticsAdvancedImage,
+    category: "integration",
+    content: "The Advanced Integration course builds on foundation knowledge to cover complex integration patterns, API orchestration, event-driven architectures, and custom connector development within the platform.",
+    objectives: [
+      "Master advanced integration patterns and architectures",
+      "Design and implement API orchestration workflows",
+      "Build custom connectors and transformations",
+      "Implement error handling and retry strategies",
+    ],
+    duration: "3.5 hours",
+    level: "Advanced",
+  },
 ];
 
 export default function TrainingDetail() {
@@ -447,9 +496,9 @@ export default function TrainingDetail() {
     );
   }
 
-  const backUrl = category === "sales" ? "/selling-training" : category === "analytics" ? "/eq-training/analytics-suite" : "/generic-training";
+  const backUrl = category === "sales" ? "/selling-training" : category === "analytics" ? "/eq-training/analytics-suite" : category === "integration" ? "/eq-training/integration-suite" : "/generic-training";
   const Icon = category === "sales" ? TrendingUp : BookOpen;
-  const categoryLabel = category === "sales" ? "Sales Training" : category === "analytics" ? "Analytics Suite" : "Generic Training";
+  const categoryLabel = category === "sales" ? "Sales Training" : category === "analytics" ? "Analytics Suite" : category === "integration" ? "Integration Suite" : "Generic Training";
 
   return (
     <div className="flex flex-col h-full overflow-hidden">

@@ -10,16 +10,19 @@ import integrationSuiteHero from "@/assets/integration-suite-hero.jpg";
 
 const modules = [
   {
+    slug: "integration-admin",
     title: "Admin",
     description: "Administrative tools and system integration management.",
     image: adminImage,
   },
   {
+    slug: "integration-foundation",
     title: "Foundation",
     description: "Core fundamentals and essential integration concepts.",
     image: foundationImage,
   },
   {
+    slug: "integration-advanced",
     title: "Advanced",
     description: "Advanced integration techniques and API workflows.",
     image: advancedImage,
@@ -64,7 +67,7 @@ export default function IntegrationSuite() {
       <div className="flex-1 overflow-auto p-6">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {modules.map((module, index) => (
-            <Card key={index} className="bg-card overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
+            <Card key={module.slug} className="bg-card overflow-hidden cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate(`/training/integration/${module.slug}`)}>
               <div className="aspect-video overflow-hidden">
                 <img 
                   src={module.image} 
