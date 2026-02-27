@@ -44,19 +44,27 @@ export function useTrainingContent(courseSlug: string | undefined) {
         .maybeSingle();
 
       if (existing) {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from("training_content")
           .update({ ...content, updated_by: profile?.id || null })
-          .eq("course_slug", courseSlug);
+          .eq("course_slug", courseSlug)
+          .select()
+          .single();
         if (error) throw error;
+        return data;
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from("training_content")
-          .insert({ course_slug: courseSlug, ...content, updated_by: profile?.id || null });
+          .insert({ course_slug: courseSlug, ...content, updated_by: profile?.id || null })
+          .select()
+          .single();
         if (error) throw error;
+        return data;
       }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Immediately update the cache with the returned data
+      queryClient.setQueryData(["training-content", courseSlug], data);
       queryClient.invalidateQueries({ queryKey: ["training-content", courseSlug] });
     },
   });
