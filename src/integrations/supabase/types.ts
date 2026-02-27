@@ -1535,6 +1535,7 @@ export type Database = {
       }
       is_admin_or_moderator: { Args: never; Returns: boolean }
       is_content_admin: { Args: never; Returns: boolean }
+      is_moderator: { Args: never; Returns: boolean }
       remove_user_and_reassign_content: {
         Args: { p_admin_profile_id: string; p_user_profile_id: string }
         Returns: boolean
