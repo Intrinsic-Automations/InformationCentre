@@ -211,7 +211,7 @@ export default function UserManagement() {
                   <Badge variant="secondary">Moderator</Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Can edit and delete any user's content, manage announcements, and moderate community posts. No access to user management.
+                  Same access as a standard User, with the additional ability to delete any user's posts and comments across community channels.
                 </p>
               </div>
               <div className="space-y-2">

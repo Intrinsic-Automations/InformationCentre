@@ -36,7 +36,7 @@ export function useRoles() {
   const isAdmin = userRoles?.some((r) => r.role === "admin") ?? false;
   const isModerator = userRoles?.some((r) => r.role === "moderator") ?? false;
   const isContentAdmin = userRoles?.some((r) => r.role === "content_admin") ?? false;
-  const isAdminOrModerator = isAdmin || isModerator || isContentAdmin;
+  const isAdminOrModerator = isAdmin || isContentAdmin;
 
   const hasRole = (role: AppRole) => userRoles?.some((r) => r.role === role) ?? false;
 
