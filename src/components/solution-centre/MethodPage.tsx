@@ -107,7 +107,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
       description: item.description || "",
       isDeliverable: item.is_deliverable,
       hasTemplate: item.has_template,
-      responsibleRole: item.responsible_role || "",
+      responsibleRole: item.responsible_role || [],
       inputs: item.inputs || [],
       outputs: item.outputs || [],
     };
