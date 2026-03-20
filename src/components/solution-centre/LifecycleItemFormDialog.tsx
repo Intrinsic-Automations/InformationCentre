@@ -72,7 +72,7 @@ export function LifecycleItemFormDialog({
       description: description.trim(),
       is_deliverable: isDeliverable,
       has_template: hasTemplate,
-      responsible_role: responsibleRole.trim(),
+      responsible_role: responsibleRole,
       inputs,
       outputs,
       phase_id: phaseId,
