@@ -56,7 +56,7 @@ export function AddMeetingTaskDialog({
       title: title.trim(),
       type,
       description: description.trim() || null,
-      responsible_role: responsibleRole.trim() || null,
+      responsible_role: responsibleRole,
       inputs,
       outputs,
       phase_id: phaseId,
