@@ -94,6 +94,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
   const [activePhaseId, setActivePhaseId] = useState("");
   const [addMeetingDialogOpen, setAddMeetingDialogOpen] = useState(false);
   const [activeMeetingPhaseId, setActiveMeetingPhaseId] = useState("");
+  const [editMeetingTask, setEditMeetingTask] = useState<any>(null);
 
   const totalItems = items.length;
   const totalDeliverables = items.filter((i) => i.is_deliverable).length;
