@@ -439,30 +439,42 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          description: string | null
           id: string
+          inputs: string[] | null
           method_slug: string
           order_index: number
+          outputs: string[] | null
           phase_id: string
+          responsible_role: string | null
           title: string
           type: string
         }
         Insert: {
           created_at?: string
           created_by?: string | null
+          description?: string | null
           id?: string
+          inputs?: string[] | null
           method_slug: string
           order_index?: number
+          outputs?: string[] | null
           phase_id: string
+          responsible_role?: string | null
           title: string
           type: string
         }
         Update: {
           created_at?: string
           created_by?: string | null
+          description?: string | null
           id?: string
+          inputs?: string[] | null
           method_slug?: string
           order_index?: number
+          outputs?: string[] | null
           phase_id?: string
+          responsible_role?: string | null
           title?: string
           type?: string
         }

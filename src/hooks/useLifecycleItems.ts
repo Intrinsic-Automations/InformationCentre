@@ -25,6 +25,10 @@ export interface LifecycleMeetingTask {
   phase_id: string;
   title: string;
   type: "meeting" | "task";
+  description: string | null;
+  responsible_role: string | null;
+  inputs: string[];
+  outputs: string[];
   order_index: number;
   created_at: string;
   created_by: string | null;
@@ -114,6 +118,19 @@ export function useLifecycleItems(methodSlug: string) {
     },
   });
 
+  const updateMeetingTaskMutation = useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<LifecycleMeetingTask> & { id: string }) => {
+      const { error } = await supabase
+        .from("lifecycle_meetings_tasks")
+        .update(updates)
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lifecycle-meetings-tasks", methodSlug] });
+    },
+  });
+
   const deleteMeetingTaskMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
@@ -144,6 +161,7 @@ export function useLifecycleItems(methodSlug: string) {
     updateItem: updateItemMutation,
     deleteItem: deleteItemMutation,
     addMeetingTask: addMeetingTaskMutation,
+    updateMeetingTask: updateMeetingTaskMutation,
     deleteMeetingTask: deleteMeetingTaskMutation,
   };
 }

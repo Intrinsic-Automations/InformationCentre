@@ -82,6 +82,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
     updateItem,
     deleteItem,
     addMeetingTask,
+    updateMeetingTask,
     deleteMeetingTask,
   } = useLifecycleItems(methodSlug);
 
@@ -93,6 +94,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
   const [activePhaseId, setActivePhaseId] = useState("");
   const [addMeetingDialogOpen, setAddMeetingDialogOpen] = useState(false);
   const [activeMeetingPhaseId, setActiveMeetingPhaseId] = useState("");
+  const [editMeetingTask, setEditMeetingTask] = useState<any>(null);
 
   const totalItems = items.length;
   const totalDeliverables = items.filter((i) => i.is_deliverable).length;
@@ -270,6 +272,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
                                 size="sm"
                                 className="h-7 text-xs"
                                 onClick={() => {
+                                  setEditMeetingTask(null);
                                   setActiveMeetingPhaseId(phase.id);
                                   setAddMeetingDialogOpen(true);
                                 }}
@@ -282,26 +285,54 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
                             {phaseMeetings.map((mt) => (
                               <div
                                 key={mt.id}
-                                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium ${
+                                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-all duration-200 hover:scale-105 ${
                                   mt.type === "meeting"
-                                    ? "bg-blue-500/20 text-blue-700 dark:text-blue-300"
-                                    : "bg-violet-500/20 text-violet-700 dark:text-violet-300"
+                                    ? "bg-blue-500/20 text-blue-700 dark:text-blue-300 hover:bg-blue-500/30"
+                                    : "bg-violet-500/20 text-violet-700 dark:text-violet-300 hover:bg-violet-500/30"
                                 }`}
+                                onClick={() => {
+                                  const timelineItem: TimelineItem = {
+                                    id: mt.id,
+                                    title: mt.title,
+                                    description: mt.description || "",
+                                    isDeliverable: false,
+                                    hasTemplate: false,
+                                    responsibleRole: mt.responsible_role || "",
+                                    inputs: mt.inputs || [],
+                                    outputs: mt.outputs || [],
+                                  };
+                                  setSelectedItem(timelineItem);
+                                  setDetailDialogOpen(true);
+                                }}
                               >
                                 {mt.type === "meeting" ? <Users className="h-3 w-3" /> : <ClipboardCheck className="h-3 w-3" />}
                                 {mt.title}
                                 {isAdminOrModerator && (
-                                  <button
-                                    onClick={() => {
-                                      deleteMeetingTask.mutate(mt.id, {
-                                        onSuccess: () => toast.success("Removed"),
-                                        onError: () => toast.error("Failed to remove"),
-                                      });
-                                    }}
-                                    className="ml-1 hover:text-destructive"
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </button>
+                                  <div className="flex items-center gap-0.5 ml-1">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setEditMeetingTask(mt);
+                                        setActiveMeetingPhaseId(phase.id);
+                                        setAddMeetingDialogOpen(true);
+                                      }}
+                                      className="hover:text-primary"
+                                    >
+                                      <Settings className="h-3 w-3" />
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        deleteMeetingTask.mutate(mt.id, {
+                                          onSuccess: () => toast.success("Removed"),
+                                          onError: () => toast.error("Failed to remove"),
+                                        });
+                                      }}
+                                      className="hover:text-destructive"
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </button>
+                                  </div>
                                 )}
                               </div>
                             ))}
@@ -462,11 +493,15 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
       {addMeetingDialogOpen && (
         <AddMeetingTaskDialog
           open={addMeetingDialogOpen}
-          onOpenChange={setAddMeetingDialogOpen}
+          onOpenChange={(open) => {
+            setAddMeetingDialogOpen(open);
+            if (!open) setEditMeetingTask(null);
+          }}
           phaseId={activeMeetingPhaseId}
           methodSlug={methodSlug}
           existingCount={meetingTasksByPhase(activeMeetingPhaseId).length}
-          isPending={addMeetingTask.isPending}
+          isPending={addMeetingTask.isPending || updateMeetingTask.isPending}
+          item={editMeetingTask}
           onSave={(data) => {
             addMeetingTask.mutate(data, {
               onSuccess: () => {
@@ -474,6 +509,16 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
                 setAddMeetingDialogOpen(false);
               },
               onError: () => toast.error("Failed to add"),
+            });
+          }}
+          onUpdate={(data) => {
+            updateMeetingTask.mutate(data, {
+              onSuccess: () => {
+                toast.success("Updated");
+                setAddMeetingDialogOpen(false);
+                setEditMeetingTask(null);
+              },
+              onError: () => toast.error("Failed to update"),
             });
           }}
         />
