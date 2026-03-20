@@ -118,6 +118,19 @@ export function useLifecycleItems(methodSlug: string) {
     },
   });
 
+  const updateMeetingTaskMutation = useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<LifecycleMeetingTask> & { id: string }) => {
+      const { error } = await supabase
+        .from("lifecycle_meetings_tasks")
+        .update(updates)
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lifecycle-meetings-tasks", methodSlug] });
+    },
+  });
+
   const deleteMeetingTaskMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
