@@ -52,16 +52,26 @@ export function ExecutionItemDetailDialog({ item, open, onOpenChange }: Executio
 
           <Separator />
 
-          {/* Responsible Role */}
+          {/* Responsible Roles */}
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
               <User className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-foreground">Responsible Role</h4>
-              <p className="text-sm text-muted-foreground mt-1">
-                {item.responsibleRole || "To be assigned"}
-              </p>
+              <h4 className="text-sm font-semibold text-foreground">Responsible Roles</h4>
+              {Array.isArray(item.responsibleRole) && item.responsibleRole.length > 0 ? (
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  {item.responsibleRole.map((role, i) => (
+                    <span key={i} className="inline-flex items-center px-2 py-0.5 rounded-md bg-primary/10 text-xs font-medium text-primary">
+                      {role}
+                    </span>
+                  ))}
+                </div>
+              ) : typeof item.responsibleRole === "string" && item.responsibleRole ? (
+                <p className="text-sm text-muted-foreground mt-1">{item.responsibleRole}</p>
+              ) : (
+                <p className="text-sm text-muted-foreground mt-1">To be assigned</p>
+              )}
             </div>
           </div>
 

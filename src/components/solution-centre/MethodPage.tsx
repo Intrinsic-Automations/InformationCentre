@@ -297,7 +297,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
                                     description: mt.description || "",
                                     isDeliverable: false,
                                     hasTemplate: false,
-                                    responsibleRole: mt.responsible_role || "",
+                                    responsibleRole: mt.responsible_role || [],
                                     inputs: mt.inputs || [],
                                     outputs: mt.outputs || [],
                                   };
