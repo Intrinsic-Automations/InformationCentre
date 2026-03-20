@@ -58,7 +58,7 @@ export function LifecycleItemFormDialog({
   const [description, setDescription] = useState(item?.description || "");
   const [isDeliverable, setIsDeliverable] = useState(item?.is_deliverable || false);
   const [hasTemplate, setHasTemplate] = useState(item?.has_template ?? true);
-  const [responsibleRole, setResponsibleRole] = useState(item?.responsible_role || "");
+  const [responsibleRole, setResponsibleRole] = useState<string[]>(item?.responsible_role || []);
   const [inputs, setInputs] = useState<string[]>(item?.inputs || []);
   const [outputs, setOutputs] = useState<string[]>(item?.outputs || []);
   const [newInput, setNewInput] = useState("");
