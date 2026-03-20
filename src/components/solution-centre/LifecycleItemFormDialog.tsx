@@ -123,8 +123,8 @@ export function LifecycleItemFormDialog({
           </div>
 
           <div>
-            <Label htmlFor="role">Responsible Role</Label>
-            <Input id="role" value={responsibleRole} onChange={(e) => setResponsibleRole(e.target.value)} placeholder="e.g. Project Manager" />
+            <Label>Responsible Roles</Label>
+            <RoleMultiSelect value={responsibleRole} onChange={setResponsibleRole} />
           </div>
 
           <div className="space-y-3">
