@@ -272,6 +272,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
                                 size="sm"
                                 className="h-7 text-xs"
                                 onClick={() => {
+                                  setEditMeetingTask(null);
                                   setActiveMeetingPhaseId(phase.id);
                                   setAddMeetingDialogOpen(true);
                                 }}
