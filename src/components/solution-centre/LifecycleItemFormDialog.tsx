@@ -29,7 +29,7 @@ interface LifecycleItemFormDialogProps {
     description: string;
     is_deliverable: boolean;
     has_template: boolean;
-    responsible_role: string;
+    responsible_role: string[];
     inputs: string[];
     outputs: string[];
     phase_id: string;
