@@ -27,10 +27,15 @@ export function ExecutionItemDetailDialog({ item, open, onOpenChange }: Executio
           <DialogTitle className="flex items-center gap-3">
             <FileText className="h-5 w-5 text-primary" />
             {item.title}
-            {item.isDeliverable && (
+            {item.isDeliverable ? (
               <Badge variant="default" className="bg-emerald-500 text-white">
                 <Package className="h-3 w-3 mr-1" />
-                Deliverable
+                Customer Deliverable
+              </Badge>
+            ) : (
+              <Badge variant="secondary">
+                <FileText className="h-3 w-3 mr-1" />
+                Internal Deliverable
               </Badge>
             )}
           </DialogTitle>

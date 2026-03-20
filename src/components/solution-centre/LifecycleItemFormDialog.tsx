@@ -125,15 +125,27 @@ export function LifecycleItemFormDialog({
             <Input id="role" value={responsibleRole} onChange={(e) => setResponsibleRole(e.target.value)} placeholder="e.g. Project Manager" />
           </div>
 
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <Switch checked={isDeliverable} onCheckedChange={setIsDeliverable} />
-              <Label>Customer Deliverable</Label>
-            </div>
-            <div className="flex items-center gap-2">
-              <Switch checked={hasTemplate} onCheckedChange={setHasTemplate} />
-              <Label>Has Template</Label>
-            </div>
+          <div className="space-y-3">
+            <Label>Deliverable Type *</Label>
+            <RadioGroup
+              value={isDeliverable ? "customer" : "internal"}
+              onValueChange={(val) => setIsDeliverable(val === "customer")}
+              className="flex gap-6"
+            >
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="customer" id="deliverable-customer" />
+                <Label htmlFor="deliverable-customer" className="font-normal cursor-pointer">Customer Deliverable</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="internal" id="deliverable-internal" />
+                <Label htmlFor="deliverable-internal" className="font-normal cursor-pointer">Internal Deliverable</Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Switch checked={hasTemplate} onCheckedChange={setHasTemplate} />
+            <Label>Has Template</Label>
           </div>
 
           {/* Inputs */}

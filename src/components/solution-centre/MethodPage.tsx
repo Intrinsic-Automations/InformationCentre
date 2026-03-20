@@ -358,10 +358,15 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
                                 <div className="flex items-start gap-2">
                                   <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors pr-12">{item.title}</span>
                                 </div>
-                                {item.is_deliverable && (
+                                {item.is_deliverable ? (
                                   <div className="flex items-center gap-1 mt-1">
                                     <Package className="h-3 w-3 text-emerald-500" />
                                     <span className="text-xs text-emerald-600 dark:text-emerald-400">Customer Deliverable</span>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-1 mt-1">
+                                    <FileText className="h-3 w-3 text-muted-foreground" />
+                                    <span className="text-xs text-muted-foreground">Internal Deliverable</span>
                                   </div>
                                 )}
                               </div>
