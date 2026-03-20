@@ -389,7 +389,7 @@ export type Database = {
           order_index: number
           outputs: string[] | null
           phase_id: string
-          responsible_role: string | null
+          responsible_role: string[] | null
           title: string
           updated_at: string
         }
@@ -405,7 +405,7 @@ export type Database = {
           order_index?: number
           outputs?: string[] | null
           phase_id: string
-          responsible_role?: string | null
+          responsible_role?: string[] | null
           title: string
           updated_at?: string
         }
@@ -421,7 +421,7 @@ export type Database = {
           order_index?: number
           outputs?: string[] | null
           phase_id?: string
-          responsible_role?: string | null
+          responsible_role?: string[] | null
           title?: string
           updated_at?: string
         }
@@ -446,7 +446,7 @@ export type Database = {
           order_index: number
           outputs: string[] | null
           phase_id: string
-          responsible_role: string | null
+          responsible_role: string[] | null
           title: string
           type: string
         }
@@ -460,7 +460,7 @@ export type Database = {
           order_index?: number
           outputs?: string[] | null
           phase_id: string
-          responsible_role?: string | null
+          responsible_role?: string[] | null
           title: string
           type: string
         }
@@ -474,7 +474,7 @@ export type Database = {
           order_index?: number
           outputs?: string[] | null
           phase_id?: string
-          responsible_role?: string | null
+          responsible_role?: string[] | null
           title?: string
           type?: string
         }
