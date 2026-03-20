@@ -82,6 +82,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
     updateItem,
     deleteItem,
     addMeetingTask,
+    updateMeetingTask,
     deleteMeetingTask,
   } = useLifecycleItems(methodSlug);
 
