@@ -16,7 +16,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Plus, X } from "lucide-react";
 import type { LifecycleItem } from "@/hooks/useLifecycleItems";
 import { RoleMultiSelect } from "./RoleMultiSelect";
-import type { LifecycleItem } from "@/hooks/useLifecycleItems";
 
 interface LifecycleItemFormDialogProps {
   open: boolean;

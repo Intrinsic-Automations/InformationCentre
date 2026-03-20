@@ -114,8 +114,8 @@ export function AddMeetingTaskDialog({
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe the purpose and scope" rows={3} />
           </div>
           <div>
-            <Label>Responsible Role</Label>
-            <Input value={responsibleRole} onChange={(e) => setResponsibleRole(e.target.value)} placeholder="e.g. Project Manager" />
+            <Label>Responsible Roles</Label>
+            <RoleMultiSelect value={responsibleRole} onChange={setResponsibleRole} />
           </div>
 
           {/* Inputs */}
