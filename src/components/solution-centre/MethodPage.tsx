@@ -208,7 +208,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
                   <span className="text-muted-foreground font-medium">Legend:</span>
                   <div className="flex items-center gap-2">
                     <div className="h-3 w-3 rounded-full bg-emerald-500" />
-                    <span className="text-muted-foreground">Deliverable</span>
+                    <span className="text-muted-foreground">Customer Deliverable</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="h-3 w-3 rounded-full bg-muted-foreground/40" />
