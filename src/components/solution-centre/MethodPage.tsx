@@ -492,11 +492,15 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
       {addMeetingDialogOpen && (
         <AddMeetingTaskDialog
           open={addMeetingDialogOpen}
-          onOpenChange={setAddMeetingDialogOpen}
+          onOpenChange={(open) => {
+            setAddMeetingDialogOpen(open);
+            if (!open) setEditMeetingTask(null);
+          }}
           phaseId={activeMeetingPhaseId}
           methodSlug={methodSlug}
           existingCount={meetingTasksByPhase(activeMeetingPhaseId).length}
-          isPending={addMeetingTask.isPending}
+          isPending={addMeetingTask.isPending || updateMeetingTask.isPending}
+          item={editMeetingTask}
           onSave={(data) => {
             addMeetingTask.mutate(data, {
               onSuccess: () => {
@@ -504,6 +508,16 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
                 setAddMeetingDialogOpen(false);
               },
               onError: () => toast.error("Failed to add"),
+            });
+          }}
+          onUpdate={(data) => {
+            updateMeetingTask.mutate(data, {
+              onSuccess: () => {
+                toast.success("Updated");
+                setAddMeetingDialogOpen(false);
+                setEditMeetingTask(null);
+              },
+              onError: () => toast.error("Failed to update"),
             });
           }}
         />
