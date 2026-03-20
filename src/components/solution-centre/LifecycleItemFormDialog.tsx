@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Plus, X } from "lucide-react";
 import type { LifecycleItem } from "@/hooks/useLifecycleItems";
+import { RoleMultiSelect } from "./RoleMultiSelect";
 
 interface LifecycleItemFormDialogProps {
   open: boolean;
@@ -27,7 +28,7 @@ interface LifecycleItemFormDialogProps {
     description: string;
     is_deliverable: boolean;
     has_template: boolean;
-    responsible_role: string;
+    responsible_role: string[];
     inputs: string[];
     outputs: string[];
     phase_id: string;
@@ -56,7 +57,7 @@ export function LifecycleItemFormDialog({
   const [description, setDescription] = useState(item?.description || "");
   const [isDeliverable, setIsDeliverable] = useState(item?.is_deliverable || false);
   const [hasTemplate, setHasTemplate] = useState(item?.has_template ?? true);
-  const [responsibleRole, setResponsibleRole] = useState(item?.responsible_role || "");
+  const [responsibleRole, setResponsibleRole] = useState<string[]>(item?.responsible_role || []);
   const [inputs, setInputs] = useState<string[]>(item?.inputs || []);
   const [outputs, setOutputs] = useState<string[]>(item?.outputs || []);
   const [newInput, setNewInput] = useState("");
@@ -70,7 +71,7 @@ export function LifecycleItemFormDialog({
       description: description.trim(),
       is_deliverable: isDeliverable,
       has_template: hasTemplate,
-      responsible_role: responsibleRole.trim(),
+      responsible_role: responsibleRole,
       inputs,
       outputs,
       phase_id: phaseId,
@@ -121,8 +122,8 @@ export function LifecycleItemFormDialog({
           </div>
 
           <div>
-            <Label htmlFor="role">Responsible Role</Label>
-            <Input id="role" value={responsibleRole} onChange={(e) => setResponsibleRole(e.target.value)} placeholder="e.g. Project Manager" />
+            <Label>Responsible Roles</Label>
+            <RoleMultiSelect value={responsibleRole} onChange={setResponsibleRole} />
           </div>
 
           <div className="space-y-3">

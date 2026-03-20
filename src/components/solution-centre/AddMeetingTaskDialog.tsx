@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, X } from "lucide-react";
 import type { LifecycleMeetingTask } from "@/hooks/useLifecycleItems";
+import { RoleMultiSelect } from "./RoleMultiSelect";
 
 interface AddMeetingTaskDialogProps {
   open: boolean;
@@ -43,7 +44,7 @@ export function AddMeetingTaskDialog({
   const [title, setTitle] = useState(item?.title || "");
   const [type, setType] = useState<"meeting" | "task">(item?.type || "meeting");
   const [description, setDescription] = useState(item?.description || "");
-  const [responsibleRole, setResponsibleRole] = useState(item?.responsible_role || "");
+  const [responsibleRole, setResponsibleRole] = useState<string[]>(item?.responsible_role || []);
   const [inputs, setInputs] = useState<string[]>(item?.inputs || []);
   const [outputs, setOutputs] = useState<string[]>(item?.outputs || []);
   const [newInput, setNewInput] = useState("");
@@ -55,7 +56,7 @@ export function AddMeetingTaskDialog({
       title: title.trim(),
       type,
       description: description.trim() || null,
-      responsible_role: responsibleRole.trim() || null,
+      responsible_role: responsibleRole,
       inputs,
       outputs,
       phase_id: phaseId,
@@ -113,8 +114,8 @@ export function AddMeetingTaskDialog({
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe the purpose and scope" rows={3} />
           </div>
           <div>
-            <Label>Responsible Role</Label>
-            <Input value={responsibleRole} onChange={(e) => setResponsibleRole(e.target.value)} placeholder="e.g. Project Manager" />
+            <Label>Responsible Roles</Label>
+            <RoleMultiSelect value={responsibleRole} onChange={setResponsibleRole} />
           </div>
 
           {/* Inputs */}

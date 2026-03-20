@@ -10,7 +10,7 @@ export interface LifecycleItem {
   description: string | null;
   is_deliverable: boolean;
   has_template: boolean;
-  responsible_role: string | null;
+  responsible_role: string[];
   inputs: string[];
   outputs: string[];
   order_index: number;
@@ -26,7 +26,7 @@ export interface LifecycleMeetingTask {
   title: string;
   type: "meeting" | "task";
   description: string | null;
-  responsible_role: string | null;
+  responsible_role: string[];
   inputs: string[];
   outputs: string[];
   order_index: number;
