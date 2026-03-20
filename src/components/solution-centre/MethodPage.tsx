@@ -212,7 +212,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="h-3 w-3 rounded-full bg-muted-foreground/40" />
-                    <span className="text-muted-foreground">Internal</span>
+                    <span className="text-muted-foreground">Internal Deliverable</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge className="bg-amber-500 text-white text-xs px-2 py-0.5">
