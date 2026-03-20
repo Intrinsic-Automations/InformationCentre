@@ -208,11 +208,11 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
                   <span className="text-muted-foreground font-medium">Legend:</span>
                   <div className="flex items-center gap-2">
                     <div className="h-3 w-3 rounded-full bg-emerald-500" />
-                    <span className="text-muted-foreground">Deliverable</span>
+                    <span className="text-muted-foreground">Customer Deliverable</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="h-3 w-3 rounded-full bg-muted-foreground/40" />
-                    <span className="text-muted-foreground">Internal</span>
+                    <span className="text-muted-foreground">Internal Deliverable</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge className="bg-amber-500 text-white text-xs px-2 py-0.5">
@@ -358,10 +358,15 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
                                 <div className="flex items-start gap-2">
                                   <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors pr-12">{item.title}</span>
                                 </div>
-                                {item.is_deliverable && (
+                                {item.is_deliverable ? (
                                   <div className="flex items-center gap-1 mt-1">
                                     <Package className="h-3 w-3 text-emerald-500" />
                                     <span className="text-xs text-emerald-600 dark:text-emerald-400">Customer Deliverable</span>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-1 mt-1">
+                                    <FileText className="h-3 w-3 text-muted-foreground" />
+                                    <span className="text-xs text-muted-foreground">Internal Deliverable</span>
                                   </div>
                                 )}
                               </div>
