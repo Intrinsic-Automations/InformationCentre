@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, X } from "lucide-react";
 import type { LifecycleMeetingTask } from "@/hooks/useLifecycleItems";
+import { RoleMultiSelect } from "./RoleMultiSelect";
 
 interface AddMeetingTaskDialogProps {
   open: boolean;
