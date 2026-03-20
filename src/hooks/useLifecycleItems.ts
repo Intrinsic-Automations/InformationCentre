@@ -25,6 +25,10 @@ export interface LifecycleMeetingTask {
   phase_id: string;
   title: string;
   type: "meeting" | "task";
+  description: string | null;
+  responsible_role: string | null;
+  inputs: string[];
+  outputs: string[];
   order_index: number;
   created_at: string;
   created_by: string | null;
