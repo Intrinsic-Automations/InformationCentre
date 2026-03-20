@@ -4,7 +4,7 @@ export interface TimelineItem {
   isDeliverable: boolean;
   hasTemplate: boolean;
   description?: string;
-  responsibleRole?: string;
+  responsibleRole?: string | string[];
   inputs?: string[];
   outputs?: string[];
 }
