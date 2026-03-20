@@ -44,7 +44,7 @@ export function AddMeetingTaskDialog({
   const [title, setTitle] = useState(item?.title || "");
   const [type, setType] = useState<"meeting" | "task">(item?.type || "meeting");
   const [description, setDescription] = useState(item?.description || "");
-  const [responsibleRole, setResponsibleRole] = useState(item?.responsible_role || "");
+  const [responsibleRole, setResponsibleRole] = useState<string[]>(item?.responsible_role || []);
   const [inputs, setInputs] = useState<string[]>(item?.inputs || []);
   const [outputs, setOutputs] = useState<string[]>(item?.outputs || []);
   const [newInput, setNewInput] = useState("");
