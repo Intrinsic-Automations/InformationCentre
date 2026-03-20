@@ -161,6 +161,7 @@ export function useLifecycleItems(methodSlug: string) {
     updateItem: updateItemMutation,
     deleteItem: deleteItemMutation,
     addMeetingTask: addMeetingTaskMutation,
+    updateMeetingTask: updateMeetingTaskMutation,
     deleteMeetingTask: deleteMeetingTaskMutation,
   };
 }
