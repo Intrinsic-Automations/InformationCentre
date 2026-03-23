@@ -494,6 +494,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
             setDetailDialogOpen(false);
           }
         }}
+        hideDocuments={selectedIsMeetingTask && !irgtDialogOpen}
       />
 
       {addItemDialogOpen && (
