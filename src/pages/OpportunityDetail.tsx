@@ -269,7 +269,7 @@ const OpportunityDetail = () => {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Hero Banner */}
-      <div className="sticky top-0 z-30 shrink-0 relative h-16 md:h-20 overflow-hidden">
+      <div className="sticky top-0 z-30 shrink-0 relative h-10 md:h-12 overflow-hidden">
         <img src={winPlanHero} alt="Opportunity banner" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-secondary/80 to-secondary/40" />
         <div className="absolute inset-0 flex items-center px-6 md:px-12">

@@ -32,7 +32,7 @@ export default function InfoResources() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Hero Banner with Title - Sticky */}
-      <div className="sticky top-0 z-30 shrink-0 relative h-16 md:h-20 overflow-hidden">
+      <div className="sticky top-0 z-30 shrink-0 relative h-10 md:h-12 overflow-hidden">
         <img
           src={infoResourcesHero}
           alt="Info & Resources banner"
