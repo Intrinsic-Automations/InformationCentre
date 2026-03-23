@@ -20,6 +20,8 @@ import {
   Users,
   Plus,
   Trash2,
+  MessageSquare,
+  Pencil,
 } from "lucide-react";
 import {
   Accordion,
