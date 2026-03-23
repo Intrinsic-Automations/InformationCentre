@@ -212,8 +212,8 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto p-4 md:p-6">
-        <div className="max-w-6xl mx-auto space-y-4">
+      <div className="flex-1 overflow-auto p-3 md:p-4">
+        <div className="space-y-3">
           {/* IRGT Notice */}
           <Card className="bg-amber-500/10 border-amber-500/30">
             <CardContent className="py-4 px-5">
