@@ -10,9 +10,9 @@ export function BrandingBanner() {
         className="w-full h-full object-cover"
       />
       <div className="absolute inset-0 bg-gradient-to-r from-primary/60 to-primary/30" />
-      <div className="absolute inset-0 flex items-center justify-center gap-3">
-        <Users className="h-5 w-5 text-primary-foreground" />
-        <span className="text-lg font-bold text-primary-foreground tracking-wide">
+      <div className="absolute inset-0 flex items-center justify-center gap-2">
+        <Users className="h-4 w-4 text-primary-foreground" />
+        <span className="text-sm font-bold text-primary-foreground tracking-wide">
           eQ UK and Europe Information Centre
         </span>
       </div>
