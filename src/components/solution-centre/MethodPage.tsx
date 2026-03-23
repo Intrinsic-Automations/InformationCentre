@@ -309,7 +309,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
             <p className="text-sm text-muted-foreground">Click any item to view details, templates, and documents</p>
           </div>
 
-          <Accordion type="multiple" defaultValue={phases.map((p) => p.id)} className="space-y-3">
+          <Accordion type="multiple" defaultValue={[]} className="space-y-3">
             {phases.map((phase) => {
               const PhaseIcon = phaseIcons[phase.id] || Target;
               const phaseItems = itemsByPhase(phase.id);
