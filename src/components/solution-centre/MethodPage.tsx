@@ -36,6 +36,17 @@ import { useRoles } from "@/hooks/useRoles";
 import { LifecycleItemFormDialog } from "./LifecycleItemFormDialog";
 import { AddMeetingTaskDialog } from "./AddMeetingTaskDialog";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const irgtItem: TimelineItem = {
   id: "irgt-review-process",
