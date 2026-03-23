@@ -154,7 +154,7 @@ export function AppSidebar() {
 
   // All groups expanded by default
   const getDefaultOpenGroups = () => {
-    return fullNavigation.map((group) => group.label);
+    return ["Solution Centre", "HR Centre", "Resources"];
   };
 
   const [openGroups, setOpenGroups] = useState<string[]>(getDefaultOpenGroups);
