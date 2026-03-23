@@ -335,6 +335,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
                                     outputs: mt.outputs || [],
                                   };
                                   setSelectedItem(timelineItem);
+                                  setSelectedIsMeetingTask(true);
                                   setDetailDialogOpen(true);
                                 }}
                               >
