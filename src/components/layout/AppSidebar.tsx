@@ -242,7 +242,7 @@ export function AppSidebar() {
                               className="flex items-center gap-2 rounded-md px-2 py-1 text-xs font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
                               activeClassName="bg-primary/10 text-primary font-semibold"
                             >
-                              <item.icon className="h-4 w-4" />
+                              <item.icon className="h-3.5 w-3.5" />
                               <span>{item.title}</span>
                             </NavLink>
                           </SidebarMenuButton>
