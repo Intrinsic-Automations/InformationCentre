@@ -102,6 +102,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
   const [irgtDialogOpen, setIrgtDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<TimelineItem | null>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [selectedIsMeetingTask, setSelectedIsMeetingTask] = useState(false);
   const [addItemDialogOpen, setAddItemDialogOpen] = useState(false);
   const [editItem, setEditItem] = useState<any>(null);
   const [activePhaseId, setActivePhaseId] = useState("");
@@ -163,6 +164,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
       outputs: item.outputs || [],
     };
     setSelectedItem(timelineItem);
+    setSelectedIsMeetingTask(false);
     setDetailDialogOpen(true);
   };
 
@@ -334,6 +336,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
                                     outputs: mt.outputs || [],
                                   };
                                   setSelectedItem(timelineItem);
+                                  setSelectedIsMeetingTask(true);
                                   setDetailDialogOpen(true);
                                 }}
                               >
@@ -491,6 +494,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
             setDetailDialogOpen(false);
           }
         }}
+        hideDocuments={selectedIsMeetingTask && !irgtDialogOpen}
       />
 
       {addItemDialogOpen && (
