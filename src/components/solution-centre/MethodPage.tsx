@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +20,8 @@ import {
   Users,
   Plus,
   Trash2,
+  MessageSquare,
+  Pencil,
 } from "lucide-react";
 import {
   Accordion,
@@ -34,6 +36,17 @@ import { useRoles } from "@/hooks/useRoles";
 import { LifecycleItemFormDialog } from "./LifecycleItemFormDialog";
 import { AddMeetingTaskDialog } from "./AddMeetingTaskDialog";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const irgtItem: TimelineItem = {
   id: "irgt-review-process",
@@ -95,6 +108,44 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
   const [addMeetingDialogOpen, setAddMeetingDialogOpen] = useState(false);
   const [activeMeetingPhaseId, setActiveMeetingPhaseId] = useState("");
   const [editMeetingTask, setEditMeetingTask] = useState<any>(null);
+  const [feedbackUrl, setFeedbackUrl] = useState("");
+  const [feedbackEditOpen, setFeedbackEditOpen] = useState(false);
+  const [feedbackEditUrl, setFeedbackEditUrl] = useState("");
+  const { profile } = useAuth();
+
+  useEffect(() => {
+    const fetchFeedbackUrl = async () => {
+      const { data } = await supabase
+        .from("method_feedback_links")
+        .select("feedback_url")
+        .eq("method_slug", methodSlug)
+        .maybeSingle();
+      if (data?.feedback_url) setFeedbackUrl(data.feedback_url);
+    };
+    fetchFeedbackUrl();
+  }, [methodSlug]);
+
+  const saveFeedbackUrl = async () => {
+    const { data: existing } = await supabase
+      .from("method_feedback_links")
+      .select("id")
+      .eq("method_slug", methodSlug)
+      .maybeSingle();
+
+    if (existing) {
+      await supabase
+        .from("method_feedback_links")
+        .update({ feedback_url: feedbackEditUrl, updated_by: profile?.id })
+        .eq("method_slug", methodSlug);
+    } else {
+      await supabase
+        .from("method_feedback_links")
+        .insert({ method_slug: methodSlug, feedback_url: feedbackEditUrl, updated_by: profile?.id });
+    }
+    setFeedbackUrl(feedbackEditUrl);
+    setFeedbackEditOpen(false);
+    toast.success("Feedback link updated");
+  };
 
   const totalItems = items.length;
   const totalDeliverables = items.filter((i) => i.is_deliverable).length;
@@ -120,15 +171,43 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
       <div className="sticky top-0 z-30 shrink-0 relative h-16 md:h-20 overflow-hidden">
         <img src={heroImage} alt={`${title} banner`} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-secondary/80 to-secondary/40" />
-        <div className="absolute inset-0 flex items-center px-6 md:px-12">
-          <Button variant="ghost" size="sm" className="mr-3 text-secondary-foreground hover:bg-secondary/40" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-4 w-4 mr-1" />Back
-          </Button>
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 text-primary-foreground backdrop-blur-sm">
-              <Icon className="h-4 w-4" />
+        <div className="absolute inset-0 flex items-center justify-between px-6 md:px-12">
+          <div className="flex items-center">
+            <Button variant="ghost" size="sm" className="mr-3 text-secondary-foreground hover:bg-secondary/40" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-4 w-4 mr-1" />Back
+            </Button>
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 text-primary-foreground backdrop-blur-sm">
+                <Icon className="h-4 w-4" />
+              </div>
+              <h1 className="text-lg md:text-xl font-bold text-secondary-foreground">{title}</h1>
             </div>
-            <h1 className="text-lg md:text-xl font-bold text-secondary-foreground">{title}</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            {feedbackUrl && (
+              <Button
+                size="sm"
+                variant="secondary"
+                className="gap-1.5"
+                onClick={() => window.open(feedbackUrl, "_blank")}
+              >
+                <MessageSquare className="h-4 w-4" />
+                Feedback
+              </Button>
+            )}
+            {isAdminOrModerator && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-secondary-foreground hover:bg-secondary/40"
+                onClick={() => {
+                  setFeedbackEditUrl(feedbackUrl);
+                  setFeedbackEditOpen(true);
+                }}
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -528,6 +607,33 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
           }}
         />
       )}
+
+      {/* Feedback URL Edit Dialog */}
+      <Dialog open={feedbackEditOpen} onOpenChange={setFeedbackEditOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Feedback Link</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <Label htmlFor="feedback-url">Feedback URL</Label>
+              <Input
+                id="feedback-url"
+                placeholder="https://forms.example.com/feedback"
+                value={feedbackEditUrl}
+                onChange={(e) => setFeedbackEditUrl(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Enter the URL where users will be directed when clicking the Feedback button. Leave empty to hide the button.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setFeedbackEditOpen(false)}>Cancel</Button>
+            <Button onClick={saveFeedbackUrl}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

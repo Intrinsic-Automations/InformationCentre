@@ -524,6 +524,38 @@ export type Database = {
           },
         ]
       }
+      method_feedback_links: {
+        Row: {
+          feedback_url: string
+          id: string
+          method_slug: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          feedback_url?: string
+          id?: string
+          method_slug: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          feedback_url?: string
+          id?: string
+          method_slug?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "method_feedback_links_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       news: {
         Row: {
           author_id: string
