@@ -11,6 +11,7 @@ interface ExecutionItemDetailDialogProps {
   item: TimelineItem | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  hideDocuments?: boolean;
 }
 
 export function ExecutionItemDetailDialog({ item, open, onOpenChange }: ExecutionItemDetailDialogProps) {
