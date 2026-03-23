@@ -108,6 +108,44 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
   const [addMeetingDialogOpen, setAddMeetingDialogOpen] = useState(false);
   const [activeMeetingPhaseId, setActiveMeetingPhaseId] = useState("");
   const [editMeetingTask, setEditMeetingTask] = useState<any>(null);
+  const [feedbackUrl, setFeedbackUrl] = useState("");
+  const [feedbackEditOpen, setFeedbackEditOpen] = useState(false);
+  const [feedbackEditUrl, setFeedbackEditUrl] = useState("");
+  const { profile } = useAuth();
+
+  useEffect(() => {
+    const fetchFeedbackUrl = async () => {
+      const { data } = await supabase
+        .from("method_feedback_links")
+        .select("feedback_url")
+        .eq("method_slug", methodSlug)
+        .maybeSingle();
+      if (data?.feedback_url) setFeedbackUrl(data.feedback_url);
+    };
+    fetchFeedbackUrl();
+  }, [methodSlug]);
+
+  const saveFeedbackUrl = async () => {
+    const { data: existing } = await supabase
+      .from("method_feedback_links")
+      .select("id")
+      .eq("method_slug", methodSlug)
+      .maybeSingle();
+
+    if (existing) {
+      await supabase
+        .from("method_feedback_links")
+        .update({ feedback_url: feedbackEditUrl, updated_by: profile?.id })
+        .eq("method_slug", methodSlug);
+    } else {
+      await supabase
+        .from("method_feedback_links")
+        .insert({ method_slug: methodSlug, feedback_url: feedbackEditUrl, updated_by: profile?.id });
+    }
+    setFeedbackUrl(feedbackEditUrl);
+    setFeedbackEditOpen(false);
+    toast.success("Feedback link updated");
+  };
 
   const totalItems = items.length;
   const totalDeliverables = items.filter((i) => i.is_deliverable).length;
