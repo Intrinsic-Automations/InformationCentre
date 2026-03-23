@@ -25,6 +25,8 @@ import {
   FileText,
   Clock,
   UserCog,
+  PanelLeftClose,
+  PanelLeft,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { SearchBar } from "@/components/layout/SearchBar";
