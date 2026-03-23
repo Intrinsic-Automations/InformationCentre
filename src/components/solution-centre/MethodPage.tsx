@@ -607,6 +607,33 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
           }}
         />
       )}
+
+      {/* Feedback URL Edit Dialog */}
+      <Dialog open={feedbackEditOpen} onOpenChange={setFeedbackEditOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Feedback Link</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <Label htmlFor="feedback-url">Feedback URL</Label>
+              <Input
+                id="feedback-url"
+                placeholder="https://forms.example.com/feedback"
+                value={feedbackEditUrl}
+                onChange={(e) => setFeedbackEditUrl(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Enter the URL where users will be directed when clicking the Feedback button. Leave empty to hide the button.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setFeedbackEditOpen(false)}>Cancel</Button>
+            <Button onClick={saveFeedbackUrl}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
