@@ -11,7 +11,7 @@ const topNavItems = [
 
 export function TopNav() {
   return (
-    <nav className="h-12 border-b border-border bg-card flex items-center px-6">
+    <nav className="h-9 border-b border-border bg-card flex items-center px-4">
       <div className="flex-1" />
       <div className="flex items-center justify-center gap-1 sm:gap-2">
         {topNavItems.map((item) => (

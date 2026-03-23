@@ -169,16 +169,15 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-      <SidebarHeader className="p-4 border-b border-sidebar-border space-y-4">
+      <SidebarHeader className="p-2 border-b border-sidebar-border space-y-2">
         {!collapsed && (
           <>
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary shrink-0">
-                <Users className="h-5 w-5 text-primary-foreground" />
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary shrink-0">
+                <Users className="h-3.5 w-3.5 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="font-semibold text-sidebar-foreground">Community Hub</h1>
-                <p className="text-xs text-muted-foreground">Connect & Collaborate</p>
+                <h1 className="text-sm font-semibold text-sidebar-foreground leading-tight">Community Hub</h1>
               </div>
             </div>
             <SearchBar />
@@ -186,14 +185,14 @@ export function AppSidebar() {
         )}
         {collapsed && (
           <div className="flex justify-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary shrink-0">
-              <Users className="h-5 w-5 text-primary-foreground" />
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary shrink-0">
+              <Users className="h-3.5 w-3.5 text-primary-foreground" />
             </div>
           </div>
         )}
       </SidebarHeader>
       
-      <SidebarContent className="px-2 py-4">
+      <SidebarContent className="px-1 py-1">
         {fullNavigation.map((group) => (
           <Collapsible
             key={group.label}
@@ -203,7 +202,7 @@ export function AppSidebar() {
             <SidebarGroup>
               {!collapsed && (
                 <CollapsibleTrigger asChild>
-                  <SidebarGroupLabel className="flex w-full cursor-pointer items-center justify-between px-2 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-sidebar-foreground transition-colors">
+                  <SidebarGroupLabel className="flex w-full cursor-pointer items-center justify-between px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-sidebar-foreground transition-colors">
                     {group.label}
                     <ChevronDown
                       className={`h-4 w-4 transition-transform duration-200 ${
@@ -240,10 +239,10 @@ export function AppSidebar() {
                           <SidebarMenuButton asChild>
                             <NavLink
                               to={item.url}
-                              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+                              className="flex items-center gap-2 rounded-md px-2 py-1 text-xs font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
                               activeClassName="bg-primary/10 text-primary font-semibold"
                             >
-                              <item.icon className="h-4 w-4" />
+                              <item.icon className="h-3.5 w-3.5" />
                               <span>{item.title}</span>
                             </NavLink>
                           </SidebarMenuButton>
@@ -276,16 +275,16 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border p-2">
+      <SidebarFooter className="border-t border-sidebar-border p-1">
         <button
           onClick={toggleSidebar}
-          className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+          className="flex w-full items-center gap-2 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
         >
           {collapsed ? (
-            <PanelLeft className="h-4 w-4 mx-auto" />
+            <PanelLeft className="h-3.5 w-3.5 mx-auto" />
           ) : (
             <>
-              <PanelLeftClose className="h-4 w-4" />
+              <PanelLeftClose className="h-3.5 w-3.5" />
               <span>Collapse</span>
             </>
           )}
