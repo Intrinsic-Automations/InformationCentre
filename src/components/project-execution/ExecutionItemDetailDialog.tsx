@@ -14,7 +14,7 @@ interface ExecutionItemDetailDialogProps {
   hideDocuments?: boolean;
 }
 
-export function ExecutionItemDetailDialog({ item, open, onOpenChange }: ExecutionItemDetailDialogProps) {
+export function ExecutionItemDetailDialog({ item, open, onOpenChange, hideDocuments }: ExecutionItemDetailDialogProps) {
   const { documents, uploadDocument, downloadDocument, deleteDocument } = useExecutionDocuments(
     open ? item?.id || null : null
   );
