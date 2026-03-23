@@ -192,7 +192,7 @@ export function AppSidebar() {
         )}
       </SidebarHeader>
       
-      <SidebarContent className="px-2 py-4">
+      <SidebarContent className="px-1 py-1">
         {fullNavigation.map((group) => (
           <Collapsible
             key={group.label}
