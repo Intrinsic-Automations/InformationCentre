@@ -169,16 +169,15 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-      <SidebarHeader className="p-4 border-b border-sidebar-border space-y-4">
+      <SidebarHeader className="p-2 border-b border-sidebar-border space-y-2">
         {!collapsed && (
           <>
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary shrink-0">
-                <Users className="h-5 w-5 text-primary-foreground" />
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary shrink-0">
+                <Users className="h-3.5 w-3.5 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="font-semibold text-sidebar-foreground">Community Hub</h1>
-                <p className="text-xs text-muted-foreground">Connect & Collaborate</p>
+                <h1 className="text-sm font-semibold text-sidebar-foreground leading-tight">Community Hub</h1>
               </div>
             </div>
             <SearchBar />
@@ -186,8 +185,8 @@ export function AppSidebar() {
         )}
         {collapsed && (
           <div className="flex justify-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary shrink-0">
-              <Users className="h-5 w-5 text-primary-foreground" />
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary shrink-0">
+              <Users className="h-3.5 w-3.5 text-primary-foreground" />
             </div>
           </div>
         )}
