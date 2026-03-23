@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import {
   Home,
@@ -25,6 +25,8 @@ import {
   FileText,
   Clock,
   UserCog,
+  PanelLeftClose,
+  PanelLeft,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { SearchBar } from "@/components/layout/SearchBar";
@@ -39,6 +41,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
+  SidebarFooter,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   Collapsible,
@@ -140,6 +144,8 @@ export function AppSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
   const { isAdmin } = useRoles();
+  const { state, toggleSidebar } = useSidebar();
+  const collapsed = state === "collapsed";
 
   // Build navigation with admin section if applicable
   const fullNavigation = isAdmin 
@@ -162,80 +168,129 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className="border-r border-sidebar-border">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
       <SidebarHeader className="p-4 border-b border-sidebar-border space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-            <Users className="h-5 w-5 text-primary-foreground" />
+        {!collapsed && (
+          <>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary shrink-0">
+                <Users className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="font-semibold text-sidebar-foreground">Community Hub</h1>
+                <p className="text-xs text-muted-foreground">Connect & Collaborate</p>
+              </div>
+            </div>
+            <SearchBar />
+          </>
+        )}
+        {collapsed && (
+          <div className="flex justify-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary shrink-0">
+              <Users className="h-5 w-5 text-primary-foreground" />
+            </div>
           </div>
-          <div>
-            <h1 className="font-semibold text-sidebar-foreground">Community Hub</h1>
-            <p className="text-xs text-muted-foreground">Connect & Collaborate</p>
-          </div>
-        </div>
-        <SearchBar />
+        )}
       </SidebarHeader>
       
       <SidebarContent className="px-2 py-4">
         {fullNavigation.map((group) => (
           <Collapsible
             key={group.label}
-            open={openGroups.includes(group.label)}
+            open={!collapsed && openGroups.includes(group.label)}
             onOpenChange={() => toggleGroup(group.label)}
           >
             <SidebarGroup>
-              <CollapsibleTrigger asChild>
-                <SidebarGroupLabel className="flex w-full cursor-pointer items-center justify-between px-2 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-sidebar-foreground transition-colors">
-                  {group.label}
-                  <ChevronDown
-                    className={`h-4 w-4 transition-transform duration-200 ${
-                      openGroups.includes(group.label) ? "rotate-180" : ""
-                    }`}
-                  />
-                </SidebarGroupLabel>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
+              {!collapsed && (
+                <CollapsibleTrigger asChild>
+                  <SidebarGroupLabel className="flex w-full cursor-pointer items-center justify-between px-2 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-sidebar-foreground transition-colors">
+                    {group.label}
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        openGroups.includes(group.label) ? "rotate-180" : ""
+                      }`}
+                    />
+                  </SidebarGroupLabel>
+                </CollapsibleTrigger>
+              )}
+              {collapsed ? (
                 <SidebarGroupContent>
                   <SidebarMenu>
                     {group.items.map((item) => (
                       <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild>
+                        <SidebarMenuButton asChild tooltip={item.title}>
                           <NavLink
                             to={item.url}
-                            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-                            activeClassName="bg-primary/10 text-primary font-semibold"
+                            className="flex items-center justify-center rounded-md p-2 text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+                            activeClassName="bg-primary/10 text-primary"
                           >
                             <item.icon className="h-4 w-4" />
-                            <span>{item.title}</span>
                           </NavLink>
                         </SidebarMenuButton>
-                        {item.children && (
-                          <SidebarMenu className="ml-4 mt-1 border-l border-sidebar-border pl-2">
-                            {item.children.map((child) => (
-                              <SidebarMenuItem key={child.title}>
-                                <SidebarMenuButton asChild>
-                                  <NavLink
-                                    to={child.url}
-                                    className="flex items-center gap-3 rounded-md px-3 py-1.5 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-                                    activeClassName="bg-primary/10 text-primary font-semibold"
-                                  >
-                                    <child.icon className="h-3.5 w-3.5" />
-                                    <span>{child.title}</span>
-                                  </NavLink>
-                                </SidebarMenuButton>
-                              </SidebarMenuItem>
-                            ))}
-                          </SidebarMenu>
-                        )}
                       </SidebarMenuItem>
                     ))}
                   </SidebarMenu>
                 </SidebarGroupContent>
-              </CollapsibleContent>
+              ) : (
+                <CollapsibleContent>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {group.items.map((item) => (
+                        <SidebarMenuItem key={item.title}>
+                          <SidebarMenuButton asChild>
+                            <NavLink
+                              to={item.url}
+                              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+                              activeClassName="bg-primary/10 text-primary font-semibold"
+                            >
+                              <item.icon className="h-4 w-4" />
+                              <span>{item.title}</span>
+                            </NavLink>
+                          </SidebarMenuButton>
+                          {item.children && (
+                            <SidebarMenu className="ml-4 mt-1 border-l border-sidebar-border pl-2">
+                              {item.children.map((child) => (
+                                <SidebarMenuItem key={child.title}>
+                                  <SidebarMenuButton asChild>
+                                    <NavLink
+                                      to={child.url}
+                                      className="flex items-center gap-3 rounded-md px-3 py-1.5 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+                                      activeClassName="bg-primary/10 text-primary font-semibold"
+                                    >
+                                      <child.icon className="h-3.5 w-3.5" />
+                                      <span>{child.title}</span>
+                                    </NavLink>
+                                  </SidebarMenuButton>
+                                </SidebarMenuItem>
+                              ))}
+                            </SidebarMenu>
+                          )}
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </CollapsibleContent>
+              )}
             </SidebarGroup>
           </Collapsible>
         ))}
       </SidebarContent>
+
+      <SidebarFooter className="border-t border-sidebar-border p-2">
+        <button
+          onClick={toggleSidebar}
+          className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+        >
+          {collapsed ? (
+            <PanelLeft className="h-4 w-4 mx-auto" />
+          ) : (
+            <>
+              <PanelLeftClose className="h-4 w-4" />
+              <span>Collapse</span>
+            </>
+          )}
+        </button>
+      </SidebarFooter>
     </Sidebar>
   );
 }
