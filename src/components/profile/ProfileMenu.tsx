@@ -27,7 +27,7 @@ export function ProfileMenu() {
             <Avatar className="h-6 w-6">
               <AvatarImage src={profile?.avatar_url || undefined} />
               <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                {profile?.initials || "?"}
+                <span className="text-[9px]">{profile?.initials || "?"}</span>
               </AvatarFallback>
             </Avatar>
             {unreadCount > 0 && (
