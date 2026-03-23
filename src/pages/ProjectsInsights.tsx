@@ -417,7 +417,7 @@ export default function ProjectsInsights() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Hero Banner with Title - Sticky */}
-      <div className="sticky top-0 z-30 shrink-0 relative h-16 md:h-20 overflow-hidden">
+      <div className="sticky top-0 z-30 shrink-0 relative h-10 md:h-12 overflow-hidden">
         <img
           src={projectsInsightsHero}
           alt="Projects Insights banner"

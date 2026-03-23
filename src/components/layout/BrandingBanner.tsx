@@ -3,7 +3,7 @@ import communityHubBanner from "@/assets/community-hub-banner.jpg";
 
 export function BrandingBanner() {
   return (
-    <div className="relative h-14 w-full overflow-hidden">
+    <div className="relative h-9 w-full overflow-hidden">
       <img
         src={communityHubBanner}
         alt="Community Hub banner"
