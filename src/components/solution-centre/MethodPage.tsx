@@ -225,7 +225,8 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
               className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary/80 transition-colors shrink-0"
             >
               <ClipboardCheck className="h-3 w-3" />
-              <span className="underline underline-offset-2">View Process</span>
+              <span className="underline underline-offset-2">IRGT Review Process</span>
+              <Badge variant="outline" className="text-[10px] px-1 py-0 h-4 border-primary/30 text-primary">Required</Badge>
             </button>
           </div>
 
