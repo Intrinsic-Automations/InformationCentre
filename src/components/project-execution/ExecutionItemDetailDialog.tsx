@@ -130,27 +130,29 @@ export function ExecutionItemDetailDialog({ item, open, onOpenChange, hideDocume
           <Separator />
 
           {/* Document Upload/Download Sections */}
-          <div>
-            <h4 className="text-sm font-semibold text-foreground mb-3">Documents</h4>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <DocumentUploadSection
-                title="Template Documents"
-                documentType="template"
-                documents={documents}
-                onUpload={uploadDocument}
-                onDownload={downloadDocument}
-                onDelete={deleteDocument}
-              />
-              <DocumentUploadSection
-                title="Example Documents"
-                documentType="example"
-                documents={documents}
-                onUpload={uploadDocument}
-                onDownload={downloadDocument}
-                onDelete={deleteDocument}
-              />
+          {!hideDocuments && (
+            <div>
+              <h4 className="text-sm font-semibold text-foreground mb-3">Documents</h4>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <DocumentUploadSection
+                  title="Template Documents"
+                  documentType="template"
+                  documents={documents}
+                  onUpload={uploadDocument}
+                  onDownload={downloadDocument}
+                  onDelete={deleteDocument}
+                />
+                <DocumentUploadSection
+                  title="Example Documents"
+                  documentType="example"
+                  documents={documents}
+                  onUpload={uploadDocument}
+                  onDownload={downloadDocument}
+                  onDelete={deleteDocument}
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
