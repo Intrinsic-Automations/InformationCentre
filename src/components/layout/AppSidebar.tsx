@@ -202,7 +202,7 @@ export function AppSidebar() {
             <SidebarGroup>
               {!collapsed && (
                 <CollapsibleTrigger asChild>
-                  <SidebarGroupLabel className="flex w-full cursor-pointer items-center justify-between px-2 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-sidebar-foreground transition-colors">
+                  <SidebarGroupLabel className="flex w-full cursor-pointer items-center justify-between px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-sidebar-foreground transition-colors">
                     {group.label}
                     <ChevronDown
                       className={`h-4 w-4 transition-transform duration-200 ${
