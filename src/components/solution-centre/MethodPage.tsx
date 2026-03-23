@@ -215,92 +215,44 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
       <div className="flex-1 overflow-auto p-3 md:p-4">
         <div className="space-y-3">
           {/* IRGT Notice */}
-          <Card className="bg-amber-500/10 border-amber-500/30">
-            <CardContent className="py-4 px-5">
-              <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/20 shrink-0">
-                  <AlertCircle className="h-5 w-5 text-amber-600" />
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-foreground">
-                    It is mandatory that all projects follow the IRGT review process. Please download the required documentation before proceeding.
-                  </p>
-                  <button
-                    onClick={() => setIrgtDialogOpen(true)}
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors group"
-                  >
-                    <ClipboardCheck className="h-4 w-4" />
-                    <span className="underline underline-offset-2 group-hover:no-underline">IRGT Review Process</span>
-                    <Badge variant="outline" className="text-xs border-primary/30 text-primary">Required</Badge>
-                  </button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="flex items-center gap-3 px-3 py-1.5 rounded-md bg-amber-500/10 border border-amber-500/30">
+            <AlertCircle className="h-4 w-4 text-amber-600 shrink-0" />
+            <p className="text-xs text-foreground">
+              All projects must follow the IRGT review process.
+            </p>
+            <button
+              onClick={() => setIrgtDialogOpen(true)}
+              className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary/80 transition-colors shrink-0"
+            >
+              <ClipboardCheck className="h-3 w-3" />
+              <span className="underline underline-offset-2">View Process</span>
+            </button>
+          </div>
 
-          {/* Stats and Legend */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="grid grid-cols-3 gap-3">
-              <Card className="bg-card">
-                <CardContent className="py-3 px-4">
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                      <FolderKanban className="h-4 w-4 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-xl font-bold text-foreground">{totalItems}</p>
-                      <p className="text-xs text-muted-foreground">Items</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="bg-card">
-                <CardContent className="py-3 px-4">
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10">
-                      <Package className="h-4 w-4 text-emerald-500" />
-                    </div>
-                    <div>
-                      <p className="text-xl font-bold text-foreground">{totalDeliverables}</p>
-                      <p className="text-xs text-muted-foreground">Deliverables</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="bg-card">
-                <CardContent className="py-3 px-4">
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10">
-                      <Flag className="h-4 w-4 text-amber-500" />
-                    </div>
-                    <div>
-                      <p className="text-xl font-bold text-foreground">{totalMilestones}</p>
-                      <p className="text-xs text-muted-foreground">Gates</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+          {/* Stats and Legend - compact inline row */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border bg-card text-xs">
+              <FolderKanban className="h-3 w-3 text-primary" />
+              <span className="font-bold text-foreground">{totalItems}</span>
+              <span className="text-muted-foreground">Items</span>
             </div>
-            <Card className="bg-card">
-              <CardContent className="py-3 px-4 h-full flex items-center">
-                <div className="flex flex-wrap items-center gap-4 text-sm">
-                  <span className="text-muted-foreground font-medium">Legend:</span>
-                  <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-emerald-500" />
-                    <span className="text-muted-foreground">Customer Deliverable</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-muted-foreground/40" />
-                    <span className="text-muted-foreground">Internal Deliverable</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-amber-500 text-white text-xs px-2 py-0.5">
-                      <Flag className="h-3 w-3 mr-1" />Gate
-                    </Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border bg-card text-xs">
+              <Package className="h-3 w-3 text-emerald-500" />
+              <span className="font-bold text-foreground">{totalDeliverables}</span>
+              <span className="text-muted-foreground">Deliverables</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border bg-card text-xs">
+              <Flag className="h-3 w-3 text-amber-500" />
+              <span className="font-bold text-foreground">{totalMilestones}</span>
+              <span className="text-muted-foreground">Gates</span>
+            </div>
+            <div className="border-l border-border h-4 mx-1" />
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <span className="font-medium">Legend:</span>
+              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-emerald-500" />Customer</span>
+              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-muted-foreground/40" />Internal</span>
+              <Badge className="bg-amber-500 text-white text-[10px] px-1.5 py-0 h-4"><Flag className="h-2.5 w-2.5 mr-0.5" />Gate</Badge>
+            </div>
           </div>
 
           {/* Timeline Header */}
