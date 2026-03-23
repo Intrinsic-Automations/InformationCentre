@@ -188,10 +188,10 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
               <Button
                 size="sm"
                 variant="secondary"
-                className="gap-1.5"
+                className="gap-1 h-6 px-2 text-xs"
                 onClick={() => window.open(feedbackUrl, "_blank")}
               >
-                <MessageSquare className="h-4 w-4" />
+                <MessageSquare className="h-3 w-3" />
                 Feedback
               </Button>
             )}
