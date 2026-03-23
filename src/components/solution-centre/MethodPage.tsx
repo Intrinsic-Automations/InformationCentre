@@ -102,6 +102,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
   const [irgtDialogOpen, setIrgtDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<TimelineItem | null>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [selectedIsMeetingTask, setSelectedIsMeetingTask] = useState(false);
   const [addItemDialogOpen, setAddItemDialogOpen] = useState(false);
   const [editItem, setEditItem] = useState<any>(null);
   const [activePhaseId, setActivePhaseId] = useState("");
