@@ -11,22 +11,22 @@ const topNavItems = [
 
 export function TopNav() {
   return (
-    <nav className="h-9 border-b border-border bg-card flex items-center px-4">
+    <nav className="h-7 border-b border-border bg-card flex items-center px-3">
       <div className="flex-1" />
-      <div className="flex items-center justify-center gap-1 sm:gap-2">
+      <div className="flex items-center justify-center gap-0.5 sm:gap-1">
         {topNavItems.map((item) => (
           <NavLink
             key={item.title}
             to={item.url}
-            className="flex items-center justify-center gap-1.5 px-2 sm:px-3 py-2 rounded-md text-xs sm:text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors whitespace-nowrap"
+            className="flex items-center justify-center gap-1 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors whitespace-nowrap"
             activeClassName="bg-primary/10 text-primary"
           >
-            <item.icon className="h-4 w-4 shrink-0" />
+            <item.icon className="h-3 w-3 shrink-0" />
             <span>{item.title}</span>
           </NavLink>
         ))}
       </div>
-      <div className="flex-1 flex justify-end items-center gap-2">
+      <div className="flex-1 flex justify-end items-center gap-1">
         <NotificationBell />
         <ProfileMenu />
       </div>
