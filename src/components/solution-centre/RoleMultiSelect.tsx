@@ -16,7 +16,7 @@ const AVAILABLE_ROLES = [
   "Data Architect",
   "ETL Developer",
   "CAD Specialist",
-  "DQ Lead",
+  "Data Quality Lead",
 ] as const;
 
 interface RoleMultiSelectProps {
