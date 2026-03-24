@@ -6,17 +6,24 @@ import { Badge } from "@/components/ui/badge";
 import { ChevronDown, X } from "lucide-react";
 
 const AVAILABLE_ROLES = [
-  "Customer Engagement Manager",
-  "Project Manager",
-  "Business Owner",
-  "Solution Architect",
-  "Migration Lead",
+  "Business Analyst",
   "Business Data Owner",
+  "Business Owner",
+  "CAD Specialist",
+  "Customer Engagement Manager",
   "Data Analyst",
   "Data Architect",
-  "ETL Developer",
-  "CAD Specialist",
   "Data Quality Lead",
+  "ETL Developer",
+  "Migration Lead",
+  "Project Manager",
+  "QA Consultant",
+  "QA Lead",
+  "Security Officer",
+  "Service Delivery Manager",
+  "Solution Architect",
+  "Technical Lead",
+  "Technical Writer",
 ] as const;
 
 interface RoleMultiSelectProps {
