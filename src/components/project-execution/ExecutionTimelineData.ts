@@ -7,6 +7,7 @@ export interface TimelineItem {
   responsibleRole?: string | string[];
   inputs?: string[];
   outputs?: string[];
+  methodTags?: string[];
 }
 
 export interface KeyMeetingTask {

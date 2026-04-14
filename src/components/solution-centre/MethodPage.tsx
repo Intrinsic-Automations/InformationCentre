@@ -37,6 +37,7 @@ import { LifecycleItemFormDialog } from "./LifecycleItemFormDialog";
 import { AddMeetingTaskDialog } from "./AddMeetingTaskDialog";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { METHOD_TAGS } from "./MethodTagSelect";
 import { useAuth } from "@/hooks/useAuth";
 import {
   Dialog,
@@ -66,6 +67,13 @@ const phases = [
   { id: "realise-implementation", title: "Realise / Implementation", color: "bg-orange-500", gate: { title: "Gate 4 Review", description: "Review and approval checkpoint before proceeding to Deploy/Exit phase." } },
   { id: "deploy-exit", title: "Deploy / Exit", color: "bg-emerald-500", gate: { title: "Gate 5 Review", description: "Final review and project closure approval." } },
 ];
+
+const SLUG_TO_TAG: Record<string, string> = {
+  migration: "Migration",
+  integration: "Integration",
+  "reporting-analytics": "R&A",
+  "product-installation": "Installation",
+};
 
 const phaseIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "discovery-plan": Target,
@@ -113,7 +121,8 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
   const [feedbackEditOpen, setFeedbackEditOpen] = useState(false);
   const [feedbackEditUrl, setFeedbackEditUrl] = useState("");
   const { profile } = useAuth();
-
+  const defaultMethodTag = SLUG_TO_TAG[methodSlug] || "";
+  const [methodFilter, setMethodFilter] = useState<string>("all");
   useEffect(() => {
     const fetchFeedbackUrl = async () => {
       const { data } = await supabase
@@ -162,6 +171,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
       responsibleRole: item.responsible_role || [],
       inputs: item.inputs || [],
       outputs: item.outputs || [],
+      methodTags: item.method_tags || [],
     };
     setSelectedItem(timelineItem);
     setSelectedIsMeetingTask(false);
@@ -258,6 +268,28 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
             </div>
           </div>
 
+          {/* Method Filter */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-medium text-muted-foreground">Filter by Method:</span>
+            <Badge
+              variant={methodFilter === "all" ? "default" : "outline"}
+              className="cursor-pointer select-none"
+              onClick={() => setMethodFilter("all")}
+            >
+              All
+            </Badge>
+            {METHOD_TAGS.map((tag) => (
+              <Badge
+                key={tag}
+                variant={methodFilter === tag ? "default" : "outline"}
+                className="cursor-pointer select-none"
+                onClick={() => setMethodFilter(tag)}
+              >
+                {tag}
+              </Badge>
+            ))}
+          </div>
+
           {/* Timeline Header */}
           <div>
             <h2 className="text-lg font-semibold text-foreground">Project Lifecycle</h2>
@@ -267,8 +299,10 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
           <Accordion type="multiple" defaultValue={[]} className="space-y-3">
             {phases.map((phase) => {
               const PhaseIcon = phaseIcons[phase.id] || Target;
-              const phaseItems = itemsByPhase(phase.id);
-              const phaseMeetings = meetingTasksByPhase(phase.id);
+              const allPhaseItems = itemsByPhase(phase.id);
+              const allPhaseMeetings = meetingTasksByPhase(phase.id);
+              const phaseItems = methodFilter === "all" ? allPhaseItems : allPhaseItems.filter((i) => i.method_tags?.includes(methodFilter));
+              const phaseMeetings = methodFilter === "all" ? allPhaseMeetings : allPhaseMeetings.filter((m) => m.method_tags?.includes(methodFilter));
               const deliverableCount = phaseItems.filter((i) => i.is_deliverable).length;
 
               return (
@@ -334,6 +368,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
                                     responsibleRole: mt.responsible_role || [],
                                     inputs: mt.inputs || [],
                                     outputs: mt.outputs || [],
+                                    methodTags: mt.method_tags || [],
                                   };
                                   setSelectedItem(timelineItem);
                                   setSelectedIsMeetingTask(true);
@@ -508,6 +543,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
           phaseId={activePhaseId}
           methodSlug={methodSlug}
           existingItemsCount={itemsByPhase(activePhaseId).length}
+          defaultMethodTag={defaultMethodTag}
           isPending={addItem.isPending || updateItem.isPending}
           onSave={(data) => {
             addItem.mutate(data, {
@@ -543,6 +579,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
           existingCount={meetingTasksByPhase(activeMeetingPhaseId).length}
           isPending={addMeetingTask.isPending || updateMeetingTask.isPending}
           item={editMeetingTask}
+          defaultMethodTag={defaultMethodTag}
           onSave={(data) => {
             addMeetingTask.mutate(data, {
               onSuccess: () => {

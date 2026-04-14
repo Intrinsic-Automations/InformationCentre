@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, X } from "lucide-react";
 import type { LifecycleMeetingTask } from "@/hooks/useLifecycleItems";
 import { RoleMultiSelect } from "./RoleMultiSelect";
+import { MethodTagSelect } from "./MethodTagSelect";
 
 interface AddMeetingTaskDialogProps {
   open: boolean;
@@ -26,6 +27,7 @@ interface AddMeetingTaskDialogProps {
   isPending?: boolean;
   existingCount: number;
   item?: LifecycleMeetingTask | null;
+  defaultMethodTag?: string;
 }
 
 export function AddMeetingTaskDialog({
@@ -38,6 +40,7 @@ export function AddMeetingTaskDialog({
   isPending,
   existingCount,
   item,
+  defaultMethodTag,
 }: AddMeetingTaskDialogProps) {
   const isEditing = !!item;
 
@@ -47,6 +50,7 @@ export function AddMeetingTaskDialog({
   const [responsibleRole, setResponsibleRole] = useState<string[]>(item?.responsible_role || []);
   const [inputs, setInputs] = useState<string[]>(item?.inputs || []);
   const [outputs, setOutputs] = useState<string[]>(item?.outputs || []);
+  const [methodTags, setMethodTags] = useState<string[]>(item?.method_tags || (defaultMethodTag ? [defaultMethodTag] : []));
   const [newInput, setNewInput] = useState("");
   const [newOutput, setNewOutput] = useState("");
 
@@ -59,6 +63,7 @@ export function AddMeetingTaskDialog({
       responsible_role: responsibleRole,
       inputs,
       outputs,
+      method_tags: methodTags,
       phase_id: phaseId,
       method_slug: methodSlug,
       order_index: item?.order_index ?? existingCount,
@@ -116,6 +121,11 @@ export function AddMeetingTaskDialog({
           <div>
             <Label>Responsible Roles</Label>
             <RoleMultiSelect value={responsibleRole} onChange={setResponsibleRole} />
+          </div>
+          <div>
+            <Label>Method Tags</Label>
+            <p className="text-xs text-muted-foreground mb-1">Tag which methods this applies to</p>
+            <MethodTagSelect value={methodTags} onChange={setMethodTags} />
           </div>
 
           {/* Inputs */}

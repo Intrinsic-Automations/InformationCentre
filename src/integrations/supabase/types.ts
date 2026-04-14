@@ -386,6 +386,7 @@ export type Database = {
           inputs: string[] | null
           is_deliverable: boolean
           method_slug: string
+          method_tags: string[]
           order_index: number
           outputs: string[] | null
           phase_id: string
@@ -402,6 +403,7 @@ export type Database = {
           inputs?: string[] | null
           is_deliverable?: boolean
           method_slug: string
+          method_tags?: string[]
           order_index?: number
           outputs?: string[] | null
           phase_id: string
@@ -418,6 +420,7 @@ export type Database = {
           inputs?: string[] | null
           is_deliverable?: boolean
           method_slug?: string
+          method_tags?: string[]
           order_index?: number
           outputs?: string[] | null
           phase_id?: string
@@ -443,6 +446,7 @@ export type Database = {
           id: string
           inputs: string[] | null
           method_slug: string
+          method_tags: string[]
           order_index: number
           outputs: string[] | null
           phase_id: string
@@ -457,6 +461,7 @@ export type Database = {
           id?: string
           inputs?: string[] | null
           method_slug: string
+          method_tags?: string[]
           order_index?: number
           outputs?: string[] | null
           phase_id: string
@@ -471,6 +476,7 @@ export type Database = {
           id?: string
           inputs?: string[] | null
           method_slug?: string
+          method_tags?: string[]
           order_index?: number
           outputs?: string[] | null
           phase_id?: string

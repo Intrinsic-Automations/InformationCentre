@@ -16,6 +16,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Plus, X } from "lucide-react";
 import type { LifecycleItem } from "@/hooks/useLifecycleItems";
 import { RoleMultiSelect } from "./RoleMultiSelect";
+import { MethodTagSelect } from "./MethodTagSelect";
 
 interface LifecycleItemFormDialogProps {
   open: boolean;
@@ -31,6 +32,7 @@ interface LifecycleItemFormDialogProps {
     responsible_role: string[];
     inputs: string[];
     outputs: string[];
+    method_tags: string[];
     phase_id: string;
     method_slug: string;
     order_index: number;
@@ -38,6 +40,7 @@ interface LifecycleItemFormDialogProps {
   onUpdate?: (data: { id: string } & Partial<LifecycleItem>) => void;
   isPending?: boolean;
   existingItemsCount: number;
+  defaultMethodTag?: string;
 }
 
 export function LifecycleItemFormDialog({
@@ -50,6 +53,7 @@ export function LifecycleItemFormDialog({
   onUpdate,
   isPending,
   existingItemsCount,
+  defaultMethodTag,
 }: LifecycleItemFormDialogProps) {
   const isEditing = !!item;
 
@@ -62,6 +66,7 @@ export function LifecycleItemFormDialog({
   const [outputs, setOutputs] = useState<string[]>(item?.outputs || []);
   const [newInput, setNewInput] = useState("");
   const [newOutput, setNewOutput] = useState("");
+  const [methodTags, setMethodTags] = useState<string[]>(item?.method_tags || (defaultMethodTag ? [defaultMethodTag] : []));
 
   const handleSubmit = () => {
     if (!title.trim()) return;
@@ -74,6 +79,7 @@ export function LifecycleItemFormDialog({
       responsible_role: responsibleRole,
       inputs,
       outputs,
+      method_tags: methodTags,
       phase_id: phaseId,
       method_slug: methodSlug,
       order_index: item?.order_index ?? existingItemsCount,
@@ -147,6 +153,12 @@ export function LifecycleItemFormDialog({
           <div className="flex items-center gap-2">
             <Switch checked={hasTemplate} onCheckedChange={setHasTemplate} />
             <Label>Has Template</Label>
+          </div>
+
+          <div>
+            <Label>Method Tags</Label>
+            <p className="text-xs text-muted-foreground mb-1">Tag which methods this applies to</p>
+            <MethodTagSelect value={methodTags} onChange={setMethodTags} />
           </div>
 
           {/* Inputs */}
