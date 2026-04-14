@@ -368,6 +368,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
                                     responsibleRole: mt.responsible_role || [],
                                     inputs: mt.inputs || [],
                                     outputs: mt.outputs || [],
+                                    methodTags: mt.method_tags || [],
                                   };
                                   setSelectedItem(timelineItem);
                                   setSelectedIsMeetingTask(true);
