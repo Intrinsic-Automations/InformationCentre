@@ -13,6 +13,7 @@ export interface LifecycleItem {
   responsible_role: string[];
   inputs: string[];
   outputs: string[];
+  method_tags: string[];
   order_index: number;
   created_at: string;
   updated_at: string;
@@ -29,6 +30,7 @@ export interface LifecycleMeetingTask {
   responsible_role: string[];
   inputs: string[];
   outputs: string[];
+  method_tags: string[];
   order_index: number;
   created_at: string;
   created_by: string | null;
