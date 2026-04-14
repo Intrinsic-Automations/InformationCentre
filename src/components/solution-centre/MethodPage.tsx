@@ -267,6 +267,28 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
             </div>
           </div>
 
+          {/* Method Filter */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-medium text-muted-foreground">Filter by Method:</span>
+            <Badge
+              variant={methodFilter === "all" ? "default" : "outline"}
+              className="cursor-pointer select-none"
+              onClick={() => setMethodFilter("all")}
+            >
+              All
+            </Badge>
+            {METHOD_TAGS.map((tag) => (
+              <Badge
+                key={tag}
+                variant={methodFilter === tag ? "default" : "outline"}
+                className="cursor-pointer select-none"
+                onClick={() => setMethodFilter(tag)}
+              >
+                {tag}
+              </Badge>
+            ))}
+          </div>
+
           {/* Timeline Header */}
           <div>
             <h2 className="text-lg font-semibold text-foreground">Project Lifecycle</h2>
