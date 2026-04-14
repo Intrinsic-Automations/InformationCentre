@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { FileText, User, ArrowDownToLine, ArrowUpFromLine, Package } from "lucide-react";
+import { FileText, User, ArrowDownToLine, ArrowUpFromLine, Package, Tags } from "lucide-react";
 import type { TimelineItem } from "./ExecutionTimelineData";
 import { useExecutionDocuments } from "@/hooks/useExecutionDocuments";
 import { DocumentUploadSection } from "./DocumentUploadSection";
@@ -75,6 +75,27 @@ export function ExecutionItemDetailDialog({ item, open, onOpenChange, hideDocume
               )}
             </div>
           </div>
+          {/* Method Tags */}
+          {item.methodTags && item.methodTags.length > 0 && (
+            <>
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
+                  <Tags className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold text-foreground">Method Tags</h4>
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {item.methodTags.map((tag, i) => (
+                      <Badge key={i} variant="outline" className="text-xs">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <Separator />
+            </>
+          )}
 
           <Separator />
 
