@@ -541,6 +541,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
           phaseId={activePhaseId}
           methodSlug={methodSlug}
           existingItemsCount={itemsByPhase(activePhaseId).length}
+          defaultMethodTag={defaultMethodTag}
           isPending={addItem.isPending || updateItem.isPending}
           onSave={(data) => {
             addItem.mutate(data, {
@@ -576,6 +577,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
           existingCount={meetingTasksByPhase(activeMeetingPhaseId).length}
           isPending={addMeetingTask.isPending || updateMeetingTask.isPending}
           item={editMeetingTask}
+          defaultMethodTag={defaultMethodTag}
           onSave={(data) => {
             addMeetingTask.mutate(data, {
               onSuccess: () => {
