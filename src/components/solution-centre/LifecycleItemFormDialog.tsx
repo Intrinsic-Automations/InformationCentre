@@ -155,6 +155,12 @@ export function LifecycleItemFormDialog({
             <Label>Has Template</Label>
           </div>
 
+          <div>
+            <Label>Method Tags</Label>
+            <p className="text-xs text-muted-foreground mb-1">Tag which methods this applies to</p>
+            <MethodTagSelect value={methodTags} onChange={setMethodTags} />
+          </div>
+
           {/* Inputs */}
           <div>
             <Label>Inputs</Label>
