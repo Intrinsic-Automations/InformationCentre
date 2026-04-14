@@ -298,8 +298,10 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
           <Accordion type="multiple" defaultValue={[]} className="space-y-3">
             {phases.map((phase) => {
               const PhaseIcon = phaseIcons[phase.id] || Target;
-              const phaseItems = itemsByPhase(phase.id);
-              const phaseMeetings = meetingTasksByPhase(phase.id);
+              const allPhaseItems = itemsByPhase(phase.id);
+              const allPhaseMeetings = meetingTasksByPhase(phase.id);
+              const phaseItems = methodFilter === "all" ? allPhaseItems : allPhaseItems.filter((i) => i.method_tags?.includes(methodFilter));
+              const phaseMeetings = methodFilter === "all" ? allPhaseMeetings : allPhaseMeetings.filter((m) => m.method_tags?.includes(methodFilter));
               const deliverableCount = phaseItems.filter((i) => i.is_deliverable).length;
 
               return (
