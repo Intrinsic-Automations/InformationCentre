@@ -37,6 +37,7 @@ import { LifecycleItemFormDialog } from "./LifecycleItemFormDialog";
 import { AddMeetingTaskDialog } from "./AddMeetingTaskDialog";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { METHOD_TAGS } from "./MethodTagSelect";
 import { useAuth } from "@/hooks/useAuth";
 import {
   Dialog,
@@ -66,6 +67,13 @@ const phases = [
   { id: "realise-implementation", title: "Realise / Implementation", color: "bg-orange-500", gate: { title: "Gate 4 Review", description: "Review and approval checkpoint before proceeding to Deploy/Exit phase." } },
   { id: "deploy-exit", title: "Deploy / Exit", color: "bg-emerald-500", gate: { title: "Gate 5 Review", description: "Final review and project closure approval." } },
 ];
+
+const SLUG_TO_TAG: Record<string, string> = {
+  migration: "Migration",
+  integration: "Integration",
+  "reporting-analytics": "R&A",
+  "product-installation": "Installation",
+};
 
 const phaseIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "discovery-plan": Target,
