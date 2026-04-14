@@ -121,7 +121,8 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
   const [feedbackEditOpen, setFeedbackEditOpen] = useState(false);
   const [feedbackEditUrl, setFeedbackEditUrl] = useState("");
   const { profile } = useAuth();
-
+  const defaultMethodTag = SLUG_TO_TAG[methodSlug] || "";
+  const [methodFilter, setMethodFilter] = useState<string>("all");
   useEffect(() => {
     const fetchFeedbackUrl = async () => {
       const { data } = await supabase
