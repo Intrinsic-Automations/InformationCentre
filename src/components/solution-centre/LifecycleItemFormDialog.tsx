@@ -32,6 +32,7 @@ interface LifecycleItemFormDialogProps {
     responsible_role: string[];
     inputs: string[];
     outputs: string[];
+    method_tags: string[];
     phase_id: string;
     method_slug: string;
     order_index: number;
@@ -39,6 +40,7 @@ interface LifecycleItemFormDialogProps {
   onUpdate?: (data: { id: string } & Partial<LifecycleItem>) => void;
   isPending?: boolean;
   existingItemsCount: number;
+  defaultMethodTag?: string;
 }
 
 export function LifecycleItemFormDialog({
@@ -51,6 +53,7 @@ export function LifecycleItemFormDialog({
   onUpdate,
   isPending,
   existingItemsCount,
+  defaultMethodTag,
 }: LifecycleItemFormDialogProps) {
   const isEditing = !!item;
 
