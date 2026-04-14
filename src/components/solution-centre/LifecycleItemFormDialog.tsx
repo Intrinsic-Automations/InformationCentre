@@ -66,6 +66,7 @@ export function LifecycleItemFormDialog({
   const [outputs, setOutputs] = useState<string[]>(item?.outputs || []);
   const [newInput, setNewInput] = useState("");
   const [newOutput, setNewOutput] = useState("");
+  const [methodTags, setMethodTags] = useState<string[]>(item?.method_tags || (defaultMethodTag ? [defaultMethodTag] : []));
 
   const handleSubmit = () => {
     if (!title.trim()) return;
@@ -78,6 +79,7 @@ export function LifecycleItemFormDialog({
       responsible_role: responsibleRole,
       inputs,
       outputs,
+      method_tags: methodTags,
       phase_id: phaseId,
       method_slug: methodSlug,
       order_index: item?.order_index ?? existingItemsCount,
