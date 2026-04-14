@@ -171,6 +171,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
       responsibleRole: item.responsible_role || [],
       inputs: item.inputs || [],
       outputs: item.outputs || [],
+      methodTags: item.method_tags || [],
     };
     setSelectedItem(timelineItem);
     setSelectedIsMeetingTask(false);
