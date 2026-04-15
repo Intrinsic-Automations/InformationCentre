@@ -122,7 +122,7 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
   const [feedbackEditUrl, setFeedbackEditUrl] = useState("");
   const { profile } = useAuth();
   const defaultMethodTag = SLUG_TO_TAG[methodSlug] || "";
-  const [methodFilter, setMethodFilter] = useState<string>("all");
+  const [methodFilters, setMethodFilters] = useState<string[]>([]);
   useEffect(() => {
     const fetchFeedbackUrl = async () => {
       const { data } = await supabase
@@ -272,22 +272,29 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs font-medium text-muted-foreground">Filter by Method:</span>
             <Badge
-              variant={methodFilter === "all" ? "default" : "outline"}
+              variant={methodFilters.length === 0 ? "default" : "outline"}
               className="cursor-pointer select-none"
-              onClick={() => setMethodFilter("all")}
+              onClick={() => setMethodFilters([])}
             >
               All
             </Badge>
-            {METHOD_TAGS.map((tag) => (
-              <Badge
-                key={tag}
-                variant={methodFilter === tag ? "default" : "outline"}
-                className="cursor-pointer select-none"
-                onClick={() => setMethodFilter(tag)}
-              >
-                {tag}
-              </Badge>
-            ))}
+            {METHOD_TAGS.map((tag) => {
+              const active = methodFilters.includes(tag);
+              return (
+                <Badge
+                  key={tag}
+                  variant={active ? "default" : "outline"}
+                  className="cursor-pointer select-none"
+                  onClick={() =>
+                    setMethodFilters((prev) =>
+                      active ? prev.filter((t) => t !== tag) : [...prev, tag]
+                    )
+                  }
+                >
+                  {tag}
+                </Badge>
+              );
+            })}
           </div>
 
           {/* Timeline Header */}
@@ -301,8 +308,8 @@ export function MethodPage({ methodSlug, title, heroImage, icon: Icon }: MethodP
               const PhaseIcon = phaseIcons[phase.id] || Target;
               const allPhaseItems = itemsByPhase(phase.id);
               const allPhaseMeetings = meetingTasksByPhase(phase.id);
-              const phaseItems = methodFilter === "all" ? allPhaseItems : allPhaseItems.filter((i) => i.method_tags?.includes(methodFilter));
-              const phaseMeetings = methodFilter === "all" ? allPhaseMeetings : allPhaseMeetings.filter((m) => m.method_tags?.includes(methodFilter));
+              const phaseItems = methodFilters.length === 0 ? allPhaseItems : allPhaseItems.filter((i) => methodFilters.some((f) => i.method_tags?.includes(f)));
+              const phaseMeetings = methodFilters.length === 0 ? allPhaseMeetings : allPhaseMeetings.filter((m) => methodFilters.some((f) => m.method_tags?.includes(f)));
               const deliverableCount = phaseItems.filter((i) => i.is_deliverable).length;
 
               return (
